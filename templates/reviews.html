@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block title %}Reviews - CohabitAI{% endblock %}
+
+{% block content %}
+<section class="py-5" style="margin-top:70px;">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Write Review -->
+            <div class="col-lg-5">
+                <div class="glass-card p-4 sticky-top" style="top:90px;">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-pencil-square text-accent me-2"></i>Write a Review</h5>
+                    <form method="POST" action="{{ url_for('submit_review') }}">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Who are you reviewing?</label>
+                            <select name="reviewed_id" class="form-select glass-input" required>
+                                <option value="">Select a user...</option>
+                                {% for u in all_users %}
+                                {% if u.id != current_user.id %}
+                                <option value="{{ u.id }}" {{ 'selected' if request.args.get('user_id')|int == u.id }}>{{ u.full_name }}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Overall Rating *</label>
+                            <div class="star-rating" id="overallStars">
+                                {% for i in range(1, 6) %}
+                                <i class="bi bi-star star-btn fs-4" data-value="{{ i }}" onclick="setRating('overall', {{ i }})"></i>
+                                {% endfor %}
+                            </div>
+                            <input type="hidden" name="overall_rating" id="overall_rating" required>
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="form-label small">Cleanliness</label>
+                                <select name="cleanliness_rating" class="form-select glass-input form-select-sm">
+                                    <option value="">-</option>
+                                    {% for i in range(1,6) %}<option value="{{ i }}">{{ i }} ⭐</option>{% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small">Communication</label>
+                                <select name="communication_rating" class="form-select glass-input form-select-sm">
+                                    <option value="">-</option>
+                                    {% for i in range(1,6) %}<option value="{{ i }}">{{ i }} ⭐</option>{% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small">Respect</label>
+                                <select name="respect_rating" class="form-select glass-input form-select-sm">
+                                    <option value="">-</option>
+                                    {% for i in range(1,6) %}<option value="{{ i }}">{{ i }} ⭐</option>{% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small">Reliability</label>
+                                <select name="reliability_rating" class="form-select glass-input form-select-sm">
+                                    <option value="">-</option>
+                                    {% for i in range(1,6) %}<option value="{{ i }}">{{ i }} ⭐</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small">Duration (months)</label>
+                            <input type="number" name="duration_months" class="form-control glass-input form-control-sm" min="1" placeholder="How long did you live together?">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small">Comments</label>
+                            <textarea name="comment" class="form-control glass-input" rows="3" placeholder="Share your experience..."></textarea>
+                        </div>
+
+                        <div class="mb-3 form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="would_recommend" checked>
+                            <label class="form-check-label">Would you recommend this person?</label>
+                        </div>
+
+                        <button type="submit" class="btn btn-accent w-100">
+                            <i class="bi bi-send me-1"></i>Submit Review
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Recent Reviews -->
+            <div class="col-lg-7">
+                <h5 class="fw-bold mb-3"><i class="bi bi-star-fill text-warning me-2"></i>Recent Reviews</h5>
+
+                {% if reviews %}
+                {% for review in reviews %}
+                <div class="glass-card p-4 mb-3">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="avatar-circle-sm bg-{{ ['primary','info','success','warning','danger'][loop.index0 % 5] }}">
+                                {{ review.reviewer.full_name[:2]|upper }}
+                            </div>
+                            <div>
+                                <strong>{{ review.reviewer.full_name }}</strong>
+                                <span class="text-muted mx-1">→</span>
+                                <a href="{{ url_for('profile_view', user_id=review.reviewed_id) }}" class="text-accent">{{ review.reviewed.full_name }}</a>
+                                <br><small class="text-muted">{{ review.created_at.strftime('%B %d, %Y') }}{% if review.duration_months %} · {{ review.duration_months }} months together{% endif %}</small>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <span class="text-warning fs-5">
+                                {% for i in range(review.overall_rating|int) %}⭐{% endfor %}
+                            </span>
+                            {% if review.would_recommend %}
+                            <br><span class="badge bg-success bg-opacity-25 text-success small">👍 Recommends</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if review.comment %}
+                    <p class="mb-2">{{ review.comment }}</p>
+                    {% endif %}
+
+                    <div class="d-flex flex-wrap gap-2">
+                        {% if review.cleanliness_rating %}
+                        <span class="badge bg-secondary bg-opacity-25">🧹 Clean: {{ review.cleanliness_rating|int }}/5</span>
+                        {% endif %}
+                        {% if review.communication_rating %}
+                        <span class="badge bg-secondary bg-opacity-25">💬 Comm: {{ review.communication_rating|int }}/5</span>
+                        {% endif %}
+                        {% if review.respect_rating %}
+                        <span class="badge bg-secondary bg-opacity-25">🤝 Respect: {{ review.respect_rating|int }}/5</span>
+                        {% endif %}
+                        {% if review.reliability_rating %}
+                        <span class="badge bg-secondary bg-opacity-25">⏰ Reliable: {{ review.reliability_rating|int }}/5</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="glass-card p-5 text-center">
+                    <i class="bi bi-star display-1 text-muted"></i>
+                    <h5 class="mt-3">No reviews yet</h5>
+                    <p class="text-muted">Be the first to write a review!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function setRating(field, value) {
+    document.getElementById(field + '_rating').value = value;
+    const stars = document.querySelectorAll(`#${field}Stars .star-btn`);
+    stars.forEach((star, i) => {
+        star.classList.toggle('bi-star-fill', i < value);
+        star.classList.toggle('bi-star', i >= value);
+        star.classList.toggle('text-warning', i < value);
+    });
+}
+</script>
+{% endblock %}

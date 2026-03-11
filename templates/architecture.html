@@ -1,0 +1,1261 @@
+{% extends "base.html" %}
+{% block title %}CohabitAI - System Architecture{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Architecture Page Styles ── */
+.arch-hero {
+    padding: 120px 0 60px;
+    background: linear-gradient(165deg, rgba(99,102,241,.06) 0%, transparent 50%, rgba(34,211,238,.04) 100%);
+    position: relative;
+    overflow: hidden;
+}
+.arch-hero::before {
+    content: '';
+    position: absolute;
+    top: -150px; right: -150px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(99,102,241,.08), transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+.arch-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -100px; left: -100px;
+    width: 350px; height: 350px;
+    background: radial-gradient(circle, rgba(34,211,238,.06), transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+/* Phase cards */
+.phase-card {
+    position: relative;
+    border-left: 3px solid var(--accent);
+    background: var(--bg-card);
+    border-radius: 0 16px 16px 0;
+    backdrop-filter: blur(12px);
+    transition: all .35s ease;
+}
+.phase-card:hover {
+    transform: translateX(6px);
+    border-left-color: var(--accent-hover);
+    background: var(--bg-card-hover);
+    box-shadow: -4px 0 24px rgba(99,102,241,.12);
+}
+.phase-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    background: rgba(99,102,241,.15);
+    color: var(--accent);
+    font-weight: 800;
+    font-size: .95rem;
+    flex-shrink: 0;
+}
+.phase-icon {
+    font-size: 1.5rem;
+    color: var(--accent);
+}
+
+/* Formula block */
+.formula-block {
+    background: rgba(99,102,241,.06);
+    border: 1px solid rgba(99,102,241,.15);
+    border-radius: 12px;
+    padding: 20px 24px;
+    font-family: 'Courier New', monospace;
+    font-size: .95rem;
+    color: #c4b5fd;
+    position: relative;
+    overflow: hidden;
+}
+.formula-block::before {
+    content: 'FORMULA';
+    position: absolute;
+    top: 6px; right: 12px;
+    font-size: .6rem;
+    color: rgba(99,102,241,.4);
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 2px;
+}
+.formula-block .formula-main {
+    font-size: 1.1rem;
+    color: #a5b4fc;
+}
+
+/* Code block */
+.arch-code {
+    background: rgba(0,0,0,.35);
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-family: 'Courier New', monospace;
+    font-size: .82rem;
+    color: #94a3b8;
+    line-height: 1.7;
+    white-space: pre;
+    overflow-x: auto;
+}
+.arch-code .code-keyword { color: #c084fc; }
+.arch-code .code-comment { color: #475569; font-style: italic; }
+.arch-code .code-file    { color: #22d3ee; }
+.arch-code .code-func    { color: #a5b4fc; }
+
+/* Architecture diagram */
+.arch-diagram {
+    position: relative;
+    padding: 0 20px;
+}
+.diagram-layer {
+    text-align: center;
+    padding: 18px 24px;
+    border-radius: 14px;
+    margin: 0 auto;
+    max-width: 400px;
+    position: relative;
+    transition: all .3s ease;
+}
+.diagram-layer:hover {
+    transform: scale(1.03);
+}
+.diagram-arrow {
+    text-align: center;
+    color: var(--accent);
+    font-size: 1.6rem;
+    padding: 4px 0;
+    opacity: .5;
+}
+.layer-frontend  { background: linear-gradient(135deg, rgba(99,102,241,.12), rgba(99,102,241,.04)); border: 1px solid rgba(99,102,241,.2); }
+.layer-api       { background: linear-gradient(135deg, rgba(34,211,238,.12), rgba(34,211,238,.04)); border: 1px solid rgba(34,211,238,.2); }
+.layer-services  { background: linear-gradient(135deg, rgba(168,85,247,.12), rgba(168,85,247,.04)); border: 1px solid rgba(168,85,247,.2); }
+.layer-ml        { background: linear-gradient(135deg, rgba(244,63,94,.12), rgba(244,63,94,.04)); border: 1px solid rgba(244,63,94,.2); }
+.layer-repo      { background: linear-gradient(135deg, rgba(234,179,8,.12), rgba(234,179,8,.04)); border: 1px solid rgba(234,179,8,.2); }
+.layer-db        { background: linear-gradient(135deg, rgba(34,197,94,.12), rgba(34,197,94,.04)); border: 1px solid rgba(34,197,94,.2); }
+
+.layer-frontend .layer-label { color: #818cf8; }
+.layer-api .layer-label      { color: #22d3ee; }
+.layer-services .layer-label { color: #a855f7; }
+.layer-ml .layer-label       { color: #f43f5e; }
+.layer-repo .layer-label     { color: #eab308; }
+.layer-db .layer-label       { color: #22c55e; }
+
+.layer-label {
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: .02em;
+}
+.layer-sub {
+    font-size: .75rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+/* Services branching */
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+.service-node {
+    text-align: center;
+    padding: 12px 10px;
+    border-radius: 10px;
+    background: rgba(168,85,247,.06);
+    border: 1px solid rgba(168,85,247,.15);
+    font-size: .8rem;
+    color: #c084fc;
+    font-weight: 600;
+}
+
+/* Creation flow stepper */
+.creation-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    position: relative;
+}
+.creation-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 42px;
+    width: 2px;
+    height: calc(100% - 22px);
+    background: rgba(99,102,241,.15);
+}
+.step-num {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: rgba(99,102,241,.1);
+    border: 2px solid rgba(99,102,241,.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: .85rem;
+    color: var(--accent);
+    flex-shrink: 0;
+    z-index: 1;
+}
+.step-info h6 {
+    margin-bottom: 2px;
+    font-weight: 600;
+}
+.step-info p {
+    margin: 0;
+    font-size: .82rem;
+    color: var(--text-muted);
+}
+
+/* Vector table */
+.vector-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+.vector-table th {
+    background: rgba(99,102,241,.1);
+    color: var(--accent);
+    padding: 10px 16px;
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid rgba(99,102,241,.12);
+}
+.vector-table td {
+    padding: 10px 16px;
+    font-size: .85rem;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+    color: var(--text-primary);
+}
+.vector-table tr:hover td {
+    background: rgba(99,102,241,.04);
+}
+.vector-table .mono {
+    font-family: 'Courier New', monospace;
+    color: #22d3ee;
+}
+.vector-table .dim {
+    color: var(--text-muted);
+    font-size: .78rem;
+}
+
+/* Feature pill */
+.feat-pill {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .5px;
+}
+.pill-lifestyle   { background: rgba(34,211,238,.1); color: #22d3ee; border: 1px solid rgba(34,211,238,.2); }
+.pill-personality  { background: rgba(168,85,247,.1); color: #a855f7; border: 1px solid rgba(168,85,247,.2); }
+.pill-constraints  { background: rgba(244,63,94,.1); color: #f43f5e; border: 1px solid rgba(244,63,94,.2); }
+
+/* Data gen section */
+.data-stat {
+    text-align: center;
+    padding: 20px;
+    border-radius: 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    transition: all .3s ease;
+}
+.data-stat:hover {
+    background: var(--bg-card-hover);
+    transform: translateY(-3px);
+}
+.data-stat .stat-value {
+    font-size: 2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), #22d3ee);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.data-stat .stat-label {
+    font-size: .78rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+/* District mini map */
+.district-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.district-chip {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: .7rem;
+    background: rgba(34,197,94,.06);
+    border: 1px solid rgba(34,197,94,.15);
+    color: #4ade80;
+    font-weight: 500;
+}
+
+/* Page nav dots */
+.arch-page-nav {
+    position: fixed;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 1000;
+}
+.arch-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.15);
+    border: 1px solid rgba(255,255,255,.1);
+    cursor: pointer;
+    transition: all .3s;
+    position: relative;
+}
+.arch-dot:hover, .arch-dot.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 0 8px var(--accent-glow);
+}
+.arch-dot .dot-label {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    white-space: nowrap;
+    font-size: .7rem;
+    color: var(--text-muted);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s;
+}
+.arch-dot:hover .dot-label {
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    .arch-page-nav { display: none; }
+    .services-grid { grid-template-columns: 1fr; }
+    .formula-block { font-size: .8rem; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Side dots nav -->
+<nav class="arch-page-nav d-none d-lg-flex">
+    <div class="arch-dot active" data-target="arch-hero"><span class="dot-label">Overview</span></div>
+    <div class="arch-dot" data-target="phase-math"><span class="dot-label">Math Model</span></div>
+    <div class="arch-dot" data-target="phase-db"><span class="dot-label">Database</span></div>
+    <div class="arch-dot" data-target="phase-ml"><span class="dot-label">ML Engine</span></div>
+    <div class="arch-dot" data-target="phase-services"><span class="dot-label">Services</span></div>
+    <div class="arch-dot" data-target="phase-api"><span class="dot-label">API Layer</span></div>
+    <div class="arch-dot" data-target="phase-geo"><span class="dot-label">Geo Filter</span></div>
+    <div class="arch-dot" data-target="phase-compare"><span class="dot-label">Compare</span></div>
+    <div class="arch-dot" data-target="phase-chat"><span class="dot-label">Chat</span></div>
+    <div class="arch-dot" data-target="arch-diagram-section"><span class="dot-label">Architecture</span></div>
+    <div class="arch-dot" data-target="creation-flow"><span class="dot-label">Creation Flow</span></div>
+    <div class="arch-dot" data-target="data-synthesis"><span class="dot-label">Data Synthesis</span></div>
+</nav>
+
+<!-- ═══════════════════════════════════════
+     HERO — Architecture Overview
+     ═══════════════════════════════════════ -->
+<section class="arch-hero" id="arch-hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-7 scroll-reveal">
+                <span class="badge bg-accent bg-opacity-10 text-accent px-3 py-2 rounded-pill mb-3">
+                    <i class="bi bi-diagram-3 me-1"></i> System Architecture
+                </span>
+                <h1 class="display-4 fw-800 mb-3">
+                    How We Built <span class="text-accent text-glow">CohabitAI</span>
+                </h1>
+                <p class="lead text-muted mb-4">
+                    An 8-phase engineering workflow — from mathematical foundations to a production-ready 
+                    AI-driven roommate matching platform. Explore the ML-Core architecture, weighted similarity 
+                    engine, and clean service layer that powers every match.
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="#phase-math" class="btn btn-accent px-4 btn-glow">
+                        <i class="bi bi-arrow-down-circle me-2"></i>Explore Phases
+                    </a>
+                    <a href="#arch-diagram-section" class="btn btn-outline-light px-4">
+                        <i class="bi bi-diagram-3 me-2"></i>View Diagram
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block scroll-reveal" style="transition-delay:.2s;">
+                <div class="formula-block">
+                    <div class="mb-2" style="font-size:.7rem;color:#64748b;font-family:'Inter',sans-serif;">PERSONA SPACE MODEL</div>
+                    <div class="formula-main mb-3">P = [ L | C | R ]</div>
+                    <div style="font-size:.8rem;color:#94a3b8;">
+                        <span style="color:#22d3ee;">L</span> → Lifestyle features<br>
+                        <span style="color:#a855f7;">C</span> → Personality features<br>
+                        <span style="color:#f43f5e;">R</span> → Constraints / Preferences
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     PHASE 1 — Math & Data Modeling
+     ═══════════════════════════════════════ -->
+<section class="py-5" id="phase-math">
+    <div class="container">
+        <div class="phase-card p-4 mb-4 scroll-reveal">
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="phase-number">1</div>
+                <div>
+                    <small class="text-muted text-uppercase" style="letter-spacing:2px;font-size:.65rem;">Phase 1</small>
+                    <h3 class="fw-bold mb-0"><i class="bi bi-calculator me-2 phase-icon"></i>Mathematical & Data Modeling Foundation</h3>
+                </div>
+            </div>
+            <p class="text-muted mb-4">Design the system brain before building the system body. Define the persona space, feature encoding, and the similarity function that powers every match.</p>
+
+            <!-- Feature Vector Table -->
+            <h5 class="fw-bold mb-3 scroll-reveal"><i class="bi bi-table me-2 text-accent"></i>Feature Vector Structure</h5>
+            <div class="table-responsive mb-4 scroll-reveal">
+                <table class="vector-table">
+                    <thead>
+                        <tr>
+                            <th>Index</th>
+                            <th>Feature</th>
+                            <th>Domain</th>
+                            <th>Category</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="mono">0</td><td>sleep_time</td><td class="dim">0 (Early) / 1 (Late)</td><td><span class="feat-pill pill-lifestyle">Lifestyle</span></td></tr>
+                        <tr><td class="mono">1</td><td>cleanliness_rating</td><td class="dim">1–5 normalized</td><td><span class="feat-pill pill-lifestyle">Lifestyle</span></td></tr>
+                        <tr><td class="mono">2</td><td>noise_tolerance</td><td class="dim">1–5 normalized</td><td><span class="feat-pill pill-lifestyle">Lifestyle</span></td></tr>
+                        <tr><td class="mono">3</td><td>introversion_score</td><td class="dim">1–5 normalized</td><td><span class="feat-pill pill-personality">Personality</span></td></tr>
+                        <tr><td class="mono">4</td><td>smoking_tolerance</td><td class="dim">0 / 1</td><td><span class="feat-pill pill-constraints">Constraint</span></td></tr>
+                        <tr><td class="mono">5</td><td>pets_allowed</td><td class="dim">0 / 1</td><td><span class="feat-pill pill-constraints">Constraint</span></td></tr>
+                        <tr><td class="mono">6</td><td>cooking_frequency</td><td class="dim">1–5 normalized</td><td><span class="feat-pill pill-lifestyle">Lifestyle</span></td></tr>
+                        <tr><td class="mono">7</td><td>guest_frequency</td><td class="dim">1–5 normalized</td><td><span class="feat-pill pill-lifestyle">Lifestyle</span></td></tr>
+                        <tr><td class="mono">8</td><td>communication_style</td><td class="dim">1–5 normalized</td><td><span class="feat-pill pill-personality">Personality</span></td></tr>
+                        <tr><td class="mono">9</td><td>social_battery</td><td class="dim">1–5 normalized</td><td><span class="feat-pill pill-personality">Personality</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Similarity Formula -->
+            <h5 class="fw-bold mb-3 scroll-reveal"><i class="bi bi-calculator me-2 text-accent"></i>Weighted Cosine Similarity</h5>
+            <div class="formula-block mb-3 scroll-reveal">
+                <div class="formula-main mb-2">
+S(A, B) = Σ( w<sub>i</sub> · P<sub>i,A</sub> · P<sub>i,B</sub> ) / √( Σ( w<sub>i</sub> · P<sub>i,A</sub>² ) · Σ( w<sub>i</sub> · P<sub>i,B</sub>² ) )
+                </div>
+                <div style="font-size:.8rem;color:#94a3b8;margin-top:8px;">
+                    Where <span style="color:#22d3ee;">w<sub>i</sub></span> = importance weight for dimension i,
+                    <span style="color:#a855f7;">P<sub>i</sub></span> = encoded feature value
+                </div>
+            </div>
+            <div class="row g-3 scroll-reveal">
+                <div class="col-md-4">
+                    <div class="glass-card p-3 text-center h-100">
+                        <i class="bi bi-input-cursor-text text-accent fs-4 d-block mb-2"></i>
+                        <strong class="d-block" style="font-size:.85rem;">Input</strong>
+                        <small class="text-muted">Two user feature vectors + weight vector</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="glass-card p-3 text-center h-100">
+                        <i class="bi bi-cpu text-accent fs-4 d-block mb-2"></i>
+                        <strong class="d-block" style="font-size:.85rem;">Process</strong>
+                        <small class="text-muted">Weighted dot product / magnitude product</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="glass-card p-3 text-center h-100">
+                        <i class="bi bi-percent text-accent fs-4 d-block mb-2"></i>
+                        <strong class="d-block" style="font-size:.85rem;">Output</strong>
+                        <small class="text-muted">Compatibility score 0–100% + ranked list</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     PHASE 2 — Database Design
+     ═══════════════════════════════════════ -->
+<section class="py-5" id="phase-db">
+    <div class="container">
+        <div class="phase-card p-4 scroll-reveal">
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="phase-number">2</div>
+                <div>
+                    <small class="text-muted text-uppercase" style="letter-spacing:2px;font-size:.65rem;">Phase 2</small>
+                    <h3 class="fw-bold mb-0"><i class="bi bi-database me-2 phase-icon"></i>Database Design (Model-Driven)</h3>
+                </div>
+            </div>
+            <p class="text-muted mb-4">Build the database schema based on ML needs. Store raw persona data, compute vectors dynamically — never store precomputed compatibility scores.</p>
+
+            <div class="row g-4">
+                <div class="col-md-6 scroll-reveal">
+                    <h6 class="fw-bold text-accent mb-3"><i class="bi bi-collection me-2"></i>User Schema</h6>
+                    <div class="arch-code">
+<span class="code-comment">// User Document</span>
+{
+  <span class="code-keyword">"profile"</span>: {
+    name, age, gender, occupation, bio
+  },
+  <span class="code-keyword">"location"</span>: {
+    type: <span class="code-file">"Point"</span>,
+    coordinates: [lon, lat],
+    area_name: <span class="code-file">"district"</span>
+  },
+  <span class="code-keyword">"preferences"</span>: {
+    budget, gender_pref, smoking,
+    pets_allowed, veg_nonveg
+  },
+  <span class="code-keyword">"persona_raw"</span>: {
+    sleep_time, cleanliness_rating,
+    noise_tolerance, introversion_score,
+    cooking_freq, guest_freq, ...
+  },
+  <span class="code-func">feature_vector</span>: <span class="code-comment">// computed dynamically</span>
+}</div>
+                </div>
+                <div class="col-md-6 scroll-reveal" style="transition-delay:.1s;">
+                    <h6 class="fw-bold text-accent mb-3"><i class="bi bi-lightning me-2"></i>Design Principles</h6>
+                    <div class="d-flex flex-column gap-3">
+                        <div class="glass-card p-3">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <i class="bi bi-check-circle-fill text-success"></i>
+                                <strong style="font-size:.85rem;">Store raw persona data</strong>
+                            </div>
+                            <small class="text-muted">Keep original values for re-encoding flexibility</small>
+                        </div>
+                        <div class="glass-card p-3">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <i class="bi bi-check-circle-fill text-success"></i>
+                                <strong style="font-size:.85rem;">Compute vectors dynamically</strong>
+                            </div>
+                            <small class="text-muted">Allows weight tuning without data migration</small>
+                        </div>
+                        <div class="glass-card p-3">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <i class="bi bi-x-circle-fill text-danger"></i>
+                                <strong style="font-size:.85rem;">Never store compatibility scores</strong>
+                            </div>
+                            <small class="text-muted">Scores are O(n²) and stale on any profile update</small>
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold text-accent mt-4 mb-3"><i class="bi bi-search me-2"></i>Indexes</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="feat-pill pill-lifestyle"><i class="bi bi-geo-alt me-1"></i>location → 2dsphere</span>
+                        <span class="feat-pill pill-personality"><i class="bi bi-currency-rupee me-1"></i>budget</span>
+                        <span class="feat-pill pill-constraints"><i class="bi bi-person me-1"></i>gender</span>
+                        <span class="feat-pill pill-lifestyle"><i class="bi bi-hash me-1"></i>_id (hashed)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     PHASE 3 — ML Engine
+     ═══════════════════════════════════════ -->
+<section class="py-5" id="phase-ml">
+    <div class="container">
+        <div class="phase-card p-4 scroll-reveal">
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="phase-number">3</div>
+                <div>
+                    <small class="text-muted text-uppercase" style="letter-spacing:2px;font-size:.65rem;">Phase 3</small>
+                    <h3 class="fw-bold mb-0"><i class="bi bi-gear me-2 phase-icon"></i>Offline ML Engine Development</h3>
+                </div>
+            </div>
+            <p class="text-muted mb-4">Build and validate the ML engine independently before integrating it into the application.</p>
+
+            <div class="row g-4">
+                <div class="col-md-5 scroll-reveal">
+                    <h6 class="fw-bold text-accent mb-3"><i class="bi bi-folder me-2"></i>ML Engine Structure</h6>
+                    <div class="arch-code">
+<span class="code-keyword">/ml_engine</span>
+  ├── <span class="code-file">encoder.py</span>
+  │   <span class="code-comment">// persona_raw → feature_vector</span>
+  ├── <span class="code-file">similarity.py</span>
+  │   <span class="code-comment">// weighted cosine similarity</span>
+  ├── <span class="code-file">weights.py</span>
+  │   <span class="code-comment">// FEATURE_WEIGHTS configuration</span>
+  └── <span class="code-file">validator.py</span>
+      <span class="code-comment">// ranking validation tests</span></div>
+                </div>
+                <div class="col-md-7 scroll-reveal" style="transition-delay:.1s;">
+                    <h6 class="fw-bold text-accent mb-3"><i class="bi bi-list-check me-2"></i>Development Tasks</h6>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="glass-card p-3 h-100">
+                                <i class="bi bi-arrow-right-circle text-accent me-2"></i>
+                                <strong style="font-size:.82rem;">Encode persona_raw</strong>
+                                <p class="text-muted mb-0 mt-1" style="font-size:.75rem;">Transform raw attributes into normalized feature vectors</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="glass-card p-3 h-100">
+                                <i class="bi bi-sliders text-accent me-2"></i>
+                                <strong style="font-size:.82rem;">Normalize features</strong>
+                                <p class="text-muted mb-0 mt-1" style="font-size:.75rem;">Scale all dimensions to [0,1] range for fair comparison</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="glass-card p-3 h-100">
+                                <i class="bi bi-calculator text-accent me-2"></i>
+                                <strong style="font-size:.82rem;">Implement similarity</strong>
+                                <p class="text-muted mb-0 mt-1" style="font-size:.75rem;">Weighted cosine sim with configurable weight vector</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="glass-card p-3 h-100">
+                                <i class="bi bi-bug text-accent me-2"></i>
+                                <strong style="font-size:.82rem;">Validate & test</strong>
+                                <p class="text-muted mb-0 mt-1" style="font-size:.75rem;">Unit tests with synthetic dataset, verify ranking logic</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold text-accent mt-4 mb-3"><i class="bi bi-speedometer2 me-2"></i>Weight Configuration</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2">sleep: 5.0</span>
+                        <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2">clean: 5.0</span>
+                        <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-2">noise: 4.0</span>
+                        <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-2">intro: 3.5</span>
+                        <span class="badge bg-info bg-opacity-10 text-info px-3 py-2">cook: 2.0</span>
+                        <span class="badge bg-info bg-opacity-10 text-info px-3 py-2">guest: 2.5</span>
+                        <span class="badge bg-success bg-opacity-10 text-success px-3 py-2">comm: 2.0</span>
+                        <span class="badge bg-success bg-opacity-10 text-success px-3 py-2">social: 3.0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     PHASE 4 — Service Layer
+     ═══════════════════════════════════════ -->
+<section class="py-5" id="phase-services">
+    <div class="container">
+        <div class="phase-card p-4 scroll-reveal">
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="phase-number">4</div>
+                <div>
+                    <small class="text-muted text-uppercase" style="letter-spacing:2px;font-size:.65rem;">Phase 4</small>
+                    <h3 class="fw-bold mb-0"><i class="bi bi-layers me-2 phase-icon"></i>Service Layer Architecture</h3>
+                </div>
+            </div>
+            <p class="text-muted mb-4">Wrap ML logic in clean, decoupled service modules. Each service handles a single responsibility.</p>
+
+            <div class="row g-4">
+                <div class="col-md-4 scroll-reveal">
+                    <div class="glass-card p-4 h-100 text-center">
+                        <i class="bi bi-heart-pulse fs-2 d-block mb-3" style="color:#f43f5e;"></i>
+                        <h5 class="fw-bold">Matchmaking Service</h5>
+                        <small class="text-muted">Core matching pipeline — fetch, encode, compute, rank, return sorted.</small>
+                        <div class="arch-code text-start mt-3" style="font-size:.72rem;">
+1. Fetch current user
+2. Encode feature vector
+3. Fetch candidate users
+4. Encode their vectors
+5. Compute similarity
+6. Rank results
+7. Return sorted list</div>
+                    </div>
+                </div>
+                <div class="col-md-4 scroll-reveal" style="transition-delay:.1s;">
+                    <div class="glass-card p-4 h-100 text-center">
+                        <i class="bi bi-arrows-angle-expand fs-2 d-block mb-3" style="color:#a855f7;"></i>
+                        <h5 class="fw-bold">Compare Service</h5>
+                        <small class="text-muted">Side-by-side differential analysis with transparency metrics.</small>
+                        <div class="formula-block mt-3" style="font-size:.82rem;padding:12px;">
+                            <div style="font-family:'Inter',sans-serif;font-size:.65rem;color:#64748b;">DIFFERENTIAL</div>
+                            Δ<sub>i</sub> = w<sub>i</sub> · (P<sub>i,A</sub> − P<sub>i,B</sub>)
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 scroll-reveal" style="transition-delay:.2s;">
+                    <div class="glass-card p-4 h-100 text-center">
+                        <i class="bi bi-chat-square-text fs-2 d-block mb-3" style="color:#22d3ee;"></i>
+                        <h5 class="fw-bold">Chat Service</h5>
+                        <small class="text-muted">Independent module. No ML coupling. Triggered after match selection.</small>
+                        <div class="d-flex flex-column gap-2 mt-3 text-start">
+                            <span class="badge bg-secondary bg-opacity-10 py-2"><i class="bi bi-chat-left-text me-2"></i>Intent Detection</span>
+                            <span class="badge bg-secondary bg-opacity-10 py-2"><i class="bi bi-reply me-2"></i>Response Templates</span>
+                            <span class="badge bg-secondary bg-opacity-10 py-2"><i class="bi bi-shield-check me-2"></i>Conflict Prompts</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     PHASE 5 — API Layer
+     ═══════════════════════════════════════ -->
+<section class="py-5" id="phase-api">
+    <div class="container">
+        <div class="phase-card p-4 scroll-reveal">
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="phase-number">5</div>
+                <div>
+                    <small class="text-muted text-uppercase" style="letter-spacing:2px;font-size:.65rem;">Phase 5</small>
+                    <h3 class="fw-bold mb-0"><i class="bi bi-plug me-2 phase-icon"></i>API Layer (Clean Separation)</h3>
+                </div>
+            </div>
+            <p class="text-muted mb-4">Create clean REST endpoints. API validates input, calls service layer, returns structured JSON — never contains ML math.</p>
+
+            <div class="row g-3">
+                <div class="col-md-6 col-lg-4 scroll-reveal">
+                    <div class="glass-card p-3 h-100">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="badge bg-success">POST</span>
+                            <code style="color:#22d3ee;font-size:.82rem;">/create-user</code>
+                        </div>
+                        <small class="text-muted">Register new user with full profile data</small>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4 scroll-reveal" style="transition-delay:.05s;">
+                    <div class="glass-card p-3 h-100">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="badge bg-primary">GET</span>
+                            <code style="color:#22d3ee;font-size:.82rem;">/get-matches</code>
+                        </div>
+                        <small class="text-muted">AI-ranked compatible roommate list</small>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4 scroll-reveal" style="transition-delay:.1s;">
+                    <div class="glass-card p-3 h-100">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="badge bg-success">POST</span>
+                            <code style="color:#22d3ee;font-size:.82rem;">/compare-users</code>
+                        </div>
+                        <small class="text-muted">Side-by-side differential analysis</small>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4 scroll-reveal" style="transition-delay:.15s;">
+                    <div class="glass-card p-3 h-100">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="badge bg-success">POST</span>
+                            <code style="color:#22d3ee;font-size:.82rem;">/start-chat</code>
+                        </div>
+                        <small class="text-muted">Initialize guided chat session</small>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4 scroll-reveal" style="transition-delay:.2s;">
+                    <div class="glass-card p-3 h-100">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="badge bg-success">POST</span>
+                            <code style="color:#22d3ee;font-size:.82rem;">/send-message</code>
+                        </div>
+                        <small class="text-muted">Send + receive AI chatbot messages</small>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4 scroll-reveal" style="transition-delay:.25s;">
+                    <div class="glass-card p-3 h-100">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="badge bg-primary">GET</span>
+                            <code style="color:#22d3ee;font-size:.82rem;">/api/map-search</code>
+                        </div>
+                        <small class="text-muted">Geo-spatial filtered search results</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card p-3 mt-4 scroll-reveal" style="border-left:3px solid #22d3ee;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-info-circle text-info"></i>
+                    <strong style="font-size:.85rem;">Design Principle:</strong>
+                    <span class="text-muted" style="font-size:.85rem;">API layer validates input → calls service → returns JSON. Never contains ML math.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     PHASE 6 — Geo Filtering
+     ═══════════════════════════════════════ -->
+<section class="py-5" id="phase-geo">
+    <div class="container">
+        <div class="phase-card p-4 scroll-reveal">
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="phase-number">6</div>
+                <div>
+                    <small class="text-muted text-uppercase" style="letter-spacing:2px;font-size:.65rem;">Phase 6</small>
+                    <h3 class="fw-bold mb-0"><i class="bi bi-geo-alt me-2 phase-icon"></i>Geo Filtering Layer</h3>
+                </div>
+            </div>
+            <p class="text-muted mb-4">Before similarity calculation, filter candidates by geography and preferences to reduce computation cost.</p>
+
+            <div class="row g-3 align-items-center">
+                <div class="col-md-6 scroll-reveal">
+                    <h6 class="fw-bold mb-3">Pre-Filter Pipeline</h6>
+                    <div class="d-flex flex-column gap-2">
+                        <div class="glass-card p-3 d-flex align-items-center gap-3">
+                            <i class="bi bi-funnel-fill text-accent fs-5"></i>
+                            <div>
+                                <strong style="font-size:.85rem;">District Filter</strong>
+                                <p class="text-muted mb-0" style="font-size:.75rem;">Haversine distance within configurable radius</p>
+                            </div>
+                        </div>
+                        <div class="text-center text-accent"><i class="bi bi-arrow-down"></i></div>
+                        <div class="glass-card p-3 d-flex align-items-center gap-3">
+                            <i class="bi bi-currency-rupee text-warning fs-5"></i>
+                            <div>
+                                <strong style="font-size:.85rem;">Budget Range</strong>
+                                <p class="text-muted mb-0" style="font-size:.75rem;">min-max overlap between user preferences</p>
+                            </div>
+                        </div>
+                        <div class="text-center text-accent"><i class="bi bi-arrow-down"></i></div>
+                        <div class="glass-card p-3 d-flex align-items-center gap-3">
+                            <i class="bi bi-person text-info fs-5"></i>
+                            <div>
+                                <strong style="font-size:.85rem;">Gender Preference</strong>
+                                <p class="text-muted mb-0" style="font-size:.75rem;">Mutual preference matching</p>
+                            </div>
+                        </div>
+                        <div class="text-center text-accent"><i class="bi bi-arrow-down"></i></div>
+                        <div class="glass-card p-3 d-flex align-items-center gap-3" style="border-color:rgba(34,197,94,.25);">
+                            <i class="bi bi-cpu-fill text-success fs-5"></i>
+                            <div>
+                                <strong style="font-size:.85rem;">ML Similarity Engine</strong>
+                                <p class="text-muted mb-0" style="font-size:.75rem;">Only filtered candidates pass to cosine similarity</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 scroll-reveal" style="transition-delay:.1s;">
+                    <h6 class="fw-bold mb-3">Haversine Distance Function</h6>
+                    <div class="formula-block mb-3">
+                        <div class="formula-main" style="font-size:.9rem;">
+d = 2r · arcsin( √( sin²(Δφ/2) + cos(φ₁) · cos(φ₂) · sin²(Δλ/2) ) )
+                        </div>
+                        <div style="font-size:.75rem;color:#94a3b8;margin-top:6px;">
+                            r = Earth radius, φ = latitude, λ = longitude
+                        </div>
+                    </div>
+                    <div class="glass-card p-3" style="border-left:3px solid #22c55e;">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-speedometer2 text-success"></i>
+                            <div>
+                                <strong style="font-size:.82rem;">Performance Benefit</strong>
+                                <p class="text-muted mb-0" style="font-size:.75rem;">Geo-filtering reduces candidate pool by ~80%, making ML computation feasible at scale.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     PHASE 7 — Compare Module
+     ═══════════════════════════════════════ -->
+<section class="py-5" id="phase-compare">
+    <div class="container">
+        <div class="phase-card p-4 scroll-reveal">
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="phase-number">7</div>
+                <div>
+                    <small class="text-muted text-uppercase" style="letter-spacing:2px;font-size:.65rem;">Phase 7</small>
+                    <h3 class="fw-bold mb-0"><i class="bi bi-arrows-angle-expand me-2 phase-icon"></i>Compare Module (Transparency)</h3>
+                </div>
+            </div>
+            <p class="text-muted mb-4">Go beyond a single compatibility score. Compute per-dimension differences to reveal exactly where users align and where they conflict.</p>
+
+            <div class="row g-4">
+                <div class="col-md-6 scroll-reveal">
+                    <div class="formula-block mb-3">
+                        <div class="formula-main">
+Δ<sub>i</sub> = w<sub>i</sub> · ( P<sub>i,A</sub> − P<sub>i,B</sub> )
+                        </div>
+                        <div style="font-size:.8rem;color:#94a3b8;margin-top:6px;">
+                            Weighted difference per feature dimension
+                        </div>
+                    </div>
+                    <div class="glass-card p-3" style="border-left:3px solid var(--accent);">
+                        <small class="text-muted">This enables users to see <strong class="text-accent">why</strong> they match or don't match — not just a number.</small>
+                    </div>
+                </div>
+                <div class="col-md-6 scroll-reveal" style="transition-delay:.1s;">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="glass-card p-3 text-center" style="border-top:3px solid #22c55e;">
+                                <i class="bi bi-hand-thumbs-up fs-4 d-block mb-2 text-success"></i>
+                                <strong style="font-size:.82rem;">Top 5 Overlaps</strong>
+                                <p class="text-muted mb-0" style="font-size:.72rem;">Dimensions with smallest Δ</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="glass-card p-3 text-center" style="border-top:3px solid #f43f5e;">
+                                <i class="bi bi-exclamation-triangle fs-4 d-block mb-2 text-danger"></i>
+                                <strong style="font-size:.82rem;">Top 5 Conflicts</strong>
+                                <p class="text-muted mb-0" style="font-size:.72rem;">Dimensions with largest |Δ|</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     PHASE 8 — Chat Module
+     ═══════════════════════════════════════ -->
+<section class="py-5" id="phase-chat">
+    <div class="container">
+        <div class="phase-card p-4 scroll-reveal">
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="phase-number">8</div>
+                <div>
+                    <small class="text-muted text-uppercase" style="letter-spacing:2px;font-size:.65rem;">Phase 8</small>
+                    <h3 class="fw-bold mb-0"><i class="bi bi-chat-dots me-2 phase-icon"></i>Chat Module (Independent)</h3>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-6 scroll-reveal">
+                    <p class="text-muted mb-4">The chat system is architecturally isolated from the ML engine. It operates independently with its own data store, intent detection, and response templating.</p>
+                    <div class="d-flex flex-column gap-2">
+                        <div class="glass-card p-3 d-flex align-items-center gap-3">
+                            <i class="bi bi-box-seam text-accent"></i>
+                            <span style="font-size:.85rem;">Isolated from ML — no coupling</span>
+                        </div>
+                        <div class="glass-card p-3 d-flex align-items-center gap-3">
+                            <i class="bi bi-database text-accent"></i>
+                            <span style="font-size:.85rem;">Separate message collection</span>
+                        </div>
+                        <div class="glass-card p-3 d-flex align-items-center gap-3">
+                            <i class="bi bi-arrow-right-circle text-accent"></i>
+                            <span style="font-size:.85rem;">Triggered after match selection</span>
+                        </div>
+                        <div class="glass-card p-3 d-flex align-items-center gap-3">
+                            <i class="bi bi-shield text-accent"></i>
+                            <span style="font-size:.85rem;">10 intent categories with conflict prompts</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 scroll-reveal" style="transition-delay:.1s;">
+                    <h6 class="fw-bold text-accent mb-3"><i class="bi bi-chat-left-dots me-2"></i>Intent Categories</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-secondary bg-opacity-10 px-3 py-2">👋 greeting</span>
+                        <span class="badge bg-secondary bg-opacity-10 px-3 py-2">🔍 search_help</span>
+                        <span class="badge bg-secondary bg-opacity-10 px-3 py-2">📊 compatibility</span>
+                        <span class="badge bg-secondary bg-opacity-10 px-3 py-2">👤 profile_tips</span>
+                        <span class="badge bg-secondary bg-opacity-10 px-3 py-2">⚡ conflicts</span>
+                        <span class="badge bg-secondary bg-opacity-10 px-3 py-2">🏠 roommate_advice</span>
+                        <span class="badge bg-secondary bg-opacity-10 px-3 py-2">🗺 map_help</span>
+                        <span class="badge bg-secondary bg-opacity-10 px-3 py-2">💬 compare_help</span>
+                        <span class="badge bg-secondary bg-opacity-10 px-3 py-2">📝 reviews</span>
+                        <span class="badge bg-secondary bg-opacity-10 px-3 py-2">❓ general</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     FULL ARCHITECTURE DIAGRAM
+     ═══════════════════════════════════════ -->
+<section class="py-5" id="arch-diagram-section">
+    <div class="container">
+        <div class="text-center mb-5 scroll-reveal">
+            <span class="badge bg-accent bg-opacity-10 text-accent px-3 py-2 rounded-pill mb-3">System Overview</span>
+            <h2 class="display-5 fw-bold">Architecture Diagram</h2>
+            <p class="text-muted lead">Clean layered architecture — each layer has a single responsibility</p>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-7 scroll-reveal">
+                <div class="arch-diagram">
+                    <div class="diagram-layer layer-frontend">
+                        <span class="layer-label"><i class="bi bi-window me-2"></i>Frontend</span>
+                        <div class="layer-sub">HTML/CSS/JS · Bootstrap 5 · Leaflet · Chart.js</div>
+                    </div>
+                    <div class="diagram-arrow"><i class="bi bi-arrow-down"></i></div>
+
+                    <div class="diagram-layer layer-api">
+                        <span class="layer-label"><i class="bi bi-plug me-2"></i>API Layer</span>
+                        <div class="layer-sub">Flask Routes · Input Validation · JSON Responses</div>
+                    </div>
+                    <div class="diagram-arrow"><i class="bi bi-arrow-down"></i></div>
+
+                    <div class="diagram-layer layer-services mb-2">
+                        <span class="layer-label"><i class="bi bi-layers me-2"></i>Application Services</span>
+                    </div>
+                    <div class="services-grid mb-2">
+                        <div class="service-node"><i class="bi bi-heart-pulse d-block mb-1"></i>Matchmaking</div>
+                        <div class="service-node"><i class="bi bi-arrows-angle-expand d-block mb-1"></i>Compare</div>
+                        <div class="service-node"><i class="bi bi-chat-square-text d-block mb-1"></i>Chat</div>
+                    </div>
+                    <div class="diagram-arrow"><i class="bi bi-arrow-down"></i></div>
+
+                    <div class="diagram-layer layer-ml">
+                        <span class="layer-label"><i class="bi bi-cpu me-2"></i>ML Compatibility Engine</span>
+                        <div class="layer-sub">Encoder · Weighted Cosine Similarity · Weights</div>
+                    </div>
+                    <div class="diagram-arrow"><i class="bi bi-arrow-down"></i></div>
+
+                    <div class="diagram-layer layer-repo">
+                        <span class="layer-label"><i class="bi bi-archive me-2"></i>Repository Layer</span>
+                        <div class="layer-sub">SQLAlchemy ORM · Query Builders · Data Access</div>
+                    </div>
+                    <div class="diagram-arrow"><i class="bi bi-arrow-down"></i></div>
+
+                    <div class="diagram-layer layer-db">
+                        <span class="layer-label"><i class="bi bi-database me-2"></i>Database</span>
+                        <div class="layer-sub">SQLite · User · Review · ChatMessage tables</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     CREATION FLOW (12 Steps)
+     ═══════════════════════════════════════ -->
+<section class="py-5" id="creation-flow">
+    <div class="container">
+        <div class="text-center mb-5 scroll-reveal">
+            <span class="badge bg-accent bg-opacity-10 text-accent px-3 py-2 rounded-pill mb-3">Build Order</span>
+            <h2 class="display-5 fw-bold">Full Creation Flow</h2>
+            <p class="text-muted lead">The chronological steps that brought CohabitAI to life</p>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <div class="d-flex flex-column gap-3">
+                    {% set steps = [
+                        ("Design persona schema", "Define all personality, lifestyle, and constraint attributes", "bi-pencil-square"),
+                        ("Define vector encoding", "Map raw attributes to normalized numeric feature vectors", "bi-code-slash"),
+                        ("Implement similarity engine offline", "Build weighted cosine similarity with unit tests", "bi-gear"),
+                        ("Validate with synthetic data", "Test ranking logic against generated Odisha user profiles", "bi-bug"),
+                        ("Design database schema", "SQLAlchemy models: User (40+ fields), Review, ChatMessage", "bi-database"),
+                        ("Implement user storage API", "CRUD endpoints for user registration and profile management", "bi-server"),
+                        ("Wrap ML engine as matchmaking service", "Clean service layer abstraction around ML computations", "bi-box-seam"),
+                        ("Add geo filtering", "Haversine distance + budget + gender pre-filters", "bi-geo-alt"),
+                        ("Add compare module", "Per-dimension differential analysis with overlap/conflict detection", "bi-bar-chart-line"),
+                        ("Add chat system", "Intent-based NLP chatbot with 10 categories and conflict prompts", "bi-chat-dots"),
+                        ("Connect frontend", "12 responsive templates with Bootstrap 5 dark glass-morphism theme", "bi-window"),
+                        ("Optimize & test", "Performance tuning, responsive design, VFX animations, splash screen", "bi-rocket-takeoff")
+                    ] %}
+                    {% for title, desc, icon in steps %}
+                    <div class="creation-step scroll-reveal" style="transition-delay:{{ loop.index0 * 0.04 }}s;">
+                        <div class="step-num">{{ loop.index }}</div>
+                        <div class="step-info glass-card p-3 flex-grow-1">
+                            <h6><i class="bi {{ icon }} me-2 text-accent"></i>{{ title }}</h6>
+                            <p>{{ desc }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     DATA SYNTHESIS — From Cloned Repo
+     ═══════════════════════════════════════ -->
+<section class="py-5" id="data-synthesis">
+    <div class="container">
+        <div class="text-center mb-5 scroll-reveal">
+            <span class="badge bg-accent bg-opacity-10 text-accent px-3 py-2 rounded-pill mb-3">Dataset Engineering</span>
+            <h2 class="display-5 fw-bold">Synthetic Data Pipeline</h2>
+            <p class="text-muted lead">AI-generated realistic user profiles for training and validation</p>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <div class="col-6 col-md-3 scroll-reveal">
+                <div class="data-stat">
+                    <div class="stat-value">500+</div>
+                    <div class="stat-label">Synthetic Profiles</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 scroll-reveal" style="transition-delay:.05s;">
+                <div class="data-stat">
+                    <div class="stat-value">30</div>
+                    <div class="stat-label">Odisha Districts</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 scroll-reveal" style="transition-delay:.1s;">
+                <div class="data-stat">
+                    <div class="stat-value">295+</div>
+                    <div class="stat-label">Unique Names</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 scroll-reveal" style="transition-delay:.15s;">
+                <div class="data-stat">
+                    <div class="stat-value">Gemini</div>
+                    <div class="stat-label">AI Generator</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 scroll-reveal">
+                <div class="phase-card p-4 h-100" style="border-left-color:#22c55e;">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-cpu me-2 text-success"></i>Generation Pipeline</h5>
+                    <p class="text-muted mb-3" style="font-size:.85rem;">Batch generation via Gemini API with progressive saving, validation & auto-resume.</p>
+                    <div class="arch-code" style="font-size:.75rem;">
+<span class="code-comment"># Pipeline Flow</span>
+<span class="code-keyword">1.</span> Generate unique names (M/F)
+<span class="code-keyword">2.</span> Batch prompt → Gemini API
+<span class="code-keyword">3.</span> Parse JSON response
+<span class="code-keyword">4.</span> Validate & fix each profile
+<span class="code-keyword">5.</span> Assign SHA1 unique ID
+<span class="code-keyword">6.</span> Progressive save to JSON
+<span class="code-keyword">7.</span> Rate limit (4s gap)
+<span class="code-keyword">8.</span> Resume on failure</div>
+                </div>
+            </div>
+            <div class="col-md-6 scroll-reveal" style="transition-delay:.1s;">
+                <div class="phase-card p-4 h-100" style="border-left-color:#22d3ee;">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-geo-alt me-2 text-info"></i>Coverage — Odisha Districts</h5>
+                    <p class="text-muted mb-3" style="font-size:.85rem;">Profiles distributed across 30 real Odisha districts with geo-coordinates.</p>
+                    <div class="district-grid">
+                        {% set districts = [
+                            'Bhubaneswar', 'Cuttack', 'Rourkela', 'Berhampur', 'Sambalpur',
+                            'Puri', 'Balasore', 'Baripada', 'Bhadrak', 'Jharsuguda',
+                            'Angul', 'Dhenkanal', 'Koraput', 'Jeypore', 'Rayagada',
+                            'Bolangir', 'Bargarh', 'Phulbani', 'Bhawanipatna', 'Kendrapara',
+                            'Jajpur', 'Jagatsinghpur', 'Paradip', 'Sundargarh', 'Keonjhar',
+                            'Mayurbhanj', 'Nayagarh', 'Ganjam', 'Kalahandi', 'Malkangiri'
+                        ] %}
+                        {% for d in districts %}
+                        <span class="district-chip">{{ d }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mt-3">
+            <div class="col-12 scroll-reveal">
+                <div class="phase-card p-4" style="border-left-color:#a855f7;">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-filetype-json me-2" style="color:#a855f7;"></i>Generated Profile Schema</h5>
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <div class="glass-card p-3 h-100">
+                                <h6 class="fw-bold" style="font-size:.82rem;color:#22d3ee;">profile</h6>
+                                <small class="text-muted" style="line-height:1.6;">name, age, gender, occupation, bio, interests</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="glass-card p-3 h-100">
+                                <h6 class="fw-bold" style="font-size:.82rem;color:#22c55e;">location</h6>
+                                <small class="text-muted" style="line-height:1.6;">type: Point, coordinates: [lon, lat], area_name</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="glass-card p-3 h-100">
+                                <h6 class="fw-bold" style="font-size:.82rem;color:#eab308;">preferences</h6>
+                                <small class="text-muted" style="line-height:1.6;">budget, gender_pref, smoking, pets, veg/nonveg</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="glass-card p-3 h-100">
+                                <h6 class="fw-bold" style="font-size:.82rem;color:#f43f5e;">persona_raw</h6>
+                                <small class="text-muted" style="line-height:1.6;">sleep_time, cleanliness, noise, introversion</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="py-5 mb-5">
+    <div class="container">
+        <div class="glass-card p-5 text-center cta-card scroll-reveal">
+            <h2 class="display-6 fw-bold mb-3">Experience the Architecture in Action</h2>
+            <p class="text-muted lead mb-4">All these systems work together to find your perfect roommate match.</p>
+            <div class="d-flex gap-3 justify-content-center flex-wrap">
+                <a href="{{ url_for('register') }}" class="btn btn-accent btn-lg px-5 btn-glow">
+                    <i class="bi bi-rocket-takeoff me-2"></i>Get Started
+                </a>
+                <a href="{{ url_for('index') }}" class="btn btn-outline-light btn-lg px-4">
+                    <i class="bi bi-house me-2"></i>Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── Scroll-Reveal Animation ──
+const revealEls = document.querySelectorAll('.scroll-reveal');
+const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+        if (e.isIntersecting) {
+            e.target.classList.add('revealed');
+            revealObserver.unobserve(e.target);
+        }
+    });
+}, { threshold: 0.1 });
+revealEls.forEach(el => revealObserver.observe(el));
+
+// ── Side dot navigation ──
+document.querySelectorAll('.arch-dot').forEach(dot => {
+    dot.addEventListener('click', () => {
+        const target = document.getElementById(dot.dataset.target);
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+});
+
+// ── Active dot tracking ──
+const sections = document.querySelectorAll('[id]');
+const dots = document.querySelectorAll('.arch-dot');
+const dotObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            dots.forEach(d => d.classList.remove('active'));
+            const activeDot = document.querySelector(`.arch-dot[data-target="${entry.target.id}"]`);
+            if (activeDot) activeDot.classList.add('active');
+        }
+    });
+}, { threshold: 0.3, rootMargin: '-80px 0px -50% 0px' });
+sections.forEach(s => {
+    if (document.querySelector(`.arch-dot[data-target="${s.id}"]`)) {
+        dotObserver.observe(s);
+    }
+});
+
+// ── Smooth scroll for anchor links ──
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+        e.preventDefault();
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+});
+</script>
+{% endblock %}

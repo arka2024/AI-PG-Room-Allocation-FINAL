@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title %}AI Chat - CohabitAI{% endblock %}
+
+{% block content %}
+<section class="py-5" style="margin-top:70px;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="glass-card p-0 chatbot-container">
+                    <!-- Chat Header -->
+                    <div class="chat-header p-3 border-bottom border-secondary border-opacity-25">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="avatar-circle bg-accent">
+                                <i class="bi bi-robot"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0">CohabitAI Assistant</h5>
+                                <small class="text-success"><i class="bi bi-circle-fill me-1" style="font-size:0.5rem;"></i>Online</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Messages -->
+                    <div class="chat-messages p-4" id="chatMessages">
+                        <!-- Welcome message -->
+                        <div class="chat-bubble bot mb-3">
+                            <div class="bubble-content">
+                                <p>Hey there! 👋 I'm your CohabitAI assistant. I can help you with:</p>
+                                <ul class="mb-2">
+                                    <li><strong>Profile optimization</strong> — improve your match quality</li>
+                                    <li><strong>Search strategies</strong> — find better matches</li>
+                                    <li><strong>Compare tool guidance</strong> — understand your results</li>
+                                    <li><strong>Conflict resolution</strong> — pre-move-in discussion tips</li>
+                                </ul>
+                                <p class="mb-0">What would you like help with?</p>
+                            </div>
+                            <small class="text-muted">CohabitAI</small>
+                        </div>
+
+                        {% for msg in chat_history %}
+                        <div class="chat-bubble {{ 'user' if msg.role == 'user' else 'bot' }} mb-3">
+                            <div class="bubble-content">{{ msg.message | safe }}</div>
+                            <small class="text-muted">{{ 'You' if msg.role == 'user' else 'CohabitAI' }} · {{ msg.created_at.strftime('%H:%M') }}</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="quick-actions px-4 pb-2">
+                        <div class="d-flex gap-2 flex-wrap">
+                            <button class="btn btn-outline-secondary btn-sm quick-q" data-q="How can I improve my profile?">📝 Profile Tips</button>
+                            <button class="btn btn-outline-secondary btn-sm quick-q" data-q="How do I find better matches?">🔍 Search Tips</button>
+                            <button class="btn btn-outline-secondary btn-sm quick-q" data-q="How does the compatibility algorithm work?">🧮 How It Works</button>
+                            <button class="btn btn-outline-secondary btn-sm quick-q" data-q="How does the compare tool work?">📊 Compare Tool</button>
+                            <button class="btn btn-outline-secondary btn-sm quick-q" data-q="How do reviews work?">⭐ Reviews</button>
+                            <button class="btn btn-outline-secondary btn-sm quick-q" data-q="How to handle roommate conflicts?">🤝 Conflicts</button>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input -->
+                    <div class="chat-input p-3 border-top border-secondary border-opacity-25">
+                        <form id="chatForm" class="d-flex gap-2">
+                            <input type="text" id="chatInput" class="form-control glass-input" placeholder="Ask me anything about roommate matching..." autocomplete="off">
+                            <button type="submit" class="btn btn-accent px-3">
+                                <i class="bi bi-send-fill"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const chatMessages = document.getElementById('chatMessages');
+const chatForm = document.getElementById('chatForm');
+const chatInput = document.getElementById('chatInput');
+
+function addMessage(text, role) {
+    const bubble = document.createElement('div');
+    bubble.className = `chat-bubble ${role} mb-3`;
+    const now = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    bubble.innerHTML = `
+        <div class="bubble-content">${text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</div>
+        <small class="text-muted">${role === 'user' ? 'You' : 'CohabitAI'} · ${now}</small>
+    `;
+    chatMessages.appendChild(bubble);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+async function sendMessage(message) {
+    if (!message.trim()) return;
+    addMessage(message, 'user');
+    chatInput.value = '';
+
+    // Show typing indicator
+    const typing = document.createElement('div');
+    typing.className = 'chat-bubble bot mb-3 typing-indicator';
+    typing.innerHTML = '<div class="bubble-content"><em>Thinking...</em></div>';
+    chatMessages.appendChild(typing);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    try {
+        const res = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({message: message})
+        });
+        const data = await res.json();
+        typing.remove();
+        addMessage(data.response, 'bot');
+    } catch (err) {
+        typing.remove();
+        addMessage('Sorry, something went wrong. Please try again.', 'bot');
+    }
+}
+
+chatForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    sendMessage(chatInput.value);
+});
+
+document.querySelectorAll('.quick-q').forEach(btn => {
+    btn.addEventListener('click', () => sendMessage(btn.dataset.q));
+});
+
+// Scroll to bottom on load
+chatMessages.scrollTop = chatMessages.scrollHeight;
+</script>
+{% endblock %}

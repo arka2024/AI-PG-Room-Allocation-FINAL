@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% block title %}{{ user.full_name }} - CohabitAI{% endblock %}
+
+{% block content %}
+<section class="py-5" style="margin-top:70px;">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Profile Card -->
+            <div class="col-lg-4">
+                <div class="glass-card p-4 text-center">
+                    <div class="avatar-circle-lg bg-accent mx-auto mb-3">
+                        {{ user.full_name[:2] | upper }}
+                    </div>
+                    <h4 class="fw-bold mb-1">{{ user.full_name }}</h4>
+                    <p class="text-muted mb-2">
+                        {{ user.occupation | replace('_', ' ') | title }} &middot; Age {{ user.age }}
+                    </p>
+                    {% if user.city %}
+                    <p class="text-muted mb-3">
+                        <i class="bi bi-geo-alt me-1"></i>{{ user.locality or '' }} {{ user.city }}
+                    </p>
+                    {% endif %}
+
+                    {% if compatibility_score is not none %}
+                    <div class="compatibility-badge mb-3">
+                        <div class="compat-circle {{ 'high' if compatibility_score >= 85 else 'medium' if compatibility_score >= 70 else 'low' }}">
+                            <span class="compat-value">{{ compatibility_score }}%</span>
+                            <span class="compat-label">Match</span>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if user.get_avg_rating() %}
+                    <div class="mb-3">
+                        <span class="text-warning">
+                            {% for i in range(5) %}
+                            <i class="bi bi-star{{ '-fill' if i < user.get_avg_rating()|int else '-half' if i < user.get_avg_rating() else '' }}"></i>
+                            {% endfor %}
+                        </span>
+                        <span class="ms-1">{{ user.get_avg_rating() }}/5</span>
+                        <small class="text-muted">({{ user.reviews_received.count() }} reviews)</small>
+                    </div>
+                    {% endif %}
+
+                    {% if user.bio %}
+                    <p class="text-muted small mb-3">{{ user.bio }}</p>
+                    {% endif %}
+
+                    <div class="border-top border-secondary border-opacity-25 pt-3">
+                        <div class="row g-2 text-start">
+                            <div class="col-6"><small class="text-muted">🚬 {{ user.smoking or 'N/A' | title }}</small></div>
+                            <div class="col-6"><small class="text-muted">🍺 {{ user.drinking or 'N/A' | title }}</small></div>
+                            <div class="col-6"><small class="text-muted">🍽️ {{ user.veg_nonveg or 'N/A' | title }}</small></div>
+                            <div class="col-6"><small class="text-muted">🐾 {{ 'Pet Friendly' if user.pet_friendly else 'No Pets' }}</small></div>
+                            <div class="col-12"><small class="text-muted">💰 ₹{{ user.budget_min or '?' }} - ₹{{ user.budget_max or '?' }}/mo</small></div>
+                            <div class="col-12"><small class="text-muted">📅 {{ user.preferred_move_in or 'Flexible' | replace('_',' ') | title }}</small></div>
+                        </div>
+                    </div>
+
+                    {% if user.get_interests_list() %}
+                    <div class="border-top border-secondary border-opacity-25 pt-3 mt-3">
+                        <h6 class="fw-bold mb-2">Interests</h6>
+                        <div class="d-flex flex-wrap gap-1 justify-content-center">
+                            {% for interest in user.get_interests_list() %}
+                            <span class="badge bg-accent bg-opacity-10 text-accent">{{ interest }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if current_user.is_authenticated and current_user.id != user.id %}
+                    <div class="mt-3 d-flex gap-2 justify-content-center">
+                        <a href="{{ url_for('compare_view') }}?user1={{ current_user.id }}&user2={{ user.id }}" class="btn btn-outline-accent btn-sm">
+                            <i class="bi bi-bar-chart-line me-1"></i>Compare
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Details -->
+            <div class="col-lg-8">
+                <!-- Feature Vector Visualization -->
+                <div class="glass-card p-4 mb-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-bar-chart me-2"></i>Lifestyle & Personality Profile</h5>
+                    <canvas id="profileChart" height="200"></canvas>
+                </div>
+
+                {% if constraint_issues %}
+                <div class="alert alert-warning glass-alert mb-4">
+                    <h6 class="fw-bold"><i class="bi bi-exclamation-triangle me-2"></i>Constraint Warnings</h6>
+                    <ul class="mb-0 small">
+                        {% for issue in constraint_issues %}
+                        <li>{{ issue }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <!-- Reviews Section -->
+                <div class="glass-card p-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-star me-2"></i>Reviews ({{ user.reviews_received.count() }})</h5>
+                    {% set reviews = user.reviews_received.order_by(review_model.created_at.desc()).limit(5).all() %}
+                    {% if reviews %}
+                    {% for review in reviews %}
+                    <div class="border-bottom border-secondary border-opacity-25 pb-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <strong>{{ review.reviewer.full_name }}</strong>
+                                <span class="text-warning ms-2">
+                                    {% for i in range(review.overall_rating|int) %}⭐{% endfor %}
+                                </span>
+                            </div>
+                            <small class="text-muted">{{ review.created_at.strftime('%b %Y') }}</small>
+                        </div>
+                        {% if review.comment %}
+                        <p class="text-muted small mt-1 mb-0">{{ review.comment }}</p>
+                        {% endif %}
+                        {% if review.duration_months %}
+                        <small class="text-muted">Lived together: {{ review.duration_months }} months</small>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p class="text-muted text-center py-3">No reviews yet.</p>
+                    {% endif %}
+
+                    {% if current_user.is_authenticated and current_user.id != user.id %}
+                    <a href="{{ url_for('write_review', user_id=user.id) }}" class="btn btn-outline-accent btn-sm">
+                        <i class="bi bi-pencil me-1"></i>Write a Review
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const vec = {{ feature_vector | tojson }};
+const labels = Object.keys(vec).map(k => k.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()));
+const values = Object.values(vec);
+
+new Chart(document.getElementById('profileChart'), {
+    type: 'radar',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: '{{ user.full_name }}',
+            data: values,
+            backgroundColor: 'rgba(99, 102, 241, 0.2)',
+            borderColor: 'rgba(99, 102, 241, 1)',
+            borderWidth: 2,
+            pointBackgroundColor: 'rgba(99, 102, 241, 1)',
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            r: {
+                min: 0,
+                max: 5,
+                ticks: { stepSize: 1, color: '#888' },
+                grid: { color: 'rgba(255,255,255,0.1)' },
+                angleLines: { color: 'rgba(255,255,255,0.1)' },
+                pointLabels: { color: '#ccc', font: { size: 11 } }
+            }
+        },
+        plugins: {
+            legend: { labels: { color: '#ccc' } }
+        }
+    }
+});
+</script>
+{% endblock %}

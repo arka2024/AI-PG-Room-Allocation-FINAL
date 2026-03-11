@@ -1,0 +1,412 @@
+{% extends "base.html" %}
+{% block title %}Register - CohabitAI{% endblock %}
+
+{% block content %}
+<section class="auth-section py-5" style="margin-top:80px;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="glass-card p-4 p-lg-5">
+                    <div class="text-center mb-4">
+                        <h2 class="fw-bold"><i class="bi bi-person-plus-fill text-accent me-2"></i>Create Your Profile</h2>
+                        <p class="text-muted">Complete the 5-step questionnaire for accurate AI compatibility matching</p>
+                    </div>
+
+                    <form method="POST" action="{{ url_for('register') }}" id="registerForm">
+                        <!-- Step Indicators -->
+                        <div class="d-flex justify-content-center gap-2 flex-wrap mb-4">
+                            <span class="step-indicator active" data-step="1">1. Basic Identity</span>
+                            <span class="step-indicator" data-step="2">2. Lifestyle Habits</span>
+                            <span class="step-indicator" data-step="3">3. Personality Traits</span>
+                            <span class="step-indicator" data-step="4">4. Hard Constraints</span>
+                            <span class="step-indicator" data-step="5">5. Budget & Location</span>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="progress mb-4" style="height:4px; background:rgba(255,255,255,0.08); border-radius:4px;">
+                            <div class="progress-bar" id="progressBar" role="progressbar" style="width:20%; background:var(--accent); border-radius:4px;" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+
+                        <!-- ═══════════════════════════════════════ -->
+                        <!-- Step 1: Basic Identity                -->
+                        <!-- ═══════════════════════════════════════ -->
+                        <div class="form-step active" id="step-1">
+                            <div class="d-flex align-items-center mb-3 gap-2">
+                                <span class="timeline-number" style="width:36px;height:36px;font-size:.8rem;">01</span>
+                                <div>
+                                    <span class="timeline-label">BASIC IDENTITY</span>
+                                    <h5 class="fw-bold mb-0 mt-1">Who Are You?</h5>
+                                </div>
+                            </div>
+                            <p class="text-muted small mb-3">Core credentials and demographics that form your identity on the platform.</p>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Full Name *</label>
+                                    <input type="text" name="full_name" class="form-control glass-input" required placeholder="Your full name">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Email *</label>
+                                    <input type="email" name="email" class="form-control glass-input" required placeholder="you@email.com">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Password *</label>
+                                    <input type="password" name="password" class="form-control glass-input" required minlength="6" placeholder="Min 6 characters">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Phone</label>
+                                    <input type="tel" name="phone" class="form-control glass-input" placeholder="+91 XXXXX XXXXX">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Age *</label>
+                                    <input type="number" name="age" class="form-control glass-input" required min="18" max="65" placeholder="Age">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Gender *</label>
+                                    <select name="gender" class="form-select glass-input" required>
+                                        <option value="">Select...</option>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="non-binary">Non-binary</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Occupation *</label>
+                                    <select name="occupation" class="form-select glass-input" required>
+                                        <option value="">Select...</option>
+                                        <option value="student">Student</option>
+                                        <option value="working_professional">Working Professional</option>
+                                        <option value="freelancer">Freelancer</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Short Bio</label>
+                                    <textarea name="bio" class="form-control glass-input" rows="2" placeholder="Tell potential roommates about yourself..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ═══════════════════════════════════════ -->
+                        <!-- Step 2: Lifestyle Habits               -->
+                        <!-- ═══════════════════════════════════════ -->
+                        <div class="form-step" id="step-2">
+                            <div class="d-flex align-items-center mb-3 gap-2">
+                                <span class="timeline-number" style="width:36px;height:36px;font-size:.8rem;">02</span>
+                                <div>
+                                    <span class="timeline-label">LIFESTYLE HABITS</span>
+                                    <h5 class="fw-bold mb-0 mt-1">How Do You Live?</h5>
+                                </div>
+                            </div>
+                            <p class="text-muted small mb-4">These dimensions carry the <strong>highest weight</strong> in our AI compatibility engine. Be honest for better matches!</p>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Sleep Schedule <span class="badge bg-danger bg-opacity-25 text-danger ms-1">High Impact</span></label>
+                                    <div class="range-wrapper">
+                                        <input type="range" name="sleep_schedule" class="form-range accent-range" min="1" max="5" value="3" id="sleep_schedule">
+                                        <div class="d-flex justify-content-between"><small class="text-muted">🌅 Early Bird</small><small class="text-muted">🌙 Night Owl</small></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Cleanliness <span class="badge bg-danger bg-opacity-25 text-danger ms-1">High Impact</span></label>
+                                    <div class="range-wrapper">
+                                        <input type="range" name="cleanliness" class="form-range accent-range" min="1" max="5" value="3">
+                                        <div class="d-flex justify-content-between"><small class="text-muted">😌 Relaxed</small><small class="text-muted">✨ Very Tidy</small></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Noise Tolerance <span class="badge bg-danger bg-opacity-25 text-danger ms-1">High Impact</span></label>
+                                    <div class="range-wrapper">
+                                        <input type="range" name="noise_tolerance" class="form-range accent-range" min="1" max="5" value="3">
+                                        <div class="d-flex justify-content-between"><small class="text-muted">🤫 Needs Quiet</small><small class="text-muted">🔊 Noise-Friendly</small></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Cooking Frequency</label>
+                                    <div class="range-wrapper">
+                                        <input type="range" name="cooking_frequency" class="form-range accent-range" min="1" max="5" value="3">
+                                        <div class="d-flex justify-content-between"><small class="text-muted">🍕 Never Cook</small><small class="text-muted">👨‍🍳 Daily Cook</small></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Guest Frequency</label>
+                                    <div class="range-wrapper">
+                                        <input type="range" name="guest_frequency" class="form-range accent-range" min="1" max="5" value="3">
+                                        <div class="d-flex justify-content-between"><small class="text-muted">🚫 No Guests</small><small class="text-muted">🎉 Frequent Guests</small></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Workout Habit</label>
+                                    <div class="range-wrapper">
+                                        <input type="range" name="workout_habit" class="form-range accent-range" min="1" max="5" value="3">
+                                        <div class="d-flex justify-content-between"><small class="text-muted">🛋️ Sedentary</small><small class="text-muted">🏋️ Daily Gym</small></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ═══════════════════════════════════════ -->
+                        <!-- Step 3: Personality Traits              -->
+                        <!-- ═══════════════════════════════════════ -->
+                        <div class="form-step" id="step-3">
+                            <div class="d-flex align-items-center mb-3 gap-2">
+                                <span class="timeline-number" style="width:36px;height:36px;font-size:.8rem;">03</span>
+                                <div>
+                                    <span class="timeline-label">PERSONALITY TRAITS</span>
+                                    <h5 class="fw-bold mb-0 mt-1">What Makes You, You?</h5>
+                                </div>
+                            </div>
+                            <p class="text-muted small mb-4">Personality alignment predicts long-term co-living harmony.</p>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Introversion / Extroversion <span class="badge bg-warning bg-opacity-25 text-warning ms-1">Medium Impact</span></label>
+                                    <div class="range-wrapper">
+                                        <input type="range" name="introversion_extroversion" class="form-range accent-range" min="1" max="5" value="3">
+                                        <div class="d-flex justify-content-between"><small class="text-muted">🧘 Introvert</small><small class="text-muted">🎤 Extrovert</small></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Communication Style</label>
+                                    <div class="range-wrapper">
+                                        <input type="range" name="communication_style" class="form-range accent-range" min="1" max="5" value="3">
+                                        <div class="d-flex justify-content-between"><small class="text-muted">🤐 Reserved</small><small class="text-muted">💬 Very Open</small></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Conflict Resolution</label>
+                                    <div class="range-wrapper">
+                                        <input type="range" name="conflict_resolution" class="form-range accent-range" min="1" max="5" value="3">
+                                        <div class="d-flex justify-content-between"><small class="text-muted">😶 Avoidant</small><small class="text-muted">🗣️ Direct</small></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Social Battery <span class="badge bg-warning bg-opacity-25 text-warning ms-1">Medium Impact</span></label>
+                                    <div class="range-wrapper">
+                                        <input type="range" name="social_battery" class="form-range accent-range" min="1" max="5" value="3">
+                                        <div class="d-flex justify-content-between"><small class="text-muted">🔋 Needs Alone Time</small><small class="text-muted">⚡ Always Social</small></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ═══════════════════════════════════════ -->
+                        <!-- Step 4: Hard Constraints                -->
+                        <!-- ═══════════════════════════════════════ -->
+                        <div class="form-step" id="step-4">
+                            <div class="d-flex align-items-center mb-3 gap-2">
+                                <span class="timeline-number" style="width:36px;height:36px;font-size:.8rem;">04</span>
+                                <div>
+                                    <span class="timeline-label">HARD CONSTRAINTS</span>
+                                    <h5 class="fw-bold mb-0 mt-1">Non-Negotiable Deal Breakers</h5>
+                                </div>
+                            </div>
+                            <p class="text-muted small mb-4">These are pass/fail filters — mismatches eliminate candidates before scoring.</p>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label"><i class="bi bi-fire me-1 text-danger"></i>Smoking</label>
+                                    <select name="smoking" class="form-select glass-input">
+                                        <option value="never">Never</option>
+                                        <option value="occasionally">Occasionally</option>
+                                        <option value="regularly">Regularly</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label"><i class="bi bi-cup-straw me-1 text-warning"></i>Drinking</label>
+                                    <select name="drinking" class="form-select glass-input">
+                                        <option value="never">Never</option>
+                                        <option value="occasionally">Occasionally</option>
+                                        <option value="regularly">Regularly</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label"><i class="bi bi-egg-fried me-1 text-success"></i>Food Preference</label>
+                                    <select name="veg_nonveg" class="form-select glass-input">
+                                        <option value="nonveg">Non-Vegetarian</option>
+                                        <option value="veg">Vegetarian</option>
+                                        <option value="eggetarian">Eggetarian</option>
+                                        <option value="vegan">Vegan</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="bi bi-people me-1 text-info"></i>Gender Preference (Roommate)</label>
+                                    <select name="gender_preference" class="form-select glass-input">
+                                        <option value="any">Any Gender</option>
+                                        <option value="male">Male Only</option>
+                                        <option value="female">Female Only</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 d-flex align-items-end">
+                                    <div class="form-check form-switch ps-0 d-flex align-items-center gap-3">
+                                        <div>
+                                            <input class="form-check-input ms-0" type="checkbox" name="pet_friendly" id="petFriendly" style="width:3em;height:1.5em;">
+                                        </div>
+                                        <label class="form-check-label fs-6" for="petFriendly">Pet Friendly 🐾</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ═══════════════════════════════════════ -->
+                        <!-- Step 5: Budget, Location & Photo        -->
+                        <!-- ═══════════════════════════════════════ -->
+                        <div class="form-step" id="step-5">
+                            <div class="d-flex align-items-center mb-3 gap-2">
+                                <span class="timeline-number" style="width:36px;height:36px;font-size:.8rem;">05</span>
+                                <div>
+                                    <span class="timeline-label">BUDGET & LOCATION</span>
+                                    <h5 class="fw-bold mb-0 mt-1">Where & How Much?</h5>
+                                </div>
+                            </div>
+                            <p class="text-muted small mb-3">Set your budget, pin your location, and add finishing touches.</p>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label"><i class="bi bi-currency-rupee me-1"></i>Budget Min (₹/month)</label>
+                                    <input type="number" name="budget_min" class="form-control glass-input" placeholder="e.g. 5000">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label"><i class="bi bi-currency-rupee me-1"></i>Budget Max (₹/month)</label>
+                                    <input type="number" name="budget_max" class="form-control glass-input" placeholder="e.g. 15000">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label"><i class="bi bi-calendar-check me-1"></i>Move-in Timeline</label>
+                                    <select name="preferred_move_in" class="form-select glass-input">
+                                        <option value="flexible">Flexible</option>
+                                        <option value="immediate">Immediate</option>
+                                        <option value="within_month">Within a Month</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="bi bi-building me-1"></i>City *</label>
+                                    <input type="text" name="city" class="form-control glass-input" required placeholder="e.g. Kolkata">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="bi bi-pin-map me-1"></i>Locality / Area</label>
+                                    <input type="text" name="locality" class="form-control glass-input" placeholder="e.g. Salt Lake">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label"><i class="bi bi-tags me-1"></i>Interests (comma-separated)</label>
+                                    <input type="text" name="interests" class="form-control glass-input" placeholder="e.g. Gaming, Reading, Hiking, Cooking, Music">
+                                </div>
+
+                                <!-- Hidden lat/lng fields -->
+                                <input type="hidden" name="latitude" id="reg-lat" value="">
+                                <input type="hidden" name="longitude" id="reg-lng" value="">
+
+                                <div class="col-12">
+                                    <label class="form-label"><i class="bi bi-geo-alt me-1"></i>Pin Your Location (click on map)</label>
+                                    <div id="reg-map" style="height:220px; border-radius:12px; border: 1px solid rgba(255,255,255,0.1);"></div>
+                                    <small class="text-muted">Click to set your approximate location for geo-spatial matching.</small>
+                                </div>
+
+                                <!-- Profile Photo Upload (visual placeholder) -->
+                                <div class="col-12">
+                                    <label class="form-label"><i class="bi bi-camera me-1"></i>Profile Photo</label>
+                                    <div class="glass-card p-4 text-center" style="border: 2px dashed rgba(166,130,255,0.3); border-radius:12px; cursor:pointer;" id="photoDropzone">
+                                        <i class="bi bi-cloud-arrow-up display-5 text-accent d-block mb-2"></i>
+                                        <p class="mb-1 text-muted">Drag &amp; drop or click to upload</p>
+                                        <small class="text-muted">JPG, PNG — Max 5MB (optional for demo)</small>
+                                        <input type="file" name="profile_photo" accept="image/*" class="d-none" id="photoInput">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Navigation Buttons -->
+                        <div class="d-flex justify-content-between mt-4 pt-3 border-top border-secondary border-opacity-25">
+                            <button type="button" class="btn btn-outline-secondary" id="prevBtn" onclick="changeStep(-1)" style="display:none;">
+                                <i class="bi bi-arrow-left me-1"></i>Previous
+                            </button>
+                            <div class="ms-auto d-flex gap-2 align-items-center">
+                                <small class="text-muted me-2" id="stepCounter">Step 1 of 5</small>
+                                <button type="button" class="btn btn-accent" id="nextBtn" onclick="changeStep(1)">
+                                    Next<i class="bi bi-arrow-right ms-1"></i>
+                                </button>
+                                <button type="submit" class="btn btn-success px-4" id="submitBtn" style="display:none;">
+                                    <i class="bi bi-check-circle me-1"></i>Create Profile
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="text-center mt-3">
+                        <small class="text-muted">Already have an account? <a href="{{ url_for('login') }}" class="text-accent">Log in</a></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentStep = 1;
+const totalSteps = 5;
+
+function changeStep(direction) {
+    const steps = document.querySelectorAll('.form-step');
+    const indicators = document.querySelectorAll('.step-indicator');
+
+    steps[currentStep - 1].classList.remove('active');
+    indicators[currentStep - 1].classList.remove('active');
+
+    currentStep += direction;
+
+    steps[currentStep - 1].classList.add('active');
+    indicators[currentStep - 1].classList.add('active');
+
+    document.getElementById('prevBtn').style.display = currentStep === 1 ? 'none' : 'inline-block';
+    document.getElementById('nextBtn').style.display = currentStep === totalSteps ? 'none' : 'inline-block';
+    document.getElementById('submitBtn').style.display = currentStep === totalSteps ? 'inline-block' : 'none';
+    document.getElementById('stepCounter').textContent = `Step ${currentStep} of ${totalSteps}`;
+    document.getElementById('progressBar').style.width = `${(currentStep / totalSteps) * 100}%`;
+
+    // Scroll to top of form
+    document.getElementById('registerForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Location Map (lazy-init when Step 5 is reached)
+let mapInitialized = false;
+const originalChangeStep = changeStep;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Photo upload click handler
+    const dropzone = document.getElementById('photoDropzone');
+    const photoInput = document.getElementById('photoInput');
+    if (dropzone && photoInput) {
+        dropzone.addEventListener('click', () => photoInput.click());
+        photoInput.addEventListener('change', () => {
+            if (photoInput.files.length) {
+                dropzone.querySelector('p').textContent = photoInput.files[0].name;
+                dropzone.querySelector('i').className = 'bi bi-check-circle display-5 text-success d-block mb-2';
+            }
+        });
+    }
+
+    // Observer for map initialization when step-5 becomes visible
+    const observer = new MutationObserver(() => {
+        const step5 = document.getElementById('step-5');
+        if (step5 && step5.classList.contains('active') && !mapInitialized) {
+            mapInitialized = true;
+            setTimeout(initRegMap, 200);
+        }
+    });
+    observer.observe(document.getElementById('registerForm'), { subtree: true, attributes: true, attributeFilter: ['class'] });
+});
+
+function initRegMap() {
+    const map = L.map('reg-map').setView([22.5726, 88.3639], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    let marker = null;
+    map.on('click', function(e) {
+        if (marker) map.removeLayer(marker);
+        marker = L.marker(e.latlng).addTo(map);
+        document.getElementById('reg-lat').value = e.latlng.lat.toFixed(6);
+        document.getElementById('reg-lng').value = e.latlng.lng.toFixed(6);
+    });
+
+    setTimeout(() => map.invalidateSize(), 300);
+}
+</script>
+{% endblock %}

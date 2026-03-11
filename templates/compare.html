@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% block title %}Compare - CohabitAI{% endblock %}
+
+{% block content %}
+<section class="py-5" style="margin-top:70px;">
+    <div class="container">
+        <h3 class="fw-bold mb-4"><i class="bi bi-bar-chart-line-fill text-accent me-2"></i>Comparative Analysis Tool</h3>
+
+        <!-- User Selection -->
+        <div class="glass-card p-4 mb-4">
+            <form method="GET" action="{{ url_for('compare_view') }}" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">User A</label>
+                    <select name="user1" class="form-select glass-input" required>
+                        <option value="{{ current_user.id }}">{{ current_user.full_name }} (You)</option>
+                        {% for u in all_users %}
+                        {% if u.id != current_user.id %}
+                        <option value="{{ u.id }}" {{ 'selected' if request.args.get('user1')|int == u.id }}>{{ u.full_name }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">User B</label>
+                    <select name="user2" class="form-select glass-input" required>
+                        <option value="">Select a user...</option>
+                        {% for u in all_users %}
+                        {% if u.id != current_user.id %}
+                        <option value="{{ u.id }}" {{ 'selected' if request.args.get('user2')|int == u.id }}>{{ u.full_name }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-accent w-100">
+                        <i class="bi bi-arrow-left-right me-1"></i>Compare
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        {% if comparison %}
+        <!-- Score Header -->
+        <div class="glass-card p-4 mb-4 text-center">
+            <div class="row align-items-center">
+                <div class="col-md-4">
+                    <div class="avatar-circle-lg bg-primary mx-auto mb-2">{{ user_a.full_name[:2]|upper }}</div>
+                    <h5 class="fw-bold">{{ user_a.full_name }}</h5>
+                    <small class="text-muted">{{ user_a.occupation|replace('_',' ')|title }}</small>
+                </div>
+                <div class="col-md-4">
+                    <div class="compat-circle {{ 'high' if score >= 85 else 'medium' if score >= 70 else 'low' }} mx-auto">
+                        <span class="compat-value">{{ score }}%</span>
+                        <span class="compat-label">Compatible</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="avatar-circle-lg bg-info mx-auto mb-2">{{ user_b.full_name[:2]|upper }}</div>
+                    <h5 class="fw-bold">{{ user_b.full_name }}</h5>
+                    <small class="text-muted">{{ user_b.occupation|replace('_',' ')|title }}</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Radar Chart -->
+            <div class="col-lg-6">
+                <div class="glass-card p-4 h-100">
+                    <h5 class="fw-bold mb-3">Profile Overlay</h5>
+                    <canvas id="compareRadar" height="300"></canvas>
+                </div>
+            </div>
+
+            <!-- Feature Differential -->
+            <div class="col-lg-6">
+                <div class="glass-card p-4 h-100">
+                    <h5 class="fw-bold mb-3">Feature Differential (Weighted Impact)</h5>
+                    <canvas id="diffBar" height="300"></canvas>
+                </div>
+            </div>
+
+            <!-- Top Overlaps -->
+            <div class="col-md-6">
+                <div class="glass-card p-4 h-100">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-hand-thumbs-up-fill text-success me-2"></i>Top 5 Overlaps</h5>
+                    {% for item in overlaps %}
+                    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25">
+                        <div>
+                            <strong>{{ item.label }}</strong>
+                            <br><small class="text-muted">{{ item.low_label }} ← → {{ item.high_label }}</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-success bg-opacity-25 text-success">Diff: {{ item.diff }}/4</span>
+                            <br><small>A: {{ item.value_a|int }} | B: {{ item.value_b|int }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Top Conflicts -->
+            <div class="col-md-6">
+                <div class="glass-card p-4 h-100">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>Top 5 Conflicts</h5>
+                    {% for item in conflicts %}
+                    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25">
+                        <div>
+                            <strong>{{ item.label }}</strong>
+                            <br><small class="text-muted">{{ item.low_label }} ← → {{ item.high_label }}</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-{{ 'danger' if item.weighted_diff > 5 else 'warning text-dark' if item.weighted_diff > 2 else 'secondary' }} bg-opacity-75">
+                                Impact: {{ item.weighted_diff }}
+                            </span>
+                            <br><small>A: {{ item.value_a|int }} | B: {{ item.value_b|int }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Constraint Warnings -->
+            {% if constraint_issues %}
+            <div class="col-12">
+                <div class="alert alert-warning glass-alert">
+                    <h6 class="fw-bold"><i class="bi bi-exclamation-triangle me-2"></i>Hard Constraint Warnings</h6>
+                    <ul class="mb-0">
+                        {% for issue in constraint_issues %}
+                        <li>{{ issue }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Discussion Prompts -->
+            <div class="col-12">
+                <div class="glass-card p-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-chat-square-text text-accent me-2"></i>Pre-Move-in Discussion Guide</h5>
+                    <div class="discussion-prompts" style="white-space: pre-line;">{{ discussion_prompts }}</div>
+                </div>
+            </div>
+        </div>
+
+        {% else %}
+        <div class="glass-card p-5 text-center">
+            <i class="bi bi-bar-chart-line display-1 text-muted"></i>
+            <h5 class="mt-3">Select two users to compare</h5>
+            <p class="text-muted">The Compare Tool will show a detailed breakdown of compatibility, overlaps, and conflicts.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+{% if comparison %}
+<script>
+const vecA = {{ vec_a | tojson }};
+const vecB = {{ vec_b | tojson }};
+const diffs = {{ comparison | tojson }};
+
+const labels = Object.keys(vecA).map(k => k.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()));
+
+// Radar Chart
+new Chart(document.getElementById('compareRadar'), {
+    type: 'radar',
+    data: {
+        labels: labels,
+        datasets: [
+            {
+                label: '{{ user_a.full_name }}',
+                data: Object.values(vecA),
+                backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                borderColor: 'rgba(99, 102, 241, 1)',
+                borderWidth: 2,
+            },
+            {
+                label: '{{ user_b.full_name }}',
+                data: Object.values(vecB),
+                backgroundColor: 'rgba(34, 211, 238, 0.2)',
+                borderColor: 'rgba(34, 211, 238, 1)',
+                borderWidth: 2,
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            r: { min: 0, max: 5, ticks: { stepSize: 1, color: '#888' }, grid: { color: 'rgba(255,255,255,0.1)' }, angleLines: { color: 'rgba(255,255,255,0.1)' }, pointLabels: { color: '#ccc', font: { size: 10 } } }
+        },
+        plugins: { legend: { labels: { color: '#ccc' } } }
+    }
+});
+
+// Differential Bar Chart
+new Chart(document.getElementById('diffBar'), {
+    type: 'bar',
+    data: {
+        labels: diffs.map(d => d.label),
+        datasets: [{
+            label: 'Weighted Difference',
+            data: diffs.map(d => d.weighted_diff),
+            backgroundColor: diffs.map(d => d.weighted_diff > 5 ? 'rgba(239,68,68,0.7)' : d.weighted_diff > 2 ? 'rgba(234,179,8,0.7)' : 'rgba(34,197,94,0.7)'),
+            borderRadius: 6,
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        scales: {
+            x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888' } },
+            y: { grid: { display: false }, ticks: { color: '#ccc', font: { size: 11 } } }
+        },
+        plugins: { legend: { display: false } }
+    }
+});
+</script>
+{% endif %}
+{% endblock %}

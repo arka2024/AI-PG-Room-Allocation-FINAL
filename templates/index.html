@@ -1,0 +1,438 @@
+{% extends "base.html" %}
+{% block title %}CohabitAI - Find Your Perfect Roommate{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Particle canvas behind hero */
+#particles-canvas { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- ══════════════════════════════════════
+     SECTION 1 — Animated Hero
+     ══════════════════════════════════════ -->
+<section class="hero-section d-flex align-items-center position-relative" id="hero">
+    <canvas id="particles-canvas"></canvas>
+    <div class="container position-relative" style="z-index:1;">
+        <div class="row align-items-center">
+            <div class="col-lg-7 anim-fade-up">
+                <div class="hero-badge mb-3">
+                    <span class="badge bg-accent bg-opacity-10 text-accent px-3 py-2 rounded-pill anim-fade-up" style="animation-delay:.15s;">
+                        <i class="bi bi-stars me-1"></i> AI-Powered Roommate Matching
+                    </span>
+                </div>
+                <h1 class="display-3 fw-800 mb-3 anim-fade-up" style="animation-delay:.25s;">
+                    Find Your <span class="text-accent text-glow">Perfect</span><br>
+                    Roommate Match
+                </h1>
+                <p class="lead text-muted mb-4 pe-lg-5 anim-fade-up" style="animation-delay:.4s;">
+                    CohabitAI uses advanced compatibility algorithms and geo-spatial analytics 
+                    to match you with ideal roommates. No more random pairings — find someone 
+                    who truly fits your lifestyle.
+                </p>
+                <div class="d-flex gap-3 flex-wrap anim-fade-up" style="animation-delay:.55s;">
+                    <a href="{{ url_for('register') }}" class="btn btn-accent btn-lg px-4 btn-glow">
+                        <i class="bi bi-rocket-takeoff me-2"></i>Get Started Free
+                    </a>
+                    <a href="#features" class="btn btn-outline-light btn-lg px-4">
+                        <i class="bi bi-play-circle me-2"></i>How It Works
+                    </a>
+                </div>
+                <div class="d-flex gap-4 mt-4 pt-2 anim-fade-up" style="animation-delay:.7s;">
+                    <div class="text-center">
+                        <h4 class="fw-bold text-accent mb-0 counter" data-target="95">0</h4>
+                        <small class="text-muted">% Match Accuracy</small>
+                    </div>
+                    <div class="text-center">
+                        <h4 class="fw-bold text-accent mb-0"><span class="counter" data-target="10">0</span>K+</h4>
+                        <small class="text-muted">Happy Residents</small>
+                    </div>
+                    <div class="text-center">
+                        <h4 class="fw-bold text-accent mb-0"><span class="counter" data-target="50">0</span>+</h4>
+                        <small class="text-muted">Cities Covered</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block">
+                <div class="hero-visual anim-float">
+                    <div class="hero-card glass-card p-4 mb-3 anim-fade-right" style="transform: rotate(-3deg); animation-delay:.3s;">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="avatar-circle bg-primary">AK</div>
+                            <div>
+                                <h6 class="mb-0">Ananya K.</h6>
+                                <small class="text-muted">Software Engineer · Bangalore</small>
+                            </div>
+                            <span class="badge bg-success ms-auto">92% Match</span>
+                        </div>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <span class="badge bg-secondary bg-opacity-25">🌙 Night Owl</span>
+                            <span class="badge bg-secondary bg-opacity-25">🧹 Very Tidy</span>
+                            <span class="badge bg-secondary bg-opacity-25">🧘 Introvert</span>
+                        </div>
+                    </div>
+                    <div class="hero-card glass-card p-4 anim-fade-right" style="transform: rotate(2deg); margin-left: 40px; animation-delay:.5s;">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="avatar-circle bg-info">RS</div>
+                            <div>
+                                <h6 class="mb-0">Rohan S.</h6>
+                                <small class="text-muted">MBA Student · Mumbai</small>
+                            </div>
+                            <span class="badge bg-warning text-dark ms-auto">78% Match</span>
+                        </div>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <span class="badge bg-secondary bg-opacity-25">🌅 Early Bird</span>
+                            <span class="badge bg-secondary bg-opacity-25">🍳 Loves Cooking</span>
+                            <span class="badge bg-secondary bg-opacity-25">🎉 Extrovert</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Scroll indicator -->
+    <div class="scroll-indicator">
+        <i class="bi bi-chevron-double-down"></i>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     SECTION 2 — Trusted-by Ribbon
+     ══════════════════════════════════════ -->
+<section class="py-4 border-bottom border-secondary border-opacity-10">
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-center gap-5 flex-wrap text-muted scroll-reveal" style="opacity:.5;">
+            <span><i class="bi bi-shield-check me-1"></i> SSL Encrypted</span>
+            <span><i class="bi bi-patch-check me-1"></i> Verified Profiles</span>
+            <span><i class="bi bi-lightning me-1"></i> Real-Time Matching</span>
+            <span><i class="bi bi-globe me-1"></i> 50+ Cities</span>
+            <span><i class="bi bi-people me-1"></i> 10K+ Users</span>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     SECTION 3 — Features (4 cards)
+     ══════════════════════════════════════ -->
+<section id="features" class="py-5 mt-4">
+    <div class="container">
+        <div class="text-center mb-5 scroll-reveal">
+            <span class="badge bg-accent bg-opacity-10 text-accent px-3 py-2 rounded-pill mb-3">Core Modules</span>
+            <h2 class="display-5 fw-bold">How CohabitAI Works</h2>
+            <p class="text-muted lead">Four powerful modules working together for perfect matches</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3 scroll-reveal" style="transition-delay:.05s;">
+                <div class="feature-card glass-card p-4 h-100 text-center feature-hover">
+                    <div class="feature-icon mb-3"><i class="bi bi-geo-alt-fill"></i></div>
+                    <h5 class="fw-bold">Geo-Spatial Discovery</h5>
+                    <p class="text-muted small">Find compatible roommates on an interactive map. Search by radius, see compatibility scores on pins.</p>
+                    <div class="mt-auto"><span class="workflow-tag tag-green">Leaflet.js</span></div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 scroll-reveal" style="transition-delay:.15s;">
+                <div class="feature-card glass-card p-4 h-100 text-center feature-hover">
+                    <div class="feature-icon mb-3"><i class="bi bi-robot"></i></div>
+                    <h5 class="fw-bold">AI Matching</h5>
+                    <p class="text-muted small">Weighted Cosine Similarity across 10 lifestyle dimensions. Smart filters + implicit compatibility sorting.</p>
+                    <div class="mt-auto"><span class="workflow-tag tag-purple">Cosine Similarity</span></div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 scroll-reveal" style="transition-delay:.25s;">
+                <div class="feature-card glass-card p-4 h-100 text-center feature-hover">
+                    <div class="feature-icon mb-3"><i class="bi bi-bar-chart-line-fill"></i></div>
+                    <h5 class="fw-bold">Compare Tool</h5>
+                    <p class="text-muted small">Side-by-side analysis with radar charts. See top overlaps and conflicts before deciding.</p>
+                    <div class="mt-auto"><span class="workflow-tag tag-blue">Chart.js</span></div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 scroll-reveal" style="transition-delay:.35s;">
+                <div class="feature-card glass-card p-4 h-100 text-center feature-hover">
+                    <div class="feature-icon mb-3"><i class="bi bi-chat-dots-fill"></i></div>
+                    <h5 class="fw-bold">AI Chatbot</h5>
+                    <p class="text-muted small">Profile optimization tips, search strategy advice, and conflict resolution prompts.</p>
+                    <div class="mt-auto"><span class="workflow-tag tag-amber">NLP Intent</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     SECTION 4 — How It Works (Timeline)
+     ══════════════════════════════════════ -->
+<section id="how-it-works" class="py-5">
+    <div class="container">
+        <div class="text-center mb-5 scroll-reveal">
+            <span class="badge bg-accent bg-opacity-10 text-accent px-3 py-2 rounded-pill mb-3">Your Journey</span>
+            <h2 class="display-5 fw-bold">From Sign-Up to Move-In</h2>
+            <p class="text-muted lead">Five simple steps to your ideal living arrangement</p>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="onboarding-timeline">
+                    <div class="timeline-item scroll-reveal">
+                        <div class="timeline-marker"><div class="timeline-number">01</div><div class="timeline-line"></div></div>
+                        <div class="timeline-content glass-card p-4">
+                            <span class="timeline-label">SIGN UP</span>
+                            <h5 class="fw-bold mt-1 mb-1">Create Your Account</h5>
+                            <p class="text-muted small mb-0">Register with email, verify, and enter the platform in seconds.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item scroll-reveal" style="transition-delay:.1s;">
+                        <div class="timeline-marker"><div class="timeline-number">02</div><div class="timeline-line"></div></div>
+                        <div class="timeline-content glass-card p-4">
+                            <span class="timeline-label">QUESTIONNAIRE</span>
+                            <h5 class="fw-bold mt-1 mb-1">Complete 5-Step Profile</h5>
+                            <p class="text-muted small mb-0">Identity, lifestyle, personality, constraints, location — all encoded into your AI feature vector.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item scroll-reveal" style="transition-delay:.2s;">
+                        <div class="timeline-marker"><div class="timeline-number">03</div><div class="timeline-line"></div></div>
+                        <div class="timeline-content glass-card p-4">
+                            <span class="timeline-label">DISCOVER</span>
+                            <h5 class="fw-bold mt-1 mb-1">Explore Map & AI Results</h5>
+                            <p class="text-muted small mb-0">Browse the interactive map with color-coded pins, or let the AI rank candidates for you.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item scroll-reveal" style="transition-delay:.3s;">
+                        <div class="timeline-marker"><div class="timeline-number">04</div><div class="timeline-line"></div></div>
+                        <div class="timeline-content glass-card p-4">
+                            <span class="timeline-label">COMPARE</span>
+                            <h5 class="fw-bold mt-1 mb-1">Analyze & Chat with AI</h5>
+                            <p class="text-muted small mb-0">Side-by-side radar charts, conflict detection, and AI chatbot guidance.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item last scroll-reveal" style="transition-delay:.4s;">
+                        <div class="timeline-marker"><div class="timeline-number">05</div></div>
+                        <div class="timeline-content glass-card p-4">
+                            <span class="timeline-label">CONNECT</span>
+                            <h5 class="fw-bold mt-1 mb-1">Move In & Review</h5>
+                            <p class="text-muted small mb-0">Reach out, have guided discussions, settle in, and leave multi-dimensional reviews.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     SECTION 5 — Tech Stack
+     ══════════════════════════════════════ -->
+<section id="tech-stack" class="py-5">
+    <div class="container">
+        <div class="text-center mb-5 scroll-reveal">
+            <span class="badge bg-accent bg-opacity-10 text-accent px-3 py-2 rounded-pill mb-3">Under the Hood</span>
+            <h2 class="display-5 fw-bold">Built with Modern Tech</h2>
+            <p class="text-muted lead">Enterprise-grade stack powering your matching experience</p>
+        </div>
+        <div class="row g-3 justify-content-center">
+            {% set techs = [
+                ('Python / Flask', 'bi-filetype-py', 'Backend'),
+                ('SQLAlchemy', 'bi-database', 'ORM'),
+                ('Cosine Similarity', 'bi-vector-pen', 'AI Core'),
+                ('Leaflet.js', 'bi-geo-alt', 'Maps'),
+                ('Chart.js', 'bi-bar-chart-line', 'Visuals'),
+                ('Bootstrap 5', 'bi-bootstrap', 'UI'),
+                ('NLP Intent', 'bi-chat-dots', 'Chatbot'),
+                ('Haversine', 'bi-compass', 'Geo-Math')
+            ] %}
+            {% for name, icon, label in techs %}
+            <div class="col-6 col-md-3 col-lg-auto scroll-reveal" style="transition-delay:{{ loop.index0 * 0.05 }}s;">
+                <div class="glass-card p-3 text-center tech-card" style="min-width:130px;">
+                    <i class="bi {{ icon }} fs-3 text-accent d-block mb-1"></i>
+                    <strong class="d-block" style="font-size:.85rem;">{{ name }}</strong>
+                    <small class="text-muted" style="font-size:.7rem;">{{ label }}</small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4 scroll-reveal">
+            <a href="{{ url_for('architecture') }}" class="btn btn-outline-accent px-4">
+                <i class="bi bi-diagram-3 me-2"></i>Explore Full Architecture →
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     SECTION 6 — Testimonials
+     ══════════════════════════════════════ -->
+<section id="testimonials" class="py-5">
+    <div class="container">
+        <div class="text-center mb-5 scroll-reveal">
+            <span class="badge bg-accent bg-opacity-10 text-accent px-3 py-2 rounded-pill mb-3">Success Stories</span>
+            <h2 class="display-5 fw-bold">What Users Say</h2>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-4 scroll-reveal" style="transition-delay:.05s;">
+                <div class="glass-card p-4 h-100 testimonial-card">
+                    <div class="d-flex gap-1 mb-2 text-warning">
+                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                    </div>
+                    <p class="mb-3"><em>"The compatibility score was scarily accurate. My roommate and I have the exact same sleep schedule and cleanliness standards. 10/10 would recommend!"</em></p>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="avatar-circle-sm bg-primary">PS</div>
+                        <div><strong style="font-size:.85rem;">Priya S.</strong><br><small class="text-muted">Kolkata · Student</small></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 scroll-reveal" style="transition-delay:.15s;">
+                <div class="glass-card p-4 h-100 testimonial-card">
+                    <div class="d-flex gap-1 mb-2 text-warning">
+                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i>
+                    </div>
+                    <p class="mb-3"><em>"The map feature is incredible. I found 3 compatible people within 2km of my office. The compare tool made the final decision easy."</em></p>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="avatar-circle-sm bg-info">AK</div>
+                        <div><strong style="font-size:.85rem;">Arjun K.</strong><br><small class="text-muted">Bangalore · Engineer</small></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 scroll-reveal" style="transition-delay:.25s;">
+                <div class="glass-card p-4 h-100 testimonial-card">
+                    <div class="d-flex gap-1 mb-2 text-warning">
+                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                    </div>
+                    <p class="mb-3"><em>"The AI chatbot helped me optimize my profile and understand what to look for. Best roommate platform in India, hands down."</em></p>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="avatar-circle-sm bg-success">SM</div>
+                        <div><strong style="font-size:.85rem;">Sneha M.</strong><br><small class="text-muted">Mumbai · Designer</small></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     SECTION 7 — Stats Counter Bar
+     ══════════════════════════════════════ -->
+<section class="py-5">
+    <div class="container">
+        <div class="glass-card p-4 scroll-reveal" style="background:linear-gradient(135deg,rgba(99,102,241,.08),rgba(34,211,238,.06))!important;">
+            <div class="row g-4 text-center">
+                <div class="col-6 col-md-3">
+                    <h2 class="fw-800 text-accent mb-0 counter" data-target="10452">0</h2>
+                    <small class="text-muted">Registered Users</small>
+                </div>
+                <div class="col-6 col-md-3">
+                    <h2 class="fw-800 text-accent mb-0 counter" data-target="8714">0</h2>
+                    <small class="text-muted">Matches Made</small>
+                </div>
+                <div class="col-6 col-md-3">
+                    <h2 class="fw-800 text-accent mb-0 counter" data-target="52">0</h2>
+                    <small class="text-muted">Cities Active</small>
+                </div>
+                <div class="col-6 col-md-3">
+                    <h2 class="fw-800 text-accent mb-0 counter" data-target="4800">0</h2>
+                    <small class="text-muted">Reviews Written</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     SECTION 8 — CTA
+     ══════════════════════════════════════ -->
+<section class="py-5 mb-5">
+    <div class="container">
+        <div class="glass-card p-5 text-center cta-card scroll-reveal">
+            <h2 class="display-6 fw-bold mb-3">Ready to Find Your Ideal Roommate?</h2>
+            <p class="text-muted lead mb-4">Join thousands of happy residents who found compatible living partners through CohabitAI.</p>
+            <a href="{{ url_for('register') }}" class="btn btn-accent btn-lg px-5 btn-glow">
+                <i class="bi bi-person-plus me-2"></i>Create Your Profile Now
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── Scroll-Reveal Animation ──
+const revealEls = document.querySelectorAll('.scroll-reveal');
+const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('revealed'); revealObserver.unobserve(e.target); }});
+}, { threshold: 0.12 });
+revealEls.forEach(el => revealObserver.observe(el));
+
+// ── Counter Animation ──
+const counterEls = document.querySelectorAll('.counter');
+const counterObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+        if (e.isIntersecting) {
+            const el = e.target;
+            const target = +el.dataset.target;
+            const increment = target / 60;
+            let current = 0;
+            const tick = () => {
+                current += increment;
+                if (current >= target) { el.textContent = target.toLocaleString(); }
+                else { el.textContent = Math.floor(current).toLocaleString(); requestAnimationFrame(tick); }
+            };
+            tick();
+            counterObserver.unobserve(el);
+        }
+    });
+}, { threshold: 0.5 });
+counterEls.forEach(el => counterObserver.observe(el));
+
+// ── Hero Particles ──
+(function() {
+    const canvas = document.getElementById('particles-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let w, h, particles = [];
+    function resize() { w = canvas.width = canvas.offsetWidth; h = canvas.height = canvas.offsetHeight; }
+    resize(); window.addEventListener('resize', resize);
+
+    for (let i = 0; i < 60; i++) {
+        particles.push({
+            x: Math.random() * w, y: Math.random() * h,
+            vx: (Math.random() - .5) * .4, vy: (Math.random() - .5) * .4,
+            r: Math.random() * 2 + 1,
+            alpha: Math.random() * .4 + .1
+        });
+    }
+    function draw() {
+        ctx.clearRect(0, 0, w, h);
+        particles.forEach(p => {
+            p.x += p.vx; p.y += p.vy;
+            if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
+            if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(99,102,241,${p.alpha})`; ctx.fill();
+        });
+        // Draw connecting lines for nearby particles
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x;
+                const dy = particles[i].y - particles[j].y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 120) {
+                    ctx.beginPath();
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.strokeStyle = `rgba(99,102,241,${.08 * (1 - dist / 120)})`;
+                    ctx.stroke();
+                }
+            }
+        }
+        requestAnimationFrame(draw);
+    }
+    draw();
+})();
+
+// ── Smooth scroll for anchor links ──
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+        e.preventDefault();
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+});
+</script>
+{% endblock %}

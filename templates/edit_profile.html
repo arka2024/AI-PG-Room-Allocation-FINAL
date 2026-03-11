@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% block title %}Edit Profile - CohabitAI{% endblock %}
+
+{% block content %}
+<section class="py-5" style="margin-top:70px;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="glass-card p-4 p-lg-5">
+                    <h3 class="fw-bold mb-4"><i class="bi bi-pencil-square text-accent me-2"></i>Edit Your Profile</h3>
+
+                    <form method="POST" action="{{ url_for('edit_profile') }}">
+                        <h5 class="fw-bold mt-2 mb-3">Basic Info</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" name="full_name" class="form-control glass-input" value="{{ user.full_name }}" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Age</label>
+                                <input type="number" name="age" class="form-control glass-input" value="{{ user.age }}" min="18" max="65" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Gender</label>
+                                <select name="gender" class="form-select glass-input">
+                                    <option value="male" {{ 'selected' if user.gender=='male' }}>Male</option>
+                                    <option value="female" {{ 'selected' if user.gender=='female' }}>Female</option>
+                                    <option value="non-binary" {{ 'selected' if user.gender=='non-binary' }}>Non-binary</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Occupation</label>
+                                <select name="occupation" class="form-select glass-input">
+                                    <option value="student" {{ 'selected' if user.occupation=='student' }}>Student</option>
+                                    <option value="working_professional" {{ 'selected' if user.occupation=='working_professional' }}>Working Professional</option>
+                                    <option value="freelancer" {{ 'selected' if user.occupation=='freelancer' }}>Freelancer</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">City</label>
+                                <input type="text" name="city" class="form-control glass-input" value="{{ user.city or '' }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Locality</label>
+                                <input type="text" name="locality" class="form-control glass-input" value="{{ user.locality or '' }}">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Bio</label>
+                                <textarea name="bio" class="form-control glass-input" rows="2">{{ user.bio or '' }}</textarea>
+                            </div>
+                            <input type="hidden" name="latitude" id="edit-lat" value="{{ user.latitude or '' }}">
+                            <input type="hidden" name="longitude" id="edit-lng" value="{{ user.longitude or '' }}">
+                            <div class="col-12">
+                                <label class="form-label"><i class="bi bi-geo-alt me-1"></i>Location (click to set)</label>
+                                <div id="edit-map" style="height:200px; border-radius:12px; border: 1px solid rgba(255,255,255,0.1);"></div>
+                            </div>
+                        </div>
+
+                        <h5 class="fw-bold mb-3">Lifestyle</h5>
+                        <div class="row g-4 mb-4">
+                            {% set lifestyle = [
+                                ('sleep_schedule', 'Sleep Schedule', '🌅 Early Bird', '🌙 Night Owl'),
+                                ('cleanliness', 'Cleanliness', '😌 Relaxed', '✨ Very Tidy'),
+                                ('noise_tolerance', 'Noise Tolerance', '🤫 Quiet', '🔊 Noise OK'),
+                                ('cooking_frequency', 'Cooking', '🍕 Never', '👨‍🍳 Daily'),
+                                ('guest_frequency', 'Guest Frequency', '🚫 No Guests', '🎉 Frequent'),
+                                ('workout_habit', 'Workout', '🛋️ Sedentary', '🏋️ Daily')
+                            ] %}
+                            {% for name, label, low, high in lifestyle %}
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">{{ label }}</label>
+                                <input type="range" name="{{ name }}" class="form-range accent-range" min="1" max="5" value="{{ user[name] or 3 }}">
+                                <div class="d-flex justify-content-between"><small class="text-muted">{{ low }}</small><small class="text-muted">{{ high }}</small></div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <h5 class="fw-bold mb-3">Personality</h5>
+                        <div class="row g-4 mb-4">
+                            {% set personality = [
+                                ('introversion_extroversion', 'Intro/Extroversion', '🧘 Introvert', '🎤 Extrovert'),
+                                ('communication_style', 'Communication', '🤐 Reserved', '💬 Open'),
+                                ('conflict_resolution', 'Conflict Style', '😶 Avoidant', '🗣️ Direct'),
+                                ('social_battery', 'Social Battery', '🔋 Alone Time', '⚡ Social')
+                            ] %}
+                            {% for name, label, low, high in personality %}
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">{{ label }}</label>
+                                <input type="range" name="{{ name }}" class="form-range accent-range" min="1" max="5" value="{{ user[name] or 3 }}">
+                                <div class="d-flex justify-content-between"><small class="text-muted">{{ low }}</small><small class="text-muted">{{ high }}</small></div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <h5 class="fw-bold mb-3">Preferences</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-3">
+                                <label class="form-label">Budget Min ₹</label>
+                                <input type="number" name="budget_min" class="form-control glass-input" value="{{ user.budget_min or '' }}">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Budget Max ₹</label>
+                                <input type="number" name="budget_max" class="form-control glass-input" value="{{ user.budget_max or '' }}">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Smoking</label>
+                                <select name="smoking" class="form-select glass-input">
+                                    <option value="never" {{ 'selected' if user.smoking=='never' }}>Never</option>
+                                    <option value="occasionally" {{ 'selected' if user.smoking=='occasionally' }}>Occasionally</option>
+                                    <option value="regularly" {{ 'selected' if user.smoking=='regularly' }}>Regularly</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Drinking</label>
+                                <select name="drinking" class="form-select glass-input">
+                                    <option value="never" {{ 'selected' if user.drinking=='never' }}>Never</option>
+                                    <option value="occasionally" {{ 'selected' if user.drinking=='occasionally' }}>Occasionally</option>
+                                    <option value="regularly" {{ 'selected' if user.drinking=='regularly' }}>Regularly</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Food</label>
+                                <select name="veg_nonveg" class="form-select glass-input">
+                                    <option value="nonveg" {{ 'selected' if user.veg_nonveg=='nonveg' }}>Non-Veg</option>
+                                    <option value="veg" {{ 'selected' if user.veg_nonveg=='veg' }}>Vegetarian</option>
+                                    <option value="eggetarian" {{ 'selected' if user.veg_nonveg=='eggetarian' }}>Eggetarian</option>
+                                    <option value="vegan" {{ 'selected' if user.veg_nonveg=='vegan' }}>Vegan</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Gender Pref (Roommate)</label>
+                                <select name="gender_preference" class="form-select glass-input">
+                                    <option value="any" {{ 'selected' if user.gender_preference=='any' }}>Any</option>
+                                    <option value="male" {{ 'selected' if user.gender_preference=='male' }}>Male</option>
+                                    <option value="female" {{ 'selected' if user.gender_preference=='female' }}>Female</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="pet_friendly" {{ 'checked' if user.pet_friendly }}>
+                                    <label class="form-check-label">Pet Friendly 🐾</label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Interests (comma-separated)</label>
+                                <input type="text" name="interests" class="form-control glass-input" value="{{ user.get_interests_list() | join(', ') }}">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-accent px-4">
+                            <i class="bi bi-check-circle me-1"></i>Save Changes
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const lat = parseFloat('{{ user.latitude or 22.5726 }}');
+    const lng = parseFloat('{{ user.longitude or 88.3639 }}');
+    const map = L.map('edit-map').setView([lat, lng], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+
+    let marker = L.marker([lat, lng]).addTo(map);
+    map.on('click', function(e) {
+        if (marker) map.removeLayer(marker);
+        marker = L.marker(e.latlng).addTo(map);
+        document.getElementById('edit-lat').value = e.latlng.lat.toFixed(6);
+        document.getElementById('edit-lng').value = e.latlng.lng.toFixed(6);
+    });
+});
+</script>
+{% endblock %}

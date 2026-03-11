@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+{% block title %}Login - CohabitAI{% endblock %}
+
+{% block extra_css %}
+<style>
+.login-bg-scene { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; overflow:hidden; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- ═══ Login Background Graphics ═══ -->
+<div class="login-bg-scene">
+    <!-- Gradient orbs -->
+    <div class="login-orb orb-1"></div>
+    <div class="login-orb orb-2"></div>
+    <div class="login-orb orb-3"></div>
+
+    <!-- Floating themed SVG icons -->
+    <!-- House -->
+    <svg class="login-float-svg" style="top:8%;left:5%;animation-duration:18s;" viewBox="0 0 64 64" width="52" height="52">
+        <g fill="none" stroke="rgba(99,102,241,.25)" stroke-width="2" stroke-linecap="round">
+            <path d="M8 32 L32 10 L56 32"/><path d="M14 32 V54 H50 V32"/><path d="M26 54 V40 H38 V54"/>
+        </g>
+    </svg>
+    <!-- People pair -->
+    <svg class="login-float-svg" style="top:20%;right:8%;animation-duration:22s;animation-delay:2s;" viewBox="0 0 64 64" width="48" height="48">
+        <g fill="none" stroke="rgba(52,211,153,.25)" stroke-width="2">
+            <circle cx="22" cy="18" r="8"/><path d="M6 54 C6 38 38 38 38 54"/>
+            <circle cx="44" cy="22" r="6"/><path d="M34 54 C34 42 54 42 54 54"/>
+        </g>
+    </svg>
+    <!-- Heart -->
+    <svg class="login-float-svg" style="bottom:25%;left:12%;animation-duration:16s;animation-delay:1s;" viewBox="0 0 64 64" width="40" height="40">
+        <path fill="none" stroke="rgba(251,113,133,.25)" stroke-width="2.5" d="M32 56 C32 56 8 40 8 24 C8 14 18 8 26 14 L32 20 L38 14 C46 8 56 14 56 24 C56 40 32 56 32 56Z"/>
+    </svg>
+    <!-- Key -->
+    <svg class="login-float-svg" style="top:55%;right:15%;animation-duration:20s;animation-delay:3s;" viewBox="0 0 64 64" width="44" height="44">
+        <g fill="none" stroke="rgba(251,191,36,.2)" stroke-width="2" stroke-linecap="round">
+            <circle cx="22" cy="22" r="12"/><line x1="31" y1="31" x2="56" y2="56"/>
+            <line x1="48" y1="56" x2="56" y2="48"/><line x1="42" y1="50" x2="50" y2="42"/>
+        </g>
+    </svg>
+    <!-- Map pin -->
+    <svg class="login-float-svg" style="bottom:15%;right:30%;animation-duration:19s;animation-delay:.5s;" viewBox="0 0 64 64" width="38" height="38">
+        <g fill="none" stroke="rgba(96,165,250,.2)" stroke-width="2">
+            <path d="M32 58 C32 58 12 36 12 24 C12 13 21 4 32 4 C43 4 52 13 52 24 C52 36 32 58 32 58Z"/>
+            <circle cx="32" cy="24" r="8"/>
+        </g>
+    </svg>
+    <!-- Search -->
+    <svg class="login-float-svg" style="top:35%;left:3%;animation-duration:21s;animation-delay:4s;" viewBox="0 0 64 64" width="36" height="36">
+        <g fill="none" stroke="rgba(192,132,252,.2)" stroke-width="2.5" stroke-linecap="round">
+            <circle cx="26" cy="26" r="16"/><line x1="38" y1="38" x2="56" y2="56"/>
+        </g>
+    </svg>
+    <!-- Home + Heart combo -->
+    <svg class="login-float-svg" style="bottom:40%;left:35%;animation-duration:24s;animation-delay:1.5s;" viewBox="0 0 64 64" width="46" height="46">
+        <g fill="none" stroke="rgba(99,102,241,.18)" stroke-width="1.8">
+            <path d="M8 30 L32 10 L56 30"/><path d="M16 30 V52 H48 V30"/>
+            <path stroke="rgba(251,113,133,.2)" d="M32 42 C32 42 24 36 24 32 C24 28 28 26 32 30 C36 26 40 28 40 32 C40 36 32 42 32 42Z"/>
+        </g>
+    </svg>
+    <!-- Handshake -->
+    <svg class="login-float-svg" style="top:70%;left:70%;animation-duration:17s;animation-delay:2.5s;" viewBox="0 0 64 64" width="42" height="42">
+        <g fill="none" stroke="rgba(52,211,153,.18)" stroke-width="2" stroke-linecap="round">
+            <path d="M4 34 L18 22 L28 28 L38 20 L48 28"/><path d="M48 28 L56 22"/>
+            <path d="M18 34 L28 42 L38 34 L48 42"/>
+        </g>
+    </svg>
+</div>
+
+<section class="auth-section position-relative" style="min-height:100vh; padding-top:100px; padding-bottom:60px; z-index:1;">
+    <div class="container">
+        <div class="row g-5 align-items-start">
+
+            <!-- LEFT: Login Form -->
+            <div class="col-lg-5">
+                <div class="glass-card p-5 sticky-top" style="top:100px;">
+                    <div class="text-center mb-4">
+                        <div class="mb-3">
+                            <i class="bi bi-house-heart-fill display-4 text-accent"></i>
+                        </div>
+                        <h3 class="fw-bold">Welcome Back</h3>
+                        <p class="text-muted">Login to find your perfect roommate</p>
+                    </div>
+
+                    <form method="POST" action="{{ url_for('login') }}">
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text glass-input border-end-0"><i class="bi bi-envelope"></i></span>
+                                <input type="email" name="email" class="form-control glass-input border-start-0" required placeholder="you@email.com">
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text glass-input border-end-0"><i class="bi bi-lock"></i></span>
+                                <input type="password" name="password" class="form-control glass-input border-start-0" required placeholder="••••••">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-accent w-100 py-2 mb-3">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                        </button>
+                    </form>
+
+                    <div class="text-center">
+                        <small class="text-muted">Don't have an account? <a href="{{ url_for('register') }}" class="text-accent fw-semibold">Create one</a></small>
+                    </div>
+
+                    <!-- Demo Accounts -->
+                    <div class="mt-4 pt-3 border-top border-secondary border-opacity-25">
+                        <p class="text-muted text-center small mb-2">Demo Accounts (click to auto-fill)</p>
+                        <div class="d-flex flex-wrap gap-2 justify-content-center">
+                            <button class="btn btn-outline-secondary btn-sm demo-login" data-email="priya@demo.com" data-pass="demo123">Priya</button>
+                            <button class="btn btn-outline-secondary btn-sm demo-login" data-email="arjun@demo.com" data-pass="demo123">Arjun</button>
+                            <button class="btn btn-outline-secondary btn-sm demo-login" data-email="sneha@demo.com" data-pass="demo123">Sneha</button>
+                            <button class="btn btn-outline-secondary btn-sm demo-login" data-email="rahul@demo.com" data-pass="demo123">Rahul</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Onboarding Workflow Timeline -->
+            <div class="col-lg-7">
+                <div class="mb-4">
+                    <span class="badge bg-accent bg-opacity-10 text-accent px-3 py-2 rounded-pill mb-3">
+                        <i class="bi bi-signpost-split me-1"></i> New User Journey
+                    </span>
+                    <h2 class="fw-800 mb-2">How CohabitAI Onboards You</h2>
+                    <p class="text-muted">Your path from sign-up to perfect roommate match — powered by AI.</p>
+                </div>
+
+                <!-- Timeline -->
+                <div class="onboarding-timeline">
+
+                    <!-- Step 01 -->
+                    <div class="timeline-item">
+                        <div class="timeline-marker">
+                            <div class="timeline-number">01</div>
+                            <div class="timeline-line"></div>
+                        </div>
+                        <div class="timeline-content glass-card p-4">
+                            <span class="timeline-label">ONBOARDING</span>
+                            <h4 class="fw-bold mt-1 mb-2">Landing Page & Sign Up</h4>
+                            <p class="text-muted mb-3">
+                                User visits the platform, learns how it works, and creates an account via email or
+                                Google OAuth. A verification email / phone OTP establishes trust before proceeding.
+                            </p>
+                            <div class="d-flex flex-wrap gap-2">
+                                <span class="workflow-tag tag-green">Email / Google OAuth</span>
+                                <span class="workflow-tag tag-amber">Phone OTP</span>
+                                <span class="workflow-tag tag-blue">Email Verification</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 02 -->
+                    <div class="timeline-item">
+                        <div class="timeline-marker">
+                            <div class="timeline-number">02</div>
+                            <div class="timeline-line"></div>
+                        </div>
+                        <div class="timeline-content glass-card p-4">
+                            <span class="timeline-label">PROFILE SETUP</span>
+                            <h4 class="fw-bold mt-1 mb-2">Multi-Step Compatibility Questionnaire</h4>
+                            <p class="text-muted mb-3">
+                                A guided <strong>5-screen form</strong> captures all compatibility dimensions:
+                                Basic Identity → Lifestyle Habits → Personality Traits → Hard Constraints & Budget → Location & Photo.
+                                Progress is saved at each step. All answers are encoded into the feature vector <strong>P</strong> that powers the AI engine.
+                            </p>
+                            <div class="d-flex flex-wrap gap-2">
+                                <span class="workflow-tag tag-red">Lifestyle Habits</span>
+                                <span class="workflow-tag tag-purple">Personality Traits</span>
+                                <span class="workflow-tag tag-amber">Hard Constraints</span>
+                                <span class="workflow-tag tag-green">Budget & Location Pref</span>
+                                <span class="workflow-tag tag-blue">Profile Photo Upload</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 03 -->
+                    <div class="timeline-item">
+                        <div class="timeline-marker">
+                            <div class="timeline-number">03</div>
+                            <div class="timeline-line"></div>
+                        </div>
+                        <div class="timeline-content glass-card p-4">
+                            <span class="timeline-label">DISCOVERY</span>
+                            <h4 class="fw-bold mt-1 mb-2">AI Matching & Geo-Spatial Map</h4>
+                            <p class="text-muted mb-3">
+                                The Weighted Cosine Similarity engine ranks all candidates by your profile vector.
+                                Explore an interactive map to discover roommates within your preferred radius — pins color-coded by compatibility score.
+                            </p>
+                            <div class="d-flex flex-wrap gap-2">
+                                <span class="workflow-tag tag-purple">Compatibility Engine</span>
+                                <span class="workflow-tag tag-green">Leaflet.js Map</span>
+                                <span class="workflow-tag tag-amber">Radius Search</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 04 -->
+                    <div class="timeline-item">
+                        <div class="timeline-marker">
+                            <div class="timeline-number">04</div>
+                            <div class="timeline-line"></div>
+                        </div>
+                        <div class="timeline-content glass-card p-4">
+                            <span class="timeline-label">ANALYSIS</span>
+                            <h4 class="fw-bold mt-1 mb-2">Compare Tool & AI Chatbot</h4>
+                            <p class="text-muted mb-3">
+                                Select 2-3 candidates for side-by-side radar charts, heatmaps, and Top 5 Overlaps / Conflicts analysis.
+                                The AI chatbot provides profile tips, search strategies, and conflict resolution prompts.
+                            </p>
+                            <div class="d-flex flex-wrap gap-2">
+                                <span class="workflow-tag tag-blue">Radar Charts</span>
+                                <span class="workflow-tag tag-red">Conflict Detection</span>
+                                <span class="workflow-tag tag-purple">AI Chatbot</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 05 -->
+                    <div class="timeline-item last">
+                        <div class="timeline-marker">
+                            <div class="timeline-number">05</div>
+                        </div>
+                        <div class="timeline-content glass-card p-4">
+                            <span class="timeline-label">FEEDBACK</span>
+                            <h4 class="fw-bold mt-1 mb-2">Connect, Move-in & Review</h4>
+                            <p class="text-muted mb-3">
+                                Reach out to top matches, have guided pre-move-in discussions, and settle in.
+                                After cohabitation, leave multi-dimensional reviews that feed back into the recommendation engine.
+                            </p>
+                            <div class="d-flex flex-wrap gap-2">
+                                <span class="workflow-tag tag-green">Pre-Move-in Guide</span>
+                                <span class="workflow-tag tag-amber">5-Dimension Reviews</span>
+                                <span class="workflow-tag tag-blue">Feedback Loop</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- CTA -->
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('register') }}" class="btn btn-accent btn-lg px-5">
+                        <i class="bi bi-rocket-takeoff me-2"></i>Start Your Journey — Sign Up
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.demo-login').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelector('input[name="email"]').value = btn.dataset.email;
+        document.querySelector('input[name="password"]').value = btn.dataset.pass;
+    });
+});
+</script>
+{% endblock %}

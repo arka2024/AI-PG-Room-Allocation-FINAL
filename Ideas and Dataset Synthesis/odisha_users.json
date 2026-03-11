@@ -1,0 +1,3221 @@
+[
+  {
+    "profile": {
+      "name": "Aarav Sharma",
+      "age": 22,
+      "gender": "Male",
+      "bio": "Aarav is a laid-back student who enjoys coding and exploring new music."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.0088,
+        20.2368
+      ],
+      "area_name": "Bhubaneswar"
+    },
+    "preferences": {
+      "budget": 8000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 4,
+      "introversion_score": 2
+    },
+    "_id": "96d72011ea6024f0b9ef9ad2383466d2de06e7ec"
+  },
+  {
+    "profile": {
+      "name": "Diya Patnaik",
+      "age": 25,
+      "gender": "Female",
+      "bio": "Diya is a creative artist who loves painting and spending time in nature."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        85.9882,
+        20.4562
+      ],
+      "area_name": "Cuttack"
+    },
+    "preferences": {
+      "budget": 6500,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 5,
+      "noise_tolerance": 2,
+      "introversion_score": 4
+    },
+    "_id": "a9771f0a25a331bcb7111995bcce8dd72ea7dc93"
+  },
+  {
+    "profile": {
+      "name": "Rohan Das",
+      "age": 19,
+      "gender": "Male",
+      "bio": "Rohan is an enthusiastic college student focused on his studies and fitness."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.4218,
+        19.8542
+      ],
+      "area_name": "Puri"
+    },
+    "preferences": {
+      "budget": 5500,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 2,
+      "noise_tolerance": 5,
+      "introversion_score": 3
+    },
+    "_id": "e32f0011bf791ffabb6ff958d0fca0243c02269a"
+  },
+  {
+    "profile": {
+      "name": "Ananya Mohanty",
+      "age": 28,
+      "gender": "Female",
+      "bio": "Ananya is a professional working woman who values peace and quiet after a long day."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        84.8968,
+        19.6862
+      ],
+      "area_name": "Ganjam"
+    },
+    "preferences": {
+      "budget": 12000,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 4,
+      "noise_tolerance": 1,
+      "introversion_score": 5
+    },
+    "_id": "422aa5593afdd95fd53975276a4ca8543f5d9cbc"
+  },
+  {
+    "profile": {
+      "name": "Siddharth Mishra",
+      "age": 21,
+      "gender": "Male",
+      "bio": "Siddharth is a friendly and outgoing individual who enjoys sports and socializing."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        84.0962,
+        21.2458
+      ],
+      "area_name": "Sambalpur"
+    },
+    "preferences": {
+      "budget": 7000,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 3,
+      "introversion_score": 2
+    },
+    "_id": "d1c137ba9979fd4ba392ed9dc5da30c956484a83"
+  },
+  {
+    "profile": {
+      "name": "Ishaan Banerjee",
+      "age": 23,
+      "gender": "Male",
+      "bio": "He is a quiet and thoughtful individual who enjoys reading and coding."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.0088,
+        20.2419
+      ],
+      "area_name": "Khordha"
+    },
+    "preferences": {
+      "budget": 8000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 4,
+      "noise_tolerance": 2,
+      "introversion_score": 4
+    },
+    "_id": "5d7d7a52265886b10618d20956cb9baf54da37eb"
+  },
+  {
+    "profile": {
+      "name": "Priyanka Rout",
+      "age": 21,
+      "gender": "Female",
+      "bio": "She is an energetic and outgoing student who loves to explore new places."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        85.5669,
+        20.4667
+      ],
+      "area_name": "Cuttack"
+    },
+    "preferences": {
+      "budget": 6500,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 4,
+      "introversion_score": 2
+    },
+    "_id": "d9fb0e723e7b95fdbd9efc2ac9021af359077170"
+  },
+  {
+    "profile": {
+      "name": "Vikram Singh Deo",
+      "age": 26,
+      "gender": "Male",
+      "bio": "He is a pragmatic and ambitious professional focused on his career."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.4218,
+        19.8333
+      ],
+      "area_name": "Puri"
+    },
+    "preferences": {
+      "budget": 12000,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 2,
+      "noise_tolerance": 3,
+      "introversion_score": 3
+    },
+    "_id": "09ba8fe6461ff375592ff9a2257c10faea5795ae"
+  },
+  {
+    "profile": {
+      "name": "Shreya Chatterjee",
+      "age": 19,
+      "gender": "Female",
+      "bio": "She is a creative and artistic soul who enjoys painting and music."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        84.8967,
+        19.6667
+      ],
+      "area_name": "Ganjam"
+    },
+    "preferences": {
+      "budget": 5500,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 5,
+      "noise_tolerance": 1,
+      "introversion_score": 5
+    },
+    "_id": "966c30c4786ec931dc8d4f69bdd030a29653540f"
+  },
+  {
+    "profile": {
+      "name": "Abhinav Kumar Sahoo",
+      "age": 28,
+      "gender": "Male",
+      "bio": "He is a laid-back and easygoing person who enjoys cooking and watching movies."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        84.0967,
+        21.75
+      ],
+      "area_name": "Sundargarh"
+    },
+    "preferences": {
+      "budget": 9500,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 3,
+      "introversion_score": 2
+    },
+    "_id": "eefc0b3560df10cfb309519e9e0d2790ba32a733"
+  },
+  {
+    "profile": {
+      "name": "Ritika Banerjee",
+      "age": 23,
+      "gender": "Female",
+      "bio": "She is a cheerful and optimistic individual who loves trying new things."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.0088,
+        20.2298
+      ],
+      "area_name": "Khordha"
+    },
+    "preferences": {
+      "budget": 8000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 4,
+      "noise_tolerance": 3,
+      "introversion_score": 2
+    },
+    "_id": "86d64da79d6b7445b0a92d5b3bc81de59494a555"
+  },
+  {
+    "profile": {
+      "name": "Debashish Ghosh",
+      "age": 26,
+      "gender": "Male",
+      "bio": "He is a quiet and thoughtful person who enjoys reading and coding."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        85.9882,
+        20.4552
+      ],
+      "area_name": "Cuttack"
+    },
+    "preferences": {
+      "budget": 6500,
+      "gender_preference": "Male",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 2,
+      "introversion_score": 4
+    },
+    "_id": "604697cafc57d6e5bf7c4a3cefd16bd724a99e36"
+  },
+  {
+    "profile": {
+      "name": "Tanaya Patnaik",
+      "age": 21,
+      "gender": "Female",
+      "bio": "She is an energetic and outgoing person who loves music and dancing."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.1167,
+        19.8
+      ],
+      "area_name": "Puri"
+    },
+    "preferences": {
+      "budget": 7000,
+      "gender_preference": "Female",
+      "smoking_tolerance": true,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 2,
+      "noise_tolerance": 4,
+      "introversion_score": 3
+    },
+    "_id": "beed26362baf60c8c52209800fdbae23887bc8e8"
+  },
+  {
+    "profile": {
+      "name": "Arjun Reddy",
+      "age": 24,
+      "gender": "Male",
+      "bio": "He is a pragmatic and ambitious individual focused on his career."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        84.2967,
+        19.6667
+      ],
+      "area_name": "Ganjam"
+    },
+    "preferences": {
+      "budget": 12000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 5,
+      "noise_tolerance": 1,
+      "introversion_score": 1
+    },
+    "_id": "0fbcdf028762388622452b70be23f22a8cfd3c27"
+  },
+  {
+    "profile": {
+      "name": "Sushmita Dasgupta",
+      "age": 19,
+      "gender": "Female",
+      "bio": "She is a creative and sensitive soul who enjoys painting and writing poetry."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        84.0,
+        21.7833
+      ],
+      "area_name": "Sundargarh"
+    },
+    "preferences": {
+      "budget": 5500,
+      "gender_preference": "Female",
+      "smoking_tolerance": true,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 1,
+      "noise_tolerance": 5,
+      "introversion_score": 5
+    },
+    "_id": "f50e799d19bd58b9935bc4e9c8995a70637c541b"
+  },
+  {
+    "profile": {
+      "name": "Koushik Chakraborty",
+      "age": 22,
+      "gender": "Male",
+      "bio": "He is a quiet and thoughtful individual who enjoys reading and coding."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.0088,
+        20.2298
+      ],
+      "area_name": "Khordha"
+    },
+    "preferences": {
+      "budget": 8000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 4,
+      "noise_tolerance": 2,
+      "introversion_score": 4
+    },
+    "_id": "15623cdb03d78a6bb95a4234fa2c9b0651318be9"
+  },
+  {
+    "profile": {
+      "name": "Ishani Mohapatra",
+      "age": 25,
+      "gender": "Female",
+      "bio": "She is an energetic and outgoing person who loves exploring new places."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        85.5667,
+        20.45
+      ],
+      "area_name": "Cuttack"
+    },
+    "preferences": {
+      "budget": 12000,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 4,
+      "introversion_score": 2
+    },
+    "_id": "3e14f3fe60f91c6ed424a0cda1ee595ecfbf21ed"
+  },
+  {
+    "profile": {
+      "name": "Rajesh Kumar Jena",
+      "age": 19,
+      "gender": "Male",
+      "bio": "He is a laid-back and easygoing student focused on his studies."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.4167,
+        19.8
+      ],
+      "area_name": "Puri"
+    },
+    "preferences": {
+      "budget": 6000,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 2,
+      "noise_tolerance": 3,
+      "introversion_score": 3
+    },
+    "_id": "b963acdde7b2c476711b33ded8f7c8c026a866a6"
+  },
+  {
+    "profile": {
+      "name": "Anwesha Basu",
+      "age": 28,
+      "gender": "Female",
+      "bio": "She is a creative and independent artist who values her personal space."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        84.3942,
+        19.6667
+      ],
+      "area_name": "Ganjam"
+    },
+    "preferences": {
+      "budget": 10000,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 5,
+      "noise_tolerance": 1,
+      "introversion_score": 5
+    },
+    "_id": "02b4ddb9f9fd6e44d88a55286ad8234b24349ed8"
+  },
+  {
+    "profile": {
+      "name": "Sayan Ghosh",
+      "age": 21,
+      "gender": "Male",
+      "bio": "He is a friendly and ambitious individual with a passion for sports."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        84.0983,
+        21.75
+      ],
+      "area_name": "Sundargarh"
+    },
+    "preferences": {
+      "budget": 7500,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 5,
+      "introversion_score": 1
+    },
+    "_id": "9428c1f0f4f988f429c43f6b36396f20420e42bb"
+  },
+  {
+    "profile": {
+      "name": "Debanjana Chatterjee",
+      "age": 23,
+      "gender": "Female",
+      "bio": "She is a cheerful and optimistic individual who loves to explore new hobbies."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.0516,
+        20.2252
+      ],
+      "area_name": "Khordha"
+    },
+    "preferences": {
+      "budget": 8000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 4,
+      "noise_tolerance": 3,
+      "introversion_score": 2
+    },
+    "_id": "4aa3aeea8f21d11f92c0b2dc4f0be32b2666cec1"
+  },
+  {
+    "profile": {
+      "name": "Goutam Mandal",
+      "age": 26,
+      "gender": "Male",
+      "bio": "He is a quiet and thoughtful person who enjoys reading and coding."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        85.5684,
+        20.9024
+      ],
+      "area_name": "Cuttack"
+    },
+    "preferences": {
+      "budget": 6500,
+      "gender_preference": "Male",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 2,
+      "introversion_score": 4
+    },
+    "_id": "78ad0bd108902f9cc6bfe5e6eba8eea4e0ba14fd"
+  },
+  {
+    "profile": {
+      "name": "Lakshmi Priya Nayak",
+      "age": 21,
+      "gender": "Female",
+      "bio": "She is an energetic and outgoing person who loves music and dancing."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.1167,
+        19.8
+      ],
+      "area_name": "Puri"
+    },
+    "preferences": {
+      "budget": 7000,
+      "gender_preference": "Female",
+      "smoking_tolerance": true,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 2,
+      "noise_tolerance": 4,
+      "introversion_score": 3
+    },
+    "_id": "9b34a222706ab9f610d1596f354c9eafa8d7274e"
+  },
+  {
+    "profile": {
+      "name": "Pranav Kumar Behera",
+      "age": 24,
+      "gender": "Male",
+      "bio": "He is a pragmatic and ambitious individual focused on his career."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        84.3872,
+        19.65
+      ],
+      "area_name": "Ganjam"
+    },
+    "preferences": {
+      "budget": 12000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 5,
+      "noise_tolerance": 1,
+      "introversion_score": 3
+    },
+    "_id": "a2a8a6a8da8921a9bf3f7028ef13c2a0021fdb37"
+  },
+  {
+    "profile": {
+      "name": "Sushree Samantaray",
+      "age": 19,
+      "gender": "Female",
+      "bio": "She is a creative and artistic person who enjoys painting and writing."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        84.0062,
+        21.75
+      ],
+      "area_name": "Sundargarh"
+    },
+    "preferences": {
+      "budget": 5500,
+      "gender_preference": "Female",
+      "smoking_tolerance": true,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 1,
+      "noise_tolerance": 5,
+      "introversion_score": 5
+    },
+    "_id": "1c0c515879f65359a0cc38d5f568a6e0d035a54c"
+  },
+  {
+    "profile": {
+      "name": "Sanjib Bhattacharya",
+      "age": 23,
+      "gender": "Male",
+      "bio": "He is a quiet and thoughtful individual who enjoys reading and coding."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.0039,
+        20.2282
+      ],
+      "area_name": "Khordha"
+    },
+    "preferences": {
+      "budget": 8000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 4,
+      "noise_tolerance": 2,
+      "introversion_score": 4
+    },
+    "_id": "13836eafebbdb5d58b5dc8e0c11b820ce5543e5f"
+  },
+  {
+    "profile": {
+      "name": "Deepika Choudhury",
+      "age": 26,
+      "gender": "Female",
+      "bio": "She is an energetic and outgoing person who loves exploring new places."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        85.5667,
+        20.45
+      ],
+      "area_name": "Cuttack"
+    },
+    "preferences": {
+      "budget": 12000,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 4,
+      "introversion_score": 2
+    },
+    "_id": "5bff344ae53ab76504bb1479f2e38023e3a0e7c7"
+  },
+  {
+    "profile": {
+      "name": "Arijit Patnaik",
+      "age": 21,
+      "gender": "Male",
+      "bio": "He is a laid-back and easygoing guy who enjoys music and movies."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.1167,
+        19.8
+      ],
+      "area_name": "Puri"
+    },
+    "preferences": {
+      "budget": 6000,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 2,
+      "noise_tolerance": 3,
+      "introversion_score": 3
+    },
+    "_id": "63aa537cf9174689a5c55d9575ca49a34ab0dd1d"
+  },
+  {
+    "profile": {
+      "name": "Sharmila Devi",
+      "age": 24,
+      "gender": "Female",
+      "bio": "She is a creative and ambitious individual pursuing a career in design."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        84.3833,
+        19.6667
+      ],
+      "area_name": "Ganjam"
+    },
+    "preferences": {
+      "budget": 9500,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 5,
+      "noise_tolerance": 1,
+      "introversion_score": 3
+    },
+    "_id": "c673c4bb9dc36528d243f85c681d1c40d9134c7d"
+  },
+  {
+    "profile": {
+      "name": "Sourav Kumar Das",
+      "age": 19,
+      "gender": "Male",
+      "bio": "He is a friendly and optimistic student focused on his studies."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        84.0,
+        21.0
+      ],
+      "area_name": "Sundargarh"
+    },
+    "preferences": {
+      "budget": 5500,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 2,
+      "introversion_score": 1
+    },
+    "_id": "2f897141b54b5cfc4d80db934e1a0988580e42dc"
+  },
+  {
+    "profile": {
+      "name": "Bimalendu Roy",
+      "age": 23,
+      "gender": "Male",
+      "bio": "He is a quiet and thoughtful individual who enjoys reading and coding."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.0039,
+        20.2282
+      ],
+      "area_name": "Khordha"
+    },
+    "preferences": {
+      "budget": 8000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 4,
+      "noise_tolerance": 2,
+      "introversion_score": 4
+    },
+    "_id": "d93174c88f7546a44f1a5ef95402bbb70b026d0e"
+  },
+  {
+    "profile": {
+      "name": "Chandana Mishra",
+      "age": 26,
+      "gender": "Female",
+      "bio": "She is an energetic and outgoing person who loves exploring new places."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        85.9882,
+        20.4567
+      ],
+      "area_name": "Cuttack"
+    },
+    "preferences": {
+      "budget": 6500,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 4,
+      "introversion_score": 2
+    },
+    "_id": "50307c25649e95d7f4c2c52154a3c2030ce41f3c"
+  },
+  {
+    "profile": {
+      "name": "Debasis Panda",
+      "age": 21,
+      "gender": "Male",
+      "bio": "He is a laid-back and easygoing guy who enjoys music and movies."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.4211,
+        19.85
+      ],
+      "area_name": "Puri"
+    },
+    "preferences": {
+      "budget": 5500,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 2,
+      "noise_tolerance": 3,
+      "introversion_score": 3
+    },
+    "_id": "a406f3ab150b031aa5fb30f441fb1659d64e7c30"
+  },
+  {
+    "profile": {
+      "name": "Esha Chakraborty",
+      "age": 24,
+      "gender": "Female",
+      "bio": "She is a creative and ambitious individual pursuing a career in design."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        84.3483,
+        19.2833
+      ],
+      "area_name": "Koraput"
+    },
+    "preferences": {
+      "budget": 12000,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 5,
+      "noise_tolerance": 1,
+      "introversion_score": 3
+    },
+    "_id": "71892c22fc75ed6e9f774f6a67f43dd7a3f7ae77"
+  },
+  {
+    "profile": {
+      "name": "Ganesh Kumar Sahu",
+      "age": 28,
+      "gender": "Male",
+      "bio": "He is a practical and reliable person who values honesty and hard work."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        82.25,
+        21.75
+      ],
+      "area_name": "Sundargarh"
+    },
+    "preferences": {
+      "budget": 10000,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 3,
+      "introversion_score": 2
+    },
+    "_id": "c97cd85d4bdb307d289e9ba1a257e579fe569e4f"
+  },
+  {
+    "profile": {
+      "name": "Siddhant Mohanty",
+      "age": 23,
+      "gender": "Male",
+      "bio": "He is a quiet and thoughtful individual who enjoys reading and coding."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.0039,
+        20.2383
+      ],
+      "area_name": "Khordha"
+    },
+    "preferences": {
+      "budget": 8000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 4,
+      "noise_tolerance": 2,
+      "introversion_score": 4
+    },
+    "_id": "f2c597071119d46ed88051aa920b0d2b8b7198e0"
+  },
+  {
+    "profile": {
+      "name": "Anjali Chatterjee",
+      "age": 21,
+      "gender": "Female",
+      "bio": "She is a bubbly and outgoing person who loves music and dancing."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        85.9883,
+        20.4567
+      ],
+      "area_name": "Cuttack"
+    },
+    "preferences": {
+      "budget": 6500,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 4,
+      "introversion_score": 2
+    },
+    "_id": "425c3b851073648b60bd28e2dbb95905adf329f4"
+  },
+  {
+    "profile": {
+      "name": "Ravi Shankar Das",
+      "age": 26,
+      "gender": "Male",
+      "bio": "He is an ambitious and driven professional focused on his career."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.4217,
+        19.8542
+      ],
+      "area_name": "Puri"
+    },
+    "preferences": {
+      "budget": 12000,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 2,
+      "noise_tolerance": 3,
+      "introversion_score": 3
+    },
+    "_id": "eee03f6d3394546849f25366b08c05f5ec21b11b"
+  },
+  {
+    "profile": {
+      "name": "Sunita Kumari Behera",
+      "age": 19,
+      "gender": "Female",
+      "bio": "She is a creative and artistic soul who enjoys painting and writing poetry."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        83.6842,
+        19.1872
+      ],
+      "area_name": "Koraput"
+    },
+    "preferences": {
+      "budget": 5500,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 5,
+      "noise_tolerance": 1,
+      "introversion_score": 5
+    },
+    "_id": "95270c2fb68510afd55c95d3c01ba6bda1b01af9"
+  },
+  {
+    "profile": {
+      "name": "Pradeep Kumar Mishra",
+      "age": 28,
+      "gender": "Male",
+      "bio": "He is a laid-back and easygoing guy who enjoys sports and outdoor activities."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        84.4872,
+        21.7893
+      ],
+      "area_name": "Mayurbhanj"
+    },
+    "preferences": {
+      "budget": 9500,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 5,
+      "introversion_score": 1
+    },
+    "_id": "93da5175052e145ec9bbe171219ee91108421c3a"
+  },
+  {
+    "profile": {
+      "name": "Manas Ranjan Das",
+      "age": 23,
+      "gender": "Male",
+      "bio": "He is a quiet and thoughtful individual who enjoys reading and coding."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.0039,
+        20.2383
+      ],
+      "area_name": "Khordha"
+    },
+    "preferences": {
+      "budget": 8000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 4,
+      "noise_tolerance": 2,
+      "introversion_score": 4
+    },
+    "_id": "7a1af56b4001ba17f4b179305430b7fb3a7750a9"
+  },
+  {
+    "profile": {
+      "name": "Sushmita Chakraborty",
+      "age": 26,
+      "gender": "Female",
+      "bio": "She is an energetic and outgoing person who loves to travel and explore new cultures."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        85.5039,
+        20.45
+      ],
+      "area_name": "Cuttack"
+    },
+    "preferences": {
+      "budget": 12000,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 4,
+      "introversion_score": 2
+    },
+    "_id": "cfb79fed98ab2f4b45bd7116acd8026a0905f8e1"
+  },
+  {
+    "profile": {
+      "name": "Arindam Banerjee",
+      "age": 21,
+      "gender": "Male",
+      "bio": "He is a laid-back and easygoing guy who enjoys music and spending time with friends."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.42,
+        19.8
+      ],
+      "area_name": "Puri"
+    },
+    "preferences": {
+      "budget": 6000,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 2,
+      "noise_tolerance": 3,
+      "introversion_score": 3
+    },
+    "_id": "3fb799eeb412ea891e515570f7ab5b3c248f68de"
+  },
+  {
+    "profile": {
+      "name": "Priyadarshini Mohanty",
+      "age": 24,
+      "gender": "Female",
+      "bio": "She is a creative and ambitious individual who is passionate about art and design."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        83.6842,
+        19.0394
+      ],
+      "area_name": "Koraput"
+    },
+    "preferences": {
+      "budget": 9000,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 5,
+      "noise_tolerance": 1,
+      "introversion_score": 3
+    },
+    "_id": "35eabba09cd606f73aa9ce731e11033e5685b62f"
+  },
+  {
+    "profile": {
+      "name": "Debashree Patnaik",
+      "age": 19,
+      "gender": "Female",
+      "bio": "She is a cheerful and optimistic person who loves to learn and try new things."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        85.9883,
+        21.7833
+      ],
+      "area_name": "Balasore"
+    },
+    "preferences": {
+      "budget": 5000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 2,
+      "introversion_score": 1
+    },
+    "_id": "52c39f44d30e967d863250330a993d46c96b8996"
+  },
+  {
+    "profile": {
+      "name": "Kunal Banerjee",
+      "age": 22,
+      "gender": "Male",
+      "bio": "He is a quiet and thoughtful individual who enjoys reading and coding."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.0039,
+        20.2383
+      ],
+      "area_name": "Khordha"
+    },
+    "preferences": {
+      "budget": 8000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 4,
+      "noise_tolerance": 2,
+      "introversion_score": 4
+    },
+    "_id": "92f9ec96f4cccb89f61455877448e3dda4576a7e"
+  },
+  {
+    "profile": {
+      "name": "Shilpa Kumari Das",
+      "age": 25,
+      "gender": "Female",
+      "bio": "She is an energetic and outgoing person who loves to travel and explore new cultures."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        85.9883,
+        20.4567
+      ],
+      "area_name": "Cuttack"
+    },
+    "preferences": {
+      "budget": 6500,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 4,
+      "introversion_score": 2
+    },
+    "_id": "df89a53b49044855cf50edd1120e3dc52ade00f4"
+  },
+  {
+    "profile": {
+      "name": "Rajat Kumar Mishra",
+      "age": 19,
+      "gender": "Male",
+      "bio": "He is a laid-back and easygoing student who enjoys music and spending time with friends."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.4211,
+        19.8344
+      ],
+      "area_name": "Puri"
+    },
+    "preferences": {
+      "budget": 5500,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 2,
+      "noise_tolerance": 3,
+      "introversion_score": 3
+    },
+    "_id": "ffd569731e1f03fee29476a280501455b9cb092a"
+  },
+  {
+    "profile": {
+      "name": "Ananya Sengupta",
+      "age": 27,
+      "gender": "Female",
+      "bio": "She is a creative and ambitious artist who is passionate about painting and design."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        83.8862,
+        19.0889
+      ],
+      "area_name": "Koraput"
+    },
+    "preferences": {
+      "budget": 12000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 5,
+      "noise_tolerance": 1,
+      "introversion_score": 3
+    },
+    "_id": "0f61f4003d5064ab9982a4b4986a743215e53bf8"
+  },
+  {
+    "profile": {
+      "name": "Siddharth Rout",
+      "age": 21,
+      "gender": "Male",
+      "bio": "He is a dedicated and hardworking engineering student with a keen interest in robotics."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        84.4871,
+        21.7833
+      ],
+      "area_name": "Balasore"
+    },
+    "preferences": {
+      "budget": 7000,
+      "gender_preference": "Male",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 2,
+      "introversion_score": 2
+    },
+    "_id": "643a537a3bf94761406e43a704dd9a28ca52d2e8"
+  },
+  {
+    "profile": {
+      "name": "Tanmoy Ghosh",
+      "age": 23,
+      "gender": "Male",
+      "bio": "He is a quiet and thoughtful individual who enjoys reading and coding."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.0039,
+        20.2282
+      ],
+      "area_name": "Khordha"
+    },
+    "preferences": {
+      "budget": 8000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 4,
+      "noise_tolerance": 3,
+      "introversion_score": 4
+    },
+    "_id": "4af3ca80d60ee9af540fc36d45dbfc2a8b625caf"
+  },
+  {
+    "profile": {
+      "name": "Sushmita Das",
+      "age": 26,
+      "gender": "Female",
+      "bio": "She is an energetic and outgoing person who loves to travel and explore new cultures."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        85.5667,
+        20.45
+      ],
+      "area_name": "Cuttack"
+    },
+    "preferences": {
+      "budget": 12000,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 5,
+      "noise_tolerance": 2,
+      "introversion_score": 2
+    },
+    "_id": "86adb79fa7021280c3e1b8576b75a40f1cab92d9"
+  },
+  {
+    "profile": {
+      "name": "Rakesh Kumar Behera",
+      "age": 21,
+      "gender": "Male",
+      "bio": "He is a laid-back and easygoing guy who enjoys playing sports and hanging out with friends."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.42,
+        19.85
+      ],
+      "area_name": "Puri"
+    },
+    "preferences": {
+      "budget": 6000,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 2,
+      "noise_tolerance": 4,
+      "introversion_score": 3
+    },
+    "_id": "c665a61ca506e9606feda788e21e43576b1a43a9"
+  },
+  {
+    "profile": {
+      "name": "Pooja Sharma",
+      "age": 24,
+      "gender": "Female",
+      "bio": "She is a creative and artistic soul who loves painting and writing poetry."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        83.8862,
+        19.0889
+      ],
+      "area_name": "Koraput"
+    },
+    "preferences": {
+      "budget": 9000,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 3,
+      "introversion_score": 5
+    },
+    "_id": "f5387aacd245354de21da2d8a840af680d516ecc"
+  },
+  {
+    "profile": {
+      "name": "Soumya Ranjan Patnaik",
+      "age": 28,
+      "gender": "Male",
+      "bio": "He is a driven and ambitious professional who is focused on his career."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        85.0,
+        21.7833
+      ],
+      "area_name": "Balasore"
+    },
+    "preferences": {
+      "budget": 15000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 4,
+      "noise_tolerance": 2,
+      "introversion_score": 3
+    },
+    "_id": "dc458e4680cc89227ccaa006a8fb823ba01c5916"
+  },
+  {
+    "profile": {
+      "name": "Abinash Mohapatra",
+      "age": 23,
+      "gender": "Male",
+      "bio": "He is a quiet and thoughtful individual who enjoys reading and coding."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.0039,
+        20.2383
+      ],
+      "area_name": "Khordha"
+    },
+    "preferences": {
+      "budget": 8000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 4,
+      "noise_tolerance": 2,
+      "introversion_score": 4
+    },
+    "_id": "916756cf90db4d0f60b14cf07e45b6441817c690"
+  },
+  {
+    "profile": {
+      "name": "Vikramaditya Rath",
+      "age": 21,
+      "gender": "Male",
+      "bio": "He is a laid-back and easygoing guy who enjoys music and movies."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.4217,
+        19.8344
+      ],
+      "area_name": "Puri"
+    },
+    "preferences": {
+      "budget": 10000,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 2,
+      "noise_tolerance": 3,
+      "introversion_score": 3
+    },
+    "_id": "314952b37932e26d08db59f7870743a57fdaea86"
+  },
+  {
+    "profile": {
+      "name": "Anindita Ghosh",
+      "age": 24,
+      "gender": "Female",
+      "bio": "She is a creative and ambitious individual pursuing a career in design."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        84.8967,
+        19.6833
+      ],
+      "area_name": "Ganjam"
+    },
+    "preferences": {
+      "budget": 12000,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 5,
+      "noise_tolerance": 1,
+      "introversion_score": 3
+    },
+    "_id": "d5293fe57a7a547e3d108381a1f5d4f4feaf56da"
+  },
+  {
+    "profile": {
+      "name": "Satyabrata Panda",
+      "age": 19,
+      "gender": "Male",
+      "bio": "He is a friendly and optimistic student focused on his studies."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        84.0967,
+        21.7667
+      ],
+      "area_name": "Sambalpur"
+    },
+    "preferences": {
+      "budget": 5000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 2,
+      "introversion_score": 1
+    },
+    "_id": "f1e3a86fc181d5ad629bbbd978a34762689b5f59"
+  },
+  {
+    "profile": {
+      "name": "Abhishek Chakraborty",
+      "age": 23,
+      "gender": "Male",
+      "bio": "He is a quiet and thoughtful individual who enjoys reading and coding."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.0039,
+        20.2383
+      ],
+      "area_name": "Khordha"
+    },
+    "preferences": {
+      "budget": 8000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 4,
+      "noise_tolerance": 2,
+      "introversion_score": 4
+    },
+    "_id": "872cf9d3ec8c4ce94e6e9e3d97064cfd90055b04"
+  },
+  {
+    "profile": {
+      "name": "Ankita Dasgupta",
+      "age": 24,
+      "gender": "Female",
+      "bio": "She is a creative and ambitious individual who is passionate about art."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        84.8967,
+        19.6667
+      ],
+      "area_name": "Ganjam"
+    },
+    "preferences": {
+      "budget": 9500,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 5,
+      "noise_tolerance": 1,
+      "introversion_score": 3
+    },
+    "_id": "f14746f97309b60d63649865f691292fb9cd0994"
+  },
+  {
+    "profile": {
+      "name": "Siddharth Patnaik",
+      "age": 21,
+      "gender": "Male",
+      "bio": "He is a laid-back and easygoing guy who enjoys music and movies."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.4217,
+        19.8333
+      ],
+      "area_name": "Puri"
+    },
+    "preferences": {
+      "budget": 6000,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 2,
+      "noise_tolerance": 3,
+      "introversion_score": 3
+    },
+    "_id": "39b3055e89a116bd123a7e541d9e8a49503a4619"
+  },
+  {
+    "profile": {
+      "name": "Anindya Mohanty",
+      "age": 28,
+      "gender": "Female",
+      "bio": "She is a creative and ambitious woman who is passionate about her work."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        83.8869,
+        19.1833
+      ],
+      "area_name": "Koraput"
+    },
+    "preferences": {
+      "budget": 10000,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 5,
+      "noise_tolerance": 1,
+      "introversion_score": 1
+    },
+    "_id": "2dfd76962ffca7f644bb6d7cd5bd448fdef49e03"
+  },
+  {
+    "profile": {
+      "name": "Debashree Das",
+      "age": 19,
+      "gender": "Female",
+      "bio": "She is a cheerful and optimistic person who loves to make new friends."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        85.4883,
+        21.7833
+      ],
+      "area_name": "Balasore"
+    },
+    "preferences": {
+      "budget": 5000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 2,
+      "introversion_score": 3
+    },
+    "_id": "39d06cc2563c81311f1e5603e98f7865a2b559e8"
+  },
+  {
+    "profile": {
+      "name": "Shubhamit Roy",
+      "age": 23,
+      "gender": "Male",
+      "bio": "He is a quiet and thoughtful individual who enjoys reading and coding."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.0311,
+        20.2503
+      ],
+      "area_name": "Khordha"
+    },
+    "preferences": {
+      "budget": 8000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 4,
+      "noise_tolerance": 2,
+      "introversion_score": 4
+    },
+    "_id": "ca7fbf77e0dc9eecdcf12c1403ad0fed02b68cdb"
+  },
+  {
+    "profile": {
+      "name": "Abhishek Das",
+      "age": 21,
+      "gender": "Male",
+      "bio": "He is a laid-back and easygoing guy who enjoys music and movies."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.4202,
+        19.8333
+      ],
+      "area_name": "Puri"
+    },
+    "preferences": {
+      "budget": 6000,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 2,
+      "noise_tolerance": 3,
+      "introversion_score": 3
+    },
+    "_id": "0b603874354508f7ccd9ac9a8cf6fcd65e223708"
+  },
+  {
+    "profile": {
+      "name": "Sushmita Mohanty",
+      "age": 24,
+      "gender": "Female",
+      "bio": "She is a creative and ambitious individual who is passionate about art."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        83.8862,
+        19.1862
+      ],
+      "area_name": "Koraput"
+    },
+    "preferences": {
+      "budget": 9000,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 5,
+      "noise_tolerance": 1,
+      "introversion_score": 3
+    },
+    "_id": "418634e202bace0572b305a6741e8f16d02b51f0"
+  },
+  {
+    "profile": {
+      "name": "Vikrant Sharma",
+      "age": 28,
+      "gender": "Male",
+      "bio": "He is a pragmatic and organized person who values efficiency and structure."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        84.4838,
+        21.7667
+      ],
+      "area_name": "Mayurbhanj"
+    },
+    "preferences": {
+      "budget": 15000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 5,
+      "noise_tolerance": 2,
+      "introversion_score": 1
+    },
+    "_id": "c5587723c794f0c99eff04c684450d53e6b5ebbb"
+  },
+  {
+    "profile": {
+      "name": "Vikram Aditya Sharma",
+      "age": 23,
+      "gender": "Male",
+      "bio": "He is a quiet and thoughtful individual who enjoys reading and spending time in nature."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        85.5022,
+        20.2282
+      ],
+      "area_name": "Khordha"
+    },
+    "preferences": {
+      "budget": 8000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 4,
+      "noise_tolerance": 2,
+      "introversion_score": 4
+    },
+    "_id": "89d1c3caf0434aa340c3249d102590f5d280bd0b"
+  },
+  {
+    "profile": {
+      "name": "Ayan Choudhury",
+      "age": 21,
+      "gender": "Male",
+      "bio": "He is an ambitious and driven student focused on his studies and future career."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.4209,
+        19.8344
+      ],
+      "area_name": "Puri"
+    },
+    "preferences": {
+      "budget": 5500,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 2,
+      "noise_tolerance": 3,
+      "introversion_score": 3
+    },
+    "_id": "513cbc9aed15f44876dba16bcba0efcdfa1b96fd"
+  },
+  {
+    "profile": {
+      "name": "Priyanka Das",
+      "age": 24,
+      "gender": "Female",
+      "bio": "She is a friendly and outgoing person who enjoys socializing and trying new things."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        83.8823,
+        19.1882
+      ],
+      "area_name": "Koraput"
+    },
+    "preferences": {
+      "budget": 12000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 5,
+      "noise_tolerance": 1,
+      "introversion_score": 1
+    },
+    "_id": "b9f095144e6469b3b1ed0b223bcfe204f846f92b"
+  },
+  {
+    "profile": {
+      "name": "Siddharth Narayan Rath",
+      "age": 28,
+      "gender": "Male",
+      "bio": "He is a calm and collected individual who values peace and quiet."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        84.2967,
+        21.7833
+      ],
+      "area_name": "Mayurbhanj"
+    },
+    "preferences": {
+      "budget": 10000,
+      "gender_preference": "Male",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 2,
+      "introversion_score": 5
+    },
+    "_id": "cecfd9c5868f8f54dbc3e68f5a866afc77dfee41"
+  },
+  {
+    "profile": {
+      "name": "Ritika Sharma",
+      "age": 23,
+      "gender": "Female",
+      "bio": "She is a cheerful and optimistic individual who enjoys creative pursuits."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.0243,
+        20.2578
+      ],
+      "area_name": "Khordha"
+    },
+    "preferences": {
+      "budget": 8000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 4,
+      "noise_tolerance": 3,
+      "introversion_score": 2
+    },
+    "_id": "8fda5512b00916f5b13503c2dc2f76cb965cf2cd"
+  },
+  {
+    "profile": {
+      "name": "Vikrant Singh Deo",
+      "age": 26,
+      "gender": "Male",
+      "bio": "He is a pragmatic and analytical person with a passion for technology."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        85.5687,
+        20.9023
+      ],
+      "area_name": "Cuttack"
+    },
+    "preferences": {
+      "budget": 12000,
+      "gender_preference": "Male",
+      "smoking_tolerance": true,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 4,
+      "introversion_score": 4
+    },
+    "_id": "09b87aac13d973a42beb9fb0cf269b09b27b2f66"
+  },
+  {
+    "profile": {
+      "name": "Sharmila Roy",
+      "age": 21,
+      "gender": "Female",
+      "bio": "She is a quiet and thoughtful person who loves reading and writing."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.4217,
+        19.8
+      ],
+      "area_name": "Puri"
+    },
+    "preferences": {
+      "budget": 6000,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 5,
+      "noise_tolerance": 2,
+      "introversion_score": 5
+    },
+    "_id": "06780cd1d1ae6132bdd5884dea1e251579c0155f"
+  },
+  {
+    "profile": {
+      "name": "Arijit Chatterjee",
+      "age": 24,
+      "gender": "Male",
+      "bio": "He is an energetic and outgoing individual who enjoys sports and socializing."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        83.8828,
+        19.0999
+      ],
+      "area_name": "Koraput"
+    },
+    "preferences": {
+      "budget": 9000,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 2,
+      "noise_tolerance": 5,
+      "introversion_score": 1
+    },
+    "_id": "50d6a8020d14c6e25d26e8a419d06836786994ba"
+  },
+  {
+    "profile": {
+      "name": "Deepanwita Patnaik",
+      "age": 19,
+      "gender": "Female",
+      "bio": "She is a kind and compassionate person who is passionate about helping others."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        82.0843,
+        21.7833
+      ],
+      "area_name": "Sundargarh"
+    },
+    "preferences": {
+      "budget": 5000,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 4,
+      "noise_tolerance": 3,
+      "introversion_score": 3
+    },
+    "_id": "25a2a413c661bff05e6d9468a4e26e941071ca11"
+  },
+  {
+    "profile": {
+      "name": "Tanmay Patnaik",
+      "age": 23,
+      "gender": "Male",
+      "bio": "He is a quiet and thoughtful individual who enjoys reading and coding."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.0039,
+        20.2381
+      ],
+      "area_name": "Khordha"
+    },
+    "preferences": {
+      "budget": 8000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 4,
+      "noise_tolerance": 2,
+      "introversion_score": 4
+    },
+    "_id": "1cc02c3c540c0389e8e3cf3b995db83b58a0b882"
+  },
+  {
+    "profile": {
+      "name": "Sanjana Basu",
+      "age": 21,
+      "gender": "Female",
+      "bio": "She is a bubbly and energetic person who loves music and dancing."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        85.9881,
+        20.3848
+      ],
+      "area_name": "Cuttack"
+    },
+    "preferences": {
+      "budget": 6500,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 4,
+      "introversion_score": 2
+    },
+    "_id": "b8c7423ba1c2ce1fd3ec2aef55c95c13c54c6bf3"
+  },
+  {
+    "profile": {
+      "name": "Arjun Singh",
+      "age": 26,
+      "gender": "Male",
+      "bio": "He is a pragmatic and ambitious individual focused on his career."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.4217,
+        19.8682
+      ],
+      "area_name": "Ganjam"
+    },
+    "preferences": {
+      "budget": 12000,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 2,
+      "noise_tolerance": 3,
+      "introversion_score": 3
+    },
+    "_id": "d841670207a75a28d81ea1af149a8f8faf9e236b"
+  },
+  {
+    "profile": {
+      "name": "Priyadarshini Das",
+      "age": 19,
+      "gender": "Female",
+      "bio": "She is a creative and artistic soul who enjoys painting and writing poetry."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        85.5039,
+        21.7482
+      ],
+      "area_name": "Balasore"
+    },
+    "preferences": {
+      "budget": 5500,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 5,
+      "noise_tolerance": 1,
+      "introversion_score": 5
+    },
+    "_id": "70d2e10a03ff334d02693468d3869e20047ab22f"
+  },
+  {
+    "profile": {
+      "name": "Rajat Kumar Verma",
+      "age": 28,
+      "gender": "Male",
+      "bio": "He is a laid-back and easygoing person who enjoys outdoor activities."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        84.0482,
+        22.6381
+      ],
+      "area_name": "Sundargarh"
+    },
+    "preferences": {
+      "budget": 9500,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 4,
+      "introversion_score": 1
+    },
+    "_id": "94af222c638a0cad96bcceb507e01ecb70c493bc"
+  },
+  {
+    "profile": {
+      "name": "Riya Sharma",
+      "age": 21,
+      "gender": "Female",
+      "bio": "She is an energetic and outgoing person who loves music and dancing."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        85.9882,
+        20.3848
+      ],
+      "area_name": "Cuttack"
+    },
+    "preferences": {
+      "budget": 6500,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 4,
+      "introversion_score": 2
+    },
+    "_id": "5c165d8929d387d6c586b54a46d35d8bf89ef031"
+  },
+  {
+    "profile": {
+      "name": "Arjun Dasgupta",
+      "age": 26,
+      "gender": "Male",
+      "bio": "He is a pragmatic and ambitious person focused on his career."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.4218,
+        19.8642
+      ],
+      "area_name": "Puri"
+    },
+    "preferences": {
+      "budget": 12000,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 2,
+      "noise_tolerance": 3,
+      "introversion_score": 3
+    },
+    "_id": "f2925a6e1acf8dea342821c8f1145795919ecdc2"
+  },
+  {
+    "profile": {
+      "name": "Pooja Reddy",
+      "age": 19,
+      "gender": "Female",
+      "bio": "She is a creative and artistic soul who enjoys painting and writing poetry."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        83.8862,
+        19.1862
+      ],
+      "area_name": "Koraput"
+    },
+    "preferences": {
+      "budget": 5500,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 5,
+      "noise_tolerance": 2,
+      "introversion_score": 5
+    },
+    "_id": "51e615295de1c78ce3caf6f5329310440aab2b13"
+  },
+  {
+    "profile": {
+      "name": "Vikram Banerjee",
+      "age": 28,
+      "gender": "Male",
+      "bio": "He is a laid-back and easygoing person who enjoys cooking and trying new foods."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        84.4853,
+        21.7853
+      ],
+      "area_name": "Mayurbhanj"
+    },
+    "preferences": {
+      "budget": 10000,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 4,
+      "introversion_score": 2
+    },
+    "_id": "3c5d555f9b6a9926d4893773ff9623672ac57469"
+  },
+  {
+    "profile": {
+      "name": "Ishaan Chatterjee",
+      "age": 23,
+      "gender": "Male",
+      "bio": "He is a quiet and thoughtful individual who enjoys reading and coding."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.0088,
+        20.2298
+      ],
+      "area_name": "Khordha"
+    },
+    "preferences": {
+      "budget": 8000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 4,
+      "noise_tolerance": 3,
+      "introversion_score": 4
+    },
+    "_id": "e6aa663c5f1159f821dea7846392f0718a775e4a"
+  },
+  {
+    "profile": {
+      "name": "Deepika Nayak",
+      "age": 26,
+      "gender": "Female",
+      "bio": "She is an energetic and outgoing person who loves exploring new places."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        85.5667,
+        20.45
+      ],
+      "area_name": "Puri"
+    },
+    "preferences": {
+      "budget": 6500,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 4,
+      "introversion_score": 2
+    },
+    "_id": "f7a55c77b12d96c68ae7b7e514f922e781714b4f"
+  },
+  {
+    "profile": {
+      "name": "Arnav Singh",
+      "age": 21,
+      "gender": "Male",
+      "bio": "He is a laid-back and easygoing guy who enjoys music and movies."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        84.8983,
+        21.78
+      ],
+      "area_name": "Sundargarh"
+    },
+    "preferences": {
+      "budget": 5500,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 2,
+      "noise_tolerance": 5,
+      "introversion_score": 3
+    },
+    "_id": "1a0151a9529b926398aad4a7e787234e573d2ff1"
+  },
+  {
+    "profile": {
+      "name": "Tanushree Das",
+      "age": 24,
+      "gender": "Female",
+      "bio": "She is a creative and ambitious individual pursuing a career in design."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.22,
+        21.0
+      ],
+      "area_name": "Mayurbhanj"
+    },
+    "preferences": {
+      "budget": 12000,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 5,
+      "noise_tolerance": 2,
+      "introversion_score": 3
+    },
+    "_id": "1e3464061784be6ced1bc687e5f06d3e8b33bed2"
+  },
+  {
+    "profile": {
+      "name": "Rishabh Sharma",
+      "age": 19,
+      "gender": "Male",
+      "bio": "He is a friendly and optimistic student focused on his studies."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        85.2867,
+        20.0
+      ],
+      "area_name": "Ganjam"
+    },
+    "preferences": {
+      "budget": 7000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 3,
+      "introversion_score": 2
+    },
+    "_id": "d575df1453e49216b235c4e382de6bf588b14d34"
+  },
+  {
+    "profile": {
+      "name": "Koushik Banerjee",
+      "age": 23,
+      "gender": "Male",
+      "bio": "He is a quiet and thoughtful individual who enjoys reading and coding."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.0039,
+        20.2282
+      ],
+      "area_name": "Khordha"
+    },
+    "preferences": {
+      "budget": 8000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 4,
+      "noise_tolerance": 2,
+      "introversion_score": 4
+    },
+    "_id": "01adb3b3f30029956cbdfa95a94d3ebf1c43f2ad"
+  },
+  {
+    "profile": {
+      "name": "Sushmita Mandal",
+      "age": 26,
+      "gender": "Female",
+      "bio": "She is an energetic and outgoing person who loves trying new things."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        85.9882,
+        20.3504
+      ],
+      "area_name": "Cuttack"
+    },
+    "preferences": {
+      "budget": 6500,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 4,
+      "introversion_score": 2
+    },
+    "_id": "872f87f0ba87bfb21e2b215756d2dbd0dc10e806"
+  },
+  {
+    "profile": {
+      "name": "Aritra Patnaik",
+      "age": 21,
+      "gender": "Male",
+      "bio": "He is a laid-back and easygoing guy who enjoys music and movies."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.4217,
+        19.8033
+      ],
+      "area_name": "Puri"
+    },
+    "preferences": {
+      "budget": 7000,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 2,
+      "noise_tolerance": 3,
+      "introversion_score": 3
+    },
+    "_id": "5f333548818beb7a514d002d13f54aa183ae544b"
+  },
+  {
+    "profile": {
+      "name": "Deepanwita Roy",
+      "age": 24,
+      "gender": "Female",
+      "bio": "She is a creative and ambitious individual who is passionate about art."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        83.8828,
+        19.0992
+      ],
+      "area_name": "Koraput"
+    },
+    "preferences": {
+      "budget": 12000,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 5,
+      "noise_tolerance": 1,
+      "introversion_score": 1
+    },
+    "_id": "447053188252a7d86d20190afa9273a5e468c9dd"
+  },
+  {
+    "profile": {
+      "name": "Subham Chatterjee",
+      "age": 19,
+      "gender": "Male",
+      "bio": "He is a friendly and optimistic person who is always up for a challenge."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        82.1182,
+        21.9882
+      ],
+      "area_name": "Sundargarh"
+    },
+    "preferences": {
+      "budget": 5500,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 5,
+      "introversion_score": 2
+    },
+    "_id": "e59a0ec000d85e0283a6ee5aa862ba190be51ada"
+  },
+  {
+    "profile": {
+      "name": "Ishita Banerjee",
+      "age": 23,
+      "gender": "Female",
+      "bio": "She is a cheerful and optimistic individual who loves trying new things."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.0243,
+        20.2589
+      ],
+      "area_name": "Khordha"
+    },
+    "preferences": {
+      "budget": 8000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 4,
+      "noise_tolerance": 3,
+      "introversion_score": 2
+    },
+    "_id": "0b0e4cb68d74451c44e6feaf5fc1d9ce7fd4e4a9"
+  },
+  {
+    "profile": {
+      "name": "Rohan Kumar Sahoo",
+      "age": 26,
+      "gender": "Male",
+      "bio": "He is a quiet and thoughtful person who enjoys reading and coding."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        85.9887,
+        20.4167
+      ],
+      "area_name": "Cuttack"
+    },
+    "preferences": {
+      "budget": 6500,
+      "gender_preference": "Male",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 2,
+      "introversion_score": 4
+    },
+    "_id": "bbed1d8f11a7b39d2c8bcba856f65984a504c9d2"
+  },
+  {
+    "profile": {
+      "name": "Ayan Chakraborty",
+      "age": 24,
+      "gender": "Male",
+      "bio": "He is a pragmatic and ambitious individual focused on his career."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        83.8862,
+        19.0692
+      ],
+      "area_name": "Koraput"
+    },
+    "preferences": {
+      "budget": 12000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 5,
+      "noise_tolerance": 1,
+      "introversion_score": 1
+    },
+    "_id": "9a5298f9d3b5fdb86c8b9362b99f30704c6d47eb"
+  },
+  {
+    "profile": {
+      "name": "Priya Sharma",
+      "age": 19,
+      "gender": "Female",
+      "bio": "She is a friendly and outgoing person who enjoys socializing with friends."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        82.1489,
+        21.7452
+      ],
+      "area_name": "Sundargarh"
+    },
+    "preferences": {
+      "budget": 5500,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 3,
+      "introversion_score": 2
+    },
+    "_id": "2447d981ade3dacd9f21169e2de54f14caa81330"
+  },
+  {
+    "profile": {
+      "name": "Sushanta Behera",
+      "age": 23,
+      "gender": "Male",
+      "bio": "He is a quiet and thoughtful individual who enjoys reading and coding."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.0039,
+        20.2282
+      ],
+      "area_name": "Khordha"
+    },
+    "preferences": {
+      "budget": 8000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 4,
+      "noise_tolerance": 2,
+      "introversion_score": 4
+    },
+    "_id": "413e68a6fc20e56cf7712d550734dd59fb3bce18"
+  },
+  {
+    "profile": {
+      "name": "Chandana Mohapatra",
+      "age": 26,
+      "gender": "Female",
+      "bio": "She is an energetic and outgoing person who loves trying new things."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        85.9882,
+        20.45
+      ],
+      "area_name": "Cuttack"
+    },
+    "preferences": {
+      "budget": 6500,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 4,
+      "introversion_score": 2
+    },
+    "_id": "13c0c0cfe57863db69e2fd61039209a8e158047f"
+  },
+  {
+    "profile": {
+      "name": "Bikramaditya Jena",
+      "age": 21,
+      "gender": "Male",
+      "bio": "He is a laid-back and easygoing guy who enjoys music and movies."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.4218,
+        19.85
+      ],
+      "area_name": "Puri"
+    },
+    "preferences": {
+      "budget": 5500,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 2,
+      "noise_tolerance": 3,
+      "introversion_score": 3
+    },
+    "_id": "ed0a364df7a467fb608a949837c0da9b28eaba59"
+  },
+  {
+    "profile": {
+      "name": "Subhashree Das",
+      "age": 24,
+      "gender": "Female",
+      "bio": "She is a creative and artistic soul who loves painting and writing."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        83.8822,
+        19.0833
+      ],
+      "area_name": "Koraput"
+    },
+    "preferences": {
+      "budget": 12000,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 5,
+      "noise_tolerance": 1,
+      "introversion_score": 5
+    },
+    "_id": "8bf226af0f25adb15e9402c0e01cbbeb08a5a474"
+  },
+  {
+    "profile": {
+      "name": "Rajesh Kumar Sahu",
+      "age": 28,
+      "gender": "Male",
+      "bio": "He is a practical and ambitious person focused on his career goals."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        84.0392,
+        21.7833
+      ],
+      "area_name": "Mayurbhanj"
+    },
+    "preferences": {
+      "budget": 10000,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 3,
+      "introversion_score": 2
+    },
+    "_id": "881f9111c821cc8d5519dc131df7d510e3c37cb9"
+  },
+  {
+    "profile": {
+      "name": "Sharmila Das",
+      "age": 25,
+      "gender": "Female",
+      "bio": "She is an energetic and outgoing person who loves trying new things."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        85.9882,
+        20.4567
+      ],
+      "area_name": "Cuttack"
+    },
+    "preferences": {
+      "budget": 6500,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 4,
+      "introversion_score": 2
+    },
+    "_id": "326f19b7b93676510d797833c7691fa49d348fb2"
+  },
+  {
+    "profile": {
+      "name": "Rajat Kumar Sahoo",
+      "age": 19,
+      "gender": "Male",
+      "bio": "He is a laid-back and easygoing student focused on his studies."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.4217,
+        19.8542
+      ],
+      "area_name": "Puri"
+    },
+    "preferences": {
+      "budget": 5500,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 2,
+      "noise_tolerance": 3,
+      "introversion_score": 3
+    },
+    "_id": "ba9bc8aec07bb3dcb053a5a86f16ca940d1b3463"
+  },
+  {
+    "profile": {
+      "name": "Anwesha Chakraborty",
+      "age": 27,
+      "gender": "Female",
+      "bio": "She is a creative and independent artist who values her personal space."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        83.8862,
+        19.1862
+      ],
+      "area_name": "Koraput"
+    },
+    "preferences": {
+      "budget": 12000,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": true
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 5,
+      "noise_tolerance": 1,
+      "introversion_score": 5
+    },
+    "_id": "e918cec90a1df54dd914ac985cc2438b6d994000"
+  },
+  {
+    "profile": {
+      "name": "Sushree Mohapatra",
+      "age": 26,
+      "gender": "Female",
+      "bio": "She is an energetic and outgoing person who loves exploring new places."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        85.9882,
+        20.3504
+      ],
+      "area_name": "Cuttack"
+    },
+    "preferences": {
+      "budget": 6500,
+      "gender_preference": "Female",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 4,
+      "introversion_score": 2
+    },
+    "_id": "860f9c0bc3900a41c8ed5312f7be6e637088d506"
+  },
+  {
+    "profile": {
+      "name": "Rajat Kumar Das",
+      "age": 21,
+      "gender": "Male",
+      "bio": "He is a laid-back and easygoing guy who enjoys music and movies."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        86.4217,
+        19.8344
+      ],
+      "area_name": "Puri"
+    },
+    "preferences": {
+      "budget": 5500,
+      "gender_preference": "Any",
+      "smoking_tolerance": true,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Late",
+      "cleanliness_rating": 2,
+      "noise_tolerance": 5,
+      "introversion_score": 3
+    },
+    "_id": "ccc6fde21ea5024fa6db3bb13ced37a45e06fcff"
+  },
+  {
+    "profile": {
+      "name": "Debashish Patnaik",
+      "age": 19,
+      "gender": "Male",
+      "bio": "He is a friendly and optimistic student focused on his studies."
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        85.4882,
+        21.7833
+      ],
+      "area_name": "Mayurbhanj"
+    },
+    "preferences": {
+      "budget": 7000,
+      "gender_preference": "Any",
+      "smoking_tolerance": false,
+      "pets_allowed": false
+    },
+    "persona_raw": {
+      "sleep_time": "Early",
+      "cleanliness_rating": 3,
+      "noise_tolerance": 3,
+      "introversion_score": 2
+    },
+    "_id": "2afc86a9da7162fdc5aa61888f34060a80fc520c"
+  }
+]
