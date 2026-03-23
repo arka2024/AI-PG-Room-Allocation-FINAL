@@ -1,250 +1,477 @@
 """
 CohabitAI - Main Flask Application
-AI-Driven Geo-Spatial Compatibility Platform for Roommate Allocation
+MongoDB-backed roommate matching platform.
 """
 
 import os
-import json
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
-from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from werkzeug.security import generate_password_hash, check_password_hash
-from models import db, User, Review, ChatMessage
+import uuid
+from datetime import datetime
+
+from dotenv import load_dotenv
+from flask import Flask, flash, jsonify, redirect, render_template, request, url_for
+from flask_login import LoginManager, UserMixin, current_user, login_required, login_user, logout_user
+from pymongo import MongoClient
+from pymongo.errors import OperationFailure
+from werkzeug.security import check_password_hash, generate_password_hash
+
+from chatbot import generate_conflict_prompts, generate_response
 from compatibility import (
+    check_hard_constraints,
     compute_compatibility,
     compute_feature_differential,
     get_top_overlaps_and_conflicts,
-    rank_users_by_compatibility,
-    check_hard_constraints,
     haversine_distance,
+    rank_users_by_compatibility,
 )
-from chatbot import generate_response, generate_conflict_prompts
 
-# ─── App Configuration ────────────────────────────────────────────
+
+load_dotenv()
+
+
+class SimpleQuery:
+    """Small chainable query wrapper for template compatibility."""
+
+    def __init__(self, items):
+        self.items = list(items)
+
+    def count(self):
+        return len(self.items)
+
+    def order_by(self, _):
+        self.items = sorted(self.items, key=lambda x: x.created_at, reverse=True)
+        return self
+
+    def limit(self, n):
+        self.items = self.items[:n]
+        return self
+
+    def all(self):
+        return self.items
+
+
+class ReviewSortShim:
+    class created_at:
+        @staticmethod
+        def desc():
+            return "created_at_desc"
+
+
+Review = ReviewSortShim
+
+
+class MongoUser(UserMixin):
+    def __init__(self, doc):
+        self._doc = dict(doc)
+        self.id = str(self._doc.get("_id"))
+        self.email = self._doc.get("email", "")
+        self.password_hash = self._doc.get("password_hash", "")
+        self.full_name = self._doc.get("full_name", "")
+        self.age = self._doc.get("age", 25)
+        self.gender = self._doc.get("gender", "male")
+        self.occupation = self._doc.get("occupation", "student")
+        self.phone = self._doc.get("phone")
+        self.bio = self._doc.get("bio")
+        self.avatar_url = self._doc.get("avatar_url")
+        self.latitude = self._doc.get("latitude")
+        self.longitude = self._doc.get("longitude")
+        self.city = self._doc.get("city")
+        self.locality = self._doc.get("locality")
+        self.sleep_schedule = self._doc.get("sleep_schedule", 3)
+        self.cleanliness = self._doc.get("cleanliness", 3)
+        self.noise_tolerance = self._doc.get("noise_tolerance", 3)
+        self.cooking_frequency = self._doc.get("cooking_frequency", 3)
+        self.guest_frequency = self._doc.get("guest_frequency", 3)
+        self.workout_habit = self._doc.get("workout_habit", 3)
+        self.introversion_extroversion = self._doc.get("introversion_extroversion", 3)
+        self.communication_style = self._doc.get("communication_style", 3)
+        self.conflict_resolution = self._doc.get("conflict_resolution", 3)
+        self.social_battery = self._doc.get("social_battery", 3)
+        self.budget_min = self._doc.get("budget_min")
+        self.budget_max = self._doc.get("budget_max")
+        self.smoking = self._doc.get("smoking", "never")
+        self.drinking = self._doc.get("drinking", "never")
+        self.pet_friendly = bool(self._doc.get("pet_friendly", False))
+        self.veg_nonveg = self._doc.get("veg_nonveg", "nonveg")
+        self.gender_preference = self._doc.get("gender_preference", "any")
+        self.preferred_move_in = self._doc.get("preferred_move_in", "flexible")
+        self.is_looking = bool(self._doc.get("is_looking", True))
+        self.profile_complete = bool(self._doc.get("profile_complete", False))
+
+    def get_feature_vector(self):
+        return {
+            "sleep_schedule": self.sleep_schedule or 3,
+            "cleanliness": self.cleanliness or 3,
+            "noise_tolerance": self.noise_tolerance or 3,
+            "cooking_frequency": self.cooking_frequency or 3,
+            "guest_frequency": self.guest_frequency or 3,
+            "workout_habit": self.workout_habit or 3,
+            "introversion_extroversion": self.introversion_extroversion or 3,
+            "communication_style": self.communication_style or 3,
+            "conflict_resolution": self.conflict_resolution or 3,
+            "social_battery": self.social_battery or 3,
+        }
+
+    def get_interests_list(self):
+        interests = self._doc.get("interests")
+        if isinstance(interests, list):
+            return interests
+        return []
+
+    def set_interests_list(self, lst):
+        self._doc["interests"] = lst
+
+    @property
+    def reviews_received(self):
+        items = list(reviews_col.find({"reviewed_id": self.id}).sort("created_at", -1))
+        mapped = [MongoReview(r) for r in items]
+        return SimpleQuery(mapped)
+
+    def get_avg_rating(self):
+        ratings = [r.overall_rating for r in self.reviews_received.all() if r.overall_rating is not None]
+        if not ratings:
+            return None
+        return round(sum(ratings) / len(ratings), 1)
+
+
+class MongoReview:
+    def __init__(self, doc):
+        self._doc = dict(doc)
+        self.id = str(self._doc.get("_id"))
+        self.reviewer_id = str(self._doc.get("reviewer_id"))
+        self.reviewed_id = str(self._doc.get("reviewed_id"))
+        self.overall_rating = self._doc.get("overall_rating")
+        self.cleanliness_rating = self._doc.get("cleanliness_rating")
+        self.communication_rating = self._doc.get("communication_rating")
+        self.respect_rating = self._doc.get("respect_rating")
+        self.reliability_rating = self._doc.get("reliability_rating")
+        self.comment = self._doc.get("comment")
+        self.duration_months = self._doc.get("duration_months")
+        self.would_recommend = bool(self._doc.get("would_recommend", True))
+        self.created_at = self._doc.get("created_at") or datetime.utcnow()
+        self.reviewer = get_user_by_id(self.reviewer_id)
+        self.reviewed = get_user_by_id(self.reviewed_id)
+
+
+class MongoChatMessage:
+    def __init__(self, doc):
+        self._doc = dict(doc)
+        self.user_id = str(self._doc.get("user_id"))
+        self.role = self._doc.get("role", "user")
+        self.message = self._doc.get("message", "")
+        self.created_at = self._doc.get("created_at") or datetime.utcnow()
+
+
+# App configuration
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'cohabitai-secret-key-2026'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///cohabitai.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config["SECRET_KEY"] = "cohabitai-secret-key-2026"
 
-db.init_app(app)
+mongo_uri = os.getenv("MONGO_CONNECTION_STRING") or os.getenv("MONGODB_URI")
+if not mongo_uri:
+    raise RuntimeError("Missing MONGO_CONNECTION_STRING or MONGODB_URI in .env")
+
+mongo_db_name = os.getenv("MONGO_DB_NAME", "cohabitai")
+mongo_client = MongoClient(mongo_uri)
+mongo_db = mongo_client[mongo_db_name]
+users_col = mongo_db[os.getenv("MONGO_COLLECTION_NAME", "users")]
+reviews_col = mongo_db["reviews"]
+chat_col = mongo_db["chat_messages"]
+
+
+def _safe_create_index(collection, keys, **kwargs):
+    try:
+        collection.create_index(keys, **kwargs)
+    except OperationFailure:
+        # Keep app startup resilient if index with same name/key exists but options differ.
+        pass
+
+
+# Indexes for fast login and filtering.
+_safe_create_index(users_col, "email", unique=True, sparse=True)
+_safe_create_index(users_col, "is_looking")
+_safe_create_index(users_col, "city")
+_safe_create_index(users_col, "locality")
+_safe_create_index(reviews_col, [("reviewed_id", 1), ("created_at", -1)])
+_safe_create_index(chat_col, [("user_id", 1), ("created_at", 1)])
+
 login_manager = LoginManager(app)
-login_manager.login_view = 'login'
-login_manager.login_message_category = 'info'
+login_manager.login_view = "login"
+login_manager.login_message_category = "info"
+
+
+def _as_int(value, default=0):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _as_float(value, default=None):
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _to_user(doc):
+    if not doc:
+        return None
+    return MongoUser(doc)
+
+
+def get_user_by_id(user_id):
+    return _to_user(users_col.find_one({"_id": str(user_id)}))
+
+
+def get_user_by_email(email):
+    return _to_user(users_col.find_one({"email": email}))
+
+
+def get_all_active_users(exclude_user_id=None):
+    query = {"is_looking": True}
+    docs = list(users_col.find(query))
+    users = [_to_user(d) for d in docs]
+    if exclude_user_id is not None:
+        users = [u for u in users if u and str(u.id) != str(exclude_user_id)]
+    return [u for u in users if u]
+
+
+def upsert_user_profile(user_id, payload):
+    users_col.update_one({"_id": str(user_id)}, {"$set": payload}, upsert=False)
+    return get_user_by_id(user_id)
+
+
+def create_user_from_form(form):
+    user_id = uuid.uuid4().hex
+    interests_raw = form.get("interests", "")
+    interests = [i.strip() for i in interests_raw.split(",") if i.strip()] if interests_raw else []
+
+    user_doc = {
+        "_id": user_id,
+        "email": form.get("email", "").strip(),
+        "password_hash": generate_password_hash(form.get("password", "")),
+        "full_name": form.get("full_name", "").strip(),
+        "age": _as_int(form.get("age"), 25),
+        "gender": form.get("gender", "male"),
+        "occupation": form.get("occupation", "student"),
+        "phone": form.get("phone", ""),
+        "bio": form.get("bio", ""),
+        "city": form.get("city", ""),
+        "locality": form.get("locality", ""),
+        "latitude": _as_float(form.get("latitude")),
+        "longitude": _as_float(form.get("longitude")),
+        "sleep_schedule": _as_int(form.get("sleep_schedule"), 3),
+        "cleanliness": _as_int(form.get("cleanliness"), 3),
+        "noise_tolerance": _as_int(form.get("noise_tolerance"), 3),
+        "cooking_frequency": _as_int(form.get("cooking_frequency"), 3),
+        "guest_frequency": _as_int(form.get("guest_frequency"), 3),
+        "workout_habit": _as_int(form.get("workout_habit"), 3),
+        "introversion_extroversion": _as_int(form.get("introversion_extroversion"), 3),
+        "communication_style": _as_int(form.get("communication_style"), 3),
+        "conflict_resolution": _as_int(form.get("conflict_resolution"), 3),
+        "social_battery": _as_int(form.get("social_battery"), 3),
+        "budget_min": _as_int(form.get("budget_min"), 0) or None,
+        "budget_max": _as_int(form.get("budget_max"), 0) or None,
+        "smoking": form.get("smoking", "never"),
+        "drinking": form.get("drinking", "never"),
+        "pet_friendly": bool(form.get("pet_friendly")),
+        "veg_nonveg": form.get("veg_nonveg", "nonveg"),
+        "gender_preference": form.get("gender_preference", "any"),
+        "preferred_move_in": form.get("preferred_move_in", "flexible"),
+        "interests": interests,
+        "avatar_url": None,
+        "profile_complete": True,
+        "is_looking": True,
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow(),
+    }
+    users_col.insert_one(user_doc)
+    return get_user_by_id(user_id)
+
+
+def get_recent_reviews(limit=20):
+    docs = list(reviews_col.find().sort("created_at", -1).limit(limit))
+    return [MongoReview(d) for d in docs]
+
+
+def get_chat_history(user_id, limit=50):
+    docs = list(chat_col.find({"user_id": str(user_id)}).sort("created_at", 1).limit(limit))
+    return [MongoChatMessage(d) for d in docs]
 
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return get_user_by_id(user_id)
 
 
-# ─── Page Routes ──────────────────────────────────────────────────
-
-@app.route('/')
+@app.route("/")
 def index():
-    return render_template('index.html')
+    return render_template("index.html")
 
 
-@app.route('/architecture')
+@app.route("/architecture")
 def architecture():
-    return render_template('architecture.html')
+    return render_template("architecture.html")
 
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route("/register", methods=["GET", "POST"])
 def register():
-    if request.method == 'POST':
-        email = request.form.get('email', '').strip()
-        password = request.form.get('password', '')
+    if request.method == "POST":
+        email = request.form.get("email", "").strip()
+        password = request.form.get("password", "")
 
-        if User.query.filter_by(email=email).first():
-            flash('Email already registered. Please login.', 'error')
-            return redirect(url_for('register'))
+        if not email or not password:
+            flash("Email and password are required.", "error")
+            return redirect(url_for("register"))
 
-        user = User(
-            email=email,
-            password_hash=generate_password_hash(password),
-            full_name=request.form.get('full_name', '').strip(),
-            age=int(request.form.get('age', 25)),
-            gender=request.form.get('gender', 'male'),
-            occupation=request.form.get('occupation', 'student'),
-            phone=request.form.get('phone', ''),
-            bio=request.form.get('bio', ''),
-            city=request.form.get('city', ''),
-            locality=request.form.get('locality', ''),
-            latitude=float(request.form.get('latitude') or 0) or None,
-            longitude=float(request.form.get('longitude') or 0) or None,
-            # Lifestyle
-            sleep_schedule=int(request.form.get('sleep_schedule', 3)),
-            cleanliness=int(request.form.get('cleanliness', 3)),
-            noise_tolerance=int(request.form.get('noise_tolerance', 3)),
-            cooking_frequency=int(request.form.get('cooking_frequency', 3)),
-            guest_frequency=int(request.form.get('guest_frequency', 3)),
-            workout_habit=int(request.form.get('workout_habit', 3)),
-            # Personality
-            introversion_extroversion=int(request.form.get('introversion_extroversion', 3)),
-            communication_style=int(request.form.get('communication_style', 3)),
-            conflict_resolution=int(request.form.get('conflict_resolution', 3)),
-            social_battery=int(request.form.get('social_battery', 3)),
-            # Preferences
-            budget_min=int(request.form.get('budget_min') or 0) or None,
-            budget_max=int(request.form.get('budget_max') or 0) or None,
-            smoking=request.form.get('smoking', 'never'),
-            drinking=request.form.get('drinking', 'never'),
-            pet_friendly=bool(request.form.get('pet_friendly')),
-            veg_nonveg=request.form.get('veg_nonveg', 'nonveg'),
-            gender_preference=request.form.get('gender_preference', 'any'),
-            preferred_move_in=request.form.get('preferred_move_in', 'flexible'),
-            profile_complete=True,
-            is_looking=True,
-        )
-        interests = request.form.get('interests', '')
-        if interests:
-            user.set_interests_list([i.strip() for i in interests.split(',') if i.strip()])
+        if get_user_by_email(email):
+            flash("Email already registered. Please login.", "error")
+            return redirect(url_for("register"))
 
-        db.session.add(user)
-        db.session.commit()
+        user = create_user_from_form(request.form)
         login_user(user)
-        flash('Profile created successfully! Welcome to CohabitAI.', 'success')
-        return redirect(url_for('dashboard'))
+        flash("Profile created successfully! Welcome to CohabitAI.", "success")
+        return redirect(url_for("dashboard"))
 
-    return render_template('register.html')
+    return render_template("register.html")
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == 'POST':
-        email = request.form.get('email', '').strip()
-        password = request.form.get('password', '')
-        user = User.query.filter_by(email=email).first()
+    if request.method == "POST":
+        email = request.form.get("email", "").strip()
+        password = request.form.get("password", "")
+        user = get_user_by_email(email)
 
         if user and check_password_hash(user.password_hash, password):
             login_user(user)
-            flash(f'Welcome back, {user.full_name.split()[0]}!', 'success')
-            return redirect(url_for('dashboard'))
-        else:
-            flash('Invalid email or password.', 'error')
+            flash(f"Welcome back, {user.full_name.split()[0]}!", "success")
+            return redirect(url_for("dashboard"))
+        flash("Invalid email or password.", "error")
 
-    return render_template('login.html')
+    return render_template("login.html")
 
 
-@app.route('/logout')
+@app.route("/logout")
 @login_required
 def logout():
     logout_user()
-    flash('You have been logged out.', 'info')
-    return redirect(url_for('index'))
+    flash("You have been logged out.", "info")
+    return redirect(url_for("index"))
 
 
-@app.route('/dashboard')
+@app.route("/dashboard")
 @login_required
 def dashboard():
-    all_users = User.query.filter(User.id != current_user.id, User.is_looking == True).all()
+    all_users = get_all_active_users(exclude_user_id=current_user.id)
     top_matches = rank_users_by_compatibility(current_user, all_users)
 
-    # Count nearby users
     nearby_count = 0
     if current_user.latitude and current_user.longitude:
         for u in all_users:
             if u.latitude and u.longitude:
-                dist = haversine_distance(current_user.latitude, current_user.longitude,
-                                          u.latitude, u.longitude)
+                dist = haversine_distance(current_user.latitude, current_user.longitude, u.latitude, u.longitude)
                 if dist <= 10:
                     nearby_count += 1
 
-    return render_template('dashboard.html',
-                           top_matches=top_matches,
-                           nearby_count=nearby_count)
+    return render_template("dashboard.html", top_matches=top_matches, nearby_count=nearby_count)
 
 
-@app.route('/profile/<int:user_id>')
+@app.route("/profile/<user_id>")
 @login_required
 def profile_view(user_id):
-    user = User.query.get_or_404(user_id)
+    user = get_user_by_id(user_id)
+    if not user:
+        flash("User not found.", "error")
+        return redirect(url_for("dashboard"))
+
     feature_vector = user.get_feature_vector()
 
     compatibility_score = None
     constraint_issues = []
-    if current_user.id != user.id:
+    if str(current_user.id) != str(user.id):
         compatibility_score = compute_compatibility(
-            current_user.get_feature_vector(), feature_vector
+            current_user.get_feature_vector(), feature_vector, current_user.bio or "", user.bio or ""
         )
         constraint_issues = check_hard_constraints(current_user, user)
 
-    return render_template('profile.html',
-                           user=user,
-                           feature_vector=feature_vector,
-                           compatibility_score=compatibility_score,
-                           constraint_issues=constraint_issues,
-                           review_model=Review)
+    recent_reviews = user.reviews_received.limit(5).all()
+    return render_template(
+        "profile.html",
+        user=user,
+        feature_vector=feature_vector,
+        compatibility_score=compatibility_score,
+        constraint_issues=constraint_issues,
+        review_model=Review,
+        recent_reviews=recent_reviews,
+        reviews_count=user.reviews_received.count(),
+    )
 
 
-@app.route('/edit-profile', methods=['GET', 'POST'])
+@app.route("/edit-profile", methods=["GET", "POST"])
 @login_required
 def edit_profile():
-    if request.method == 'POST':
-        u = current_user
-        u.full_name = request.form.get('full_name', u.full_name)
-        u.age = int(request.form.get('age', u.age))
-        u.gender = request.form.get('gender', u.gender)
-        u.occupation = request.form.get('occupation', u.occupation)
-        u.city = request.form.get('city', u.city)
-        u.locality = request.form.get('locality', u.locality)
-        u.bio = request.form.get('bio', u.bio)
+    if request.method == "POST":
+        payload = {
+            "full_name": request.form.get("full_name", current_user.full_name),
+            "age": _as_int(request.form.get("age"), current_user.age),
+            "gender": request.form.get("gender", current_user.gender),
+            "occupation": request.form.get("occupation", current_user.occupation),
+            "city": request.form.get("city", current_user.city),
+            "locality": request.form.get("locality", current_user.locality),
+            "bio": request.form.get("bio", current_user.bio),
+            "sleep_schedule": _as_int(request.form.get("sleep_schedule"), 3),
+            "cleanliness": _as_int(request.form.get("cleanliness"), 3),
+            "noise_tolerance": _as_int(request.form.get("noise_tolerance"), 3),
+            "cooking_frequency": _as_int(request.form.get("cooking_frequency"), 3),
+            "guest_frequency": _as_int(request.form.get("guest_frequency"), 3),
+            "workout_habit": _as_int(request.form.get("workout_habit"), 3),
+            "introversion_extroversion": _as_int(request.form.get("introversion_extroversion"), 3),
+            "communication_style": _as_int(request.form.get("communication_style"), 3),
+            "conflict_resolution": _as_int(request.form.get("conflict_resolution"), 3),
+            "social_battery": _as_int(request.form.get("social_battery"), 3),
+            "budget_min": _as_int(request.form.get("budget_min"), 0) or None,
+            "budget_max": _as_int(request.form.get("budget_max"), 0) or None,
+            "smoking": request.form.get("smoking", "never"),
+            "drinking": request.form.get("drinking", "never"),
+            "pet_friendly": bool(request.form.get("pet_friendly")),
+            "veg_nonveg": request.form.get("veg_nonveg", "nonveg"),
+            "gender_preference": request.form.get("gender_preference", "any"),
+            "interests": [i.strip() for i in request.form.get("interests", "").split(",") if i.strip()],
+            "profile_complete": True,
+            "updated_at": datetime.utcnow(),
+        }
 
-        lat = request.form.get('latitude', '')
-        lng = request.form.get('longitude', '')
-        if lat and lng:
-            u.latitude = float(lat)
-            u.longitude = float(lng)
+        lat = _as_float(request.form.get("latitude"))
+        lng = _as_float(request.form.get("longitude"))
+        if lat is not None and lng is not None:
+            payload["latitude"] = lat
+            payload["longitude"] = lng
 
-        u.sleep_schedule = int(request.form.get('sleep_schedule', 3))
-        u.cleanliness = int(request.form.get('cleanliness', 3))
-        u.noise_tolerance = int(request.form.get('noise_tolerance', 3))
-        u.cooking_frequency = int(request.form.get('cooking_frequency', 3))
-        u.guest_frequency = int(request.form.get('guest_frequency', 3))
-        u.workout_habit = int(request.form.get('workout_habit', 3))
-        u.introversion_extroversion = int(request.form.get('introversion_extroversion', 3))
-        u.communication_style = int(request.form.get('communication_style', 3))
-        u.conflict_resolution = int(request.form.get('conflict_resolution', 3))
-        u.social_battery = int(request.form.get('social_battery', 3))
-        u.budget_min = int(request.form.get('budget_min') or 0) or None
-        u.budget_max = int(request.form.get('budget_max') or 0) or None
-        u.smoking = request.form.get('smoking', 'never')
-        u.drinking = request.form.get('drinking', 'never')
-        u.pet_friendly = bool(request.form.get('pet_friendly'))
-        u.veg_nonveg = request.form.get('veg_nonveg', 'nonveg')
-        u.gender_preference = request.form.get('gender_preference', 'any')
+        updated_user = upsert_user_profile(current_user.id, payload)
+        login_user(updated_user)
+        flash("Profile updated successfully!", "success")
+        return redirect(url_for("profile_view", user_id=current_user.id))
 
-        interests = request.form.get('interests', '')
-        if interests:
-            u.set_interests_list([i.strip() for i in interests.split(',') if i.strip()])
-        else:
-            u.set_interests_list([])
-
-        u.profile_complete = True
-        db.session.commit()
-        flash('Profile updated successfully!', 'success')
-        return redirect(url_for('profile_view', user_id=current_user.id))
-
-    return render_template('edit_profile.html', user=current_user)
+    return render_template("edit_profile.html", user=current_user)
 
 
-@app.route('/map')
+@app.route("/map")
 @login_required
 def map_view():
-    return render_template('map.html')
+    return render_template("map.html")
 
 
-@app.route('/search')
+@app.route("/search")
 @login_required
 def search_view():
-    all_users = User.query.filter(User.id != current_user.id, User.is_looking == True).all()
+    all_users = get_all_active_users(exclude_user_id=current_user.id)
 
-    # Apply explicit filters
-    gender = request.args.get('gender')
-    occupation = request.args.get('occupation')
-    smoking = request.args.get('smoking')
-    veg_nonveg = request.args.get('veg_nonveg')
-    max_distance = request.args.get('max_distance')
-    min_score = request.args.get('min_score')
+    gender = request.args.get("gender")
+    occupation = request.args.get("occupation")
+    smoking = request.args.get("smoking")
+    veg_nonveg = request.args.get("veg_nonveg")
+    max_distance = request.args.get("max_distance")
+    min_score = request.args.get("min_score")
 
     if gender:
         all_users = [u for u in all_users if u.gender == gender]
@@ -255,22 +482,23 @@ def search_view():
     if veg_nonveg:
         all_users = [u for u in all_users if u.veg_nonveg == veg_nonveg]
 
-    radius = float(max_distance) if max_distance else None
+    radius = _as_float(max_distance)
     results = rank_users_by_compatibility(current_user, all_users, radius_km=radius)
 
     if min_score:
-        results = [r for r in results if r['score'] >= float(min_score)]
+        min_score_val = _as_float(min_score, 0)
+        results = [r for r in results if r["score"] >= min_score_val]
 
-    return render_template('search.html', results=results)
+    return render_template("search.html", results=results)
 
 
-@app.route('/compare')
+@app.route("/compare")
 @login_required
 def compare_view():
-    all_users = User.query.filter(User.is_looking == True).all()
+    all_users = get_all_active_users()
 
-    user1_id = request.args.get('user1', type=int)
-    user2_id = request.args.get('user2', type=int)
+    user1_id = request.args.get("user1")
+    user2_id = request.args.get("user2")
 
     comparison = None
     user_a = user_b = None
@@ -281,97 +509,94 @@ def compare_view():
     discussion_prompts = ""
 
     if user1_id and user2_id:
-        user_a = User.query.get(user1_id)
-        user_b = User.query.get(user2_id)
+        user_a = get_user_by_id(user1_id)
+        user_b = get_user_by_id(user2_id)
         if user_a and user_b:
             vec_a = user_a.get_feature_vector()
             vec_b = user_b.get_feature_vector()
-            score = compute_compatibility(vec_a, vec_b)
+            score = compute_compatibility(vec_a, vec_b, user_a.bio or "", user_b.bio or "")
             comparison = compute_feature_differential(vec_a, vec_b)
             overlaps, conflicts = get_top_overlaps_and_conflicts(vec_a, vec_b, n=5)
             constraint_issues = check_hard_constraints(user_a, user_b)
             discussion_prompts = generate_conflict_prompts(vec_a, vec_b, user_b.full_name)
 
-    return render_template('compare.html',
-                           all_users=all_users,
-                           comparison=comparison,
-                           user_a=user_a, user_b=user_b,
-                           vec_a=vec_a, vec_b=vec_b,
-                           score=score,
-                           overlaps=overlaps,
-                           conflicts=conflicts,
-                           constraint_issues=constraint_issues,
-                           discussion_prompts=discussion_prompts)
+    return render_template(
+        "compare.html",
+        all_users=all_users,
+        comparison=comparison,
+        user_a=user_a,
+        user_b=user_b,
+        vec_a=vec_a,
+        vec_b=vec_b,
+        score=score,
+        overlaps=overlaps,
+        conflicts=conflicts,
+        constraint_issues=constraint_issues,
+        discussion_prompts=discussion_prompts,
+    )
 
 
-@app.route('/reviews')
+@app.route("/reviews")
 @login_required
 def reviews_view():
-    all_users = User.query.filter(User.id != current_user.id).all()
-    reviews = Review.query.order_by(Review.created_at.desc()).limit(20).all()
-    return render_template('reviews.html', all_users=all_users, reviews=reviews)
+    all_users = [u for u in get_all_active_users() if str(u.id) != str(current_user.id)]
+    reviews = get_recent_reviews(limit=20)
+    return render_template("reviews.html", all_users=all_users, reviews=reviews)
 
 
-@app.route('/reviews/write/<int:user_id>')
+@app.route("/reviews/write/<user_id>")
 @login_required
 def write_review(user_id):
-    all_users = User.query.filter(User.id != current_user.id).all()
-    reviews = Review.query.order_by(Review.created_at.desc()).limit(20).all()
-    return render_template('reviews.html', all_users=all_users, reviews=reviews)
+    all_users = [u for u in get_all_active_users() if str(u.id) != str(current_user.id)]
+    reviews = get_recent_reviews(limit=20)
+    return render_template("reviews.html", all_users=all_users, reviews=reviews)
 
 
-@app.route('/reviews/submit', methods=['POST'])
+@app.route("/reviews/submit", methods=["POST"])
 @login_required
 def submit_review():
-    reviewed_id = request.form.get('reviewed_id', type=int)
-    overall_rating = request.form.get('overall_rating', type=float)
+    reviewed_id = request.form.get("reviewed_id")
+    overall_rating = _as_float(request.form.get("overall_rating"))
 
     if not reviewed_id or not overall_rating:
-        flash('Please select a user and provide an overall rating.', 'error')
-        return redirect(url_for('reviews_view'))
+        flash("Please select a user and provide an overall rating.", "error")
+        return redirect(url_for("reviews_view"))
 
-    review = Review(
-        reviewer_id=current_user.id,
-        reviewed_id=reviewed_id,
-        overall_rating=overall_rating,
-        cleanliness_rating=request.form.get('cleanliness_rating', type=float),
-        communication_rating=request.form.get('communication_rating', type=float),
-        respect_rating=request.form.get('respect_rating', type=float),
-        reliability_rating=request.form.get('reliability_rating', type=float),
-        comment=request.form.get('comment', '').strip(),
-        duration_months=request.form.get('duration_months', type=int),
-        would_recommend=bool(request.form.get('would_recommend')),
-    )
-    db.session.add(review)
-    db.session.commit()
-    flash('Review submitted successfully!', 'success')
-    return redirect(url_for('reviews_view'))
+    review_doc = {
+        "_id": uuid.uuid4().hex,
+        "reviewer_id": str(current_user.id),
+        "reviewed_id": str(reviewed_id),
+        "overall_rating": overall_rating,
+        "cleanliness_rating": _as_float(request.form.get("cleanliness_rating")),
+        "communication_rating": _as_float(request.form.get("communication_rating")),
+        "respect_rating": _as_float(request.form.get("respect_rating")),
+        "reliability_rating": _as_float(request.form.get("reliability_rating")),
+        "comment": request.form.get("comment", "").strip(),
+        "duration_months": _as_int(request.form.get("duration_months"), 0) or None,
+        "would_recommend": bool(request.form.get("would_recommend")),
+        "created_at": datetime.utcnow(),
+    }
+
+    reviews_col.insert_one(review_doc)
+    flash("Review submitted successfully!", "success")
+    return redirect(url_for("reviews_view"))
 
 
-@app.route('/chatbot')
+@app.route("/chatbot")
 @login_required
 def chatbot_view():
-    chat_history = ChatMessage.query.filter_by(user_id=current_user.id).order_by(
-        ChatMessage.created_at.asc()
-    ).limit(50).all()
-    return render_template('chatbot.html', chat_history=chat_history)
+    chat_history = get_chat_history(current_user.id, limit=50)
+    return render_template("chatbot.html", chat_history=chat_history)
 
 
-# ─── API Endpoints ────────────────────────────────────────────────
-
-@app.route('/api/map-search')
+@app.route("/api/map-search")
 @login_required
 def api_map_search():
-    """Geo-spatial KNN search API for the map module."""
-    radius = request.args.get('radius', 10, type=float)
-    min_score = request.args.get('min_score', 0, type=float)
+    radius = request.args.get("radius", 10, type=float)
+    min_score = request.args.get("min_score", 0, type=float)
 
-    all_users = User.query.filter(
-        User.id != current_user.id,
-        User.is_looking == True,
-        User.latitude.isnot(None),
-        User.longitude.isnot(None)
-    ).all()
+    all_users = get_all_active_users(exclude_user_id=current_user.id)
+    all_users = [u for u in all_users if u.latitude is not None and u.longitude is not None]
 
     results = []
     query_vec = current_user.get_feature_vector()
@@ -380,295 +605,64 @@ def api_map_search():
         if not current_user.latitude or not current_user.longitude:
             continue
 
-        dist = haversine_distance(
-            current_user.latitude, current_user.longitude,
-            user.latitude, user.longitude
-        )
+        dist = haversine_distance(current_user.latitude, current_user.longitude, user.latitude, user.longitude)
         if dist > radius:
             continue
 
-        score = compute_compatibility(query_vec, user.get_feature_vector())
+        score = compute_compatibility(query_vec, user.get_feature_vector(), current_user.bio or "", user.bio or "")
         if score < min_score:
             continue
 
-        results.append({
-            'id': user.id,
-            'name': user.full_name,
-            'occupation': user.occupation.replace('_', ' ').title(),
-            'city': user.city or '',
-            'lat': user.latitude,
-            'lng': user.longitude,
-            'score': score,
-            'distance': round(dist, 1),
-        })
+        results.append(
+            {
+                "id": user.id,
+                "name": user.full_name,
+                "occupation": user.occupation.replace("_", " ").title(),
+                "city": user.city or "",
+                "lat": user.latitude,
+                "lng": user.longitude,
+                "score": score,
+                "distance": round(dist, 1),
+            }
+        )
 
-    results.sort(key=lambda x: x['score'], reverse=True)
-    return jsonify({'results': results})
+    results.sort(key=lambda x: x["score"], reverse=True)
+    return jsonify({"results": results})
 
 
-@app.route('/api/chat', methods=['POST'])
+@app.route("/api/chat", methods=["POST"])
 @login_required
 def api_chat():
-    """Chatbot API endpoint."""
-    data = request.get_json()
-    message = data.get('message', '').strip()
+    data = request.get_json() or {}
+    message = data.get("message", "").strip()
 
     if not message:
-        return jsonify({'response': 'Please type a message.'})
+        return jsonify({"response": "Please type a message."})
 
-    # Save user message
-    user_msg = ChatMessage(user_id=current_user.id, role='user', message=message)
-    db.session.add(user_msg)
+    chat_col.insert_one(
+        {
+            "_id": uuid.uuid4().hex,
+            "user_id": str(current_user.id),
+            "role": "user",
+            "message": message,
+            "created_at": datetime.utcnow(),
+        }
+    )
 
-    # Generate response
     response = generate_response(message, user=current_user)
 
-    # Save bot response
-    bot_msg = ChatMessage(user_id=current_user.id, role='bot', message=response)
-    db.session.add(bot_msg)
-    db.session.commit()
-
-    return jsonify({'response': response})
-
-
-# ─── Seed Data ────────────────────────────────────────────────────
-
-def seed_database():
-    """Populate database with demo users for testing."""
-    if User.query.count() > 0:
-        return  # Already seeded
-
-    demo_users = [
+    chat_col.insert_one(
         {
-            'email': 'priya@demo.com', 'password': 'demo123',
-            'full_name': 'Priya Sharma', 'age': 24, 'gender': 'female',
-            'occupation': 'working_professional',
-            'city': 'Kolkata', 'locality': 'Salt Lake',
-            'latitude': 22.5800, 'longitude': 88.4150,
-            'bio': 'Software developer who loves quiet evenings and clean spaces.',
-            'sleep_schedule': 2, 'cleanliness': 5, 'noise_tolerance': 2,
-            'cooking_frequency': 4, 'guest_frequency': 2, 'workout_habit': 3,
-            'introversion_extroversion': 2, 'communication_style': 3,
-            'conflict_resolution': 3, 'social_battery': 2,
-            'budget_min': 6000, 'budget_max': 12000,
-            'smoking': 'never', 'drinking': 'occasionally',
-            'pet_friendly': True, 'veg_nonveg': 'veg',
-            'gender_preference': 'female',
-            'interests': ['Reading', 'Yoga', 'Cooking', 'Classical Music', 'Gardening'],
-        },
-        {
-            'email': 'arjun@demo.com', 'password': 'demo123',
-            'full_name': 'Arjun Patel', 'age': 26, 'gender': 'male',
-            'occupation': 'working_professional',
-            'city': 'Kolkata', 'locality': 'New Town',
-            'latitude': 22.5920, 'longitude': 88.4720,
-            'bio': 'Data analyst, weekend cricketer, love spontaneous hangouts.',
-            'sleep_schedule': 4, 'cleanliness': 3, 'noise_tolerance': 4,
-            'cooking_frequency': 2, 'guest_frequency': 4, 'workout_habit': 4,
-            'introversion_extroversion': 4, 'communication_style': 4,
-            'conflict_resolution': 4, 'social_battery': 4,
-            'budget_min': 7000, 'budget_max': 15000,
-            'smoking': 'occasionally', 'drinking': 'occasionally',
-            'pet_friendly': False, 'veg_nonveg': 'nonveg',
-            'gender_preference': 'male',
-            'interests': ['Cricket', 'Gaming', 'Movies', 'Trekking', 'Photography'],
-        },
-        {
-            'email': 'sneha@demo.com', 'password': 'demo123',
-            'full_name': 'Sneha Reddy', 'age': 22, 'gender': 'female',
-            'occupation': 'student',
-            'city': 'Kolkata', 'locality': 'Jadavpur',
-            'latitude': 22.4990, 'longitude': 88.3710,
-            'bio': 'Final year CS student. Focused and organized. Love chai conversations.',
-            'sleep_schedule': 3, 'cleanliness': 4, 'noise_tolerance': 3,
-            'cooking_frequency': 3, 'guest_frequency': 3, 'workout_habit': 2,
-            'introversion_extroversion': 3, 'communication_style': 4,
-            'conflict_resolution': 3, 'social_battery': 3,
-            'budget_min': 4000, 'budget_max': 9000,
-            'smoking': 'never', 'drinking': 'never',
-            'pet_friendly': True, 'veg_nonveg': 'eggetarian',
-            'gender_preference': 'female',
-            'interests': ['Coding', 'Reading', 'Art', 'Music', 'Tea'],
-        },
-        {
-            'email': 'rahul@demo.com', 'password': 'demo123',
-            'full_name': 'Rahul Das', 'age': 28, 'gender': 'male',
-            'occupation': 'freelancer',
-            'city': 'Kolkata', 'locality': 'Park Street',
-            'latitude': 22.5530, 'longitude': 88.3510,
-            'bio': 'Freelance graphic designer. Night owl with headphones always on.',
-            'sleep_schedule': 5, 'cleanliness': 3, 'noise_tolerance': 5,
-            'cooking_frequency': 1, 'guest_frequency': 2, 'workout_habit': 1,
-            'introversion_extroversion': 2, 'communication_style': 2,
-            'conflict_resolution': 2, 'social_battery': 1,
-            'budget_min': 8000, 'budget_max': 18000,
-            'smoking': 'never', 'drinking': 'occasionally',
-            'pet_friendly': False, 'veg_nonveg': 'nonveg',
-            'gender_preference': 'any',
-            'interests': ['Design', 'Anime', 'Gaming', 'Coffee', 'Digital Art'],
-        },
-        {
-            'email': 'meera@demo.com', 'password': 'demo123',
-            'full_name': 'Meera Joshi', 'age': 25, 'gender': 'female',
-            'occupation': 'working_professional',
-            'city': 'Kolkata', 'locality': 'Howrah',
-            'latitude': 22.5850, 'longitude': 88.3300,
-            'bio': 'Marketing manager. Social butterfly who keeps things tidy.',
-            'sleep_schedule': 3, 'cleanliness': 5, 'noise_tolerance': 4,
-            'cooking_frequency': 3, 'guest_frequency': 4, 'workout_habit': 4,
-            'introversion_extroversion': 5, 'communication_style': 5,
-            'conflict_resolution': 4, 'social_battery': 5,
-            'budget_min': 8000, 'budget_max': 16000,
-            'smoking': 'never', 'drinking': 'occasionally',
-            'pet_friendly': True, 'veg_nonveg': 'nonveg',
-            'gender_preference': 'female',
-            'interests': ['Dancing', 'Travel', 'Food', 'Social Events', 'Fitness'],
-        },
-        {
-            'email': 'vikram@demo.com', 'password': 'demo123',
-            'full_name': 'Vikram Singh', 'age': 23, 'gender': 'male',
-            'occupation': 'student',
-            'city': 'Kolkata', 'locality': 'Ballygunge',
-            'latitude': 22.5270, 'longitude': 88.3630,
-            'bio': 'MBA student. Early riser, gym lover, very organized.',
-            'sleep_schedule': 1, 'cleanliness': 5, 'noise_tolerance': 2,
-            'cooking_frequency': 4, 'guest_frequency': 2, 'workout_habit': 5,
-            'introversion_extroversion': 3, 'communication_style': 3,
-            'conflict_resolution': 4, 'social_battery': 3,
-            'budget_min': 5000, 'budget_max': 10000,
-            'smoking': 'never', 'drinking': 'never',
-            'pet_friendly': False, 'veg_nonveg': 'veg',
-            'gender_preference': 'male',
-            'interests': ['Gym', 'Finance', 'Cooking', 'Running', 'Meditation'],
-        },
-        {
-            'email': 'anita@demo.com', 'password': 'demo123',
-            'full_name': 'Anita Banerjee', 'age': 27, 'gender': 'female',
-            'occupation': 'working_professional',
-            'city': 'Kolkata', 'locality': 'Dum Dum',
-            'latitude': 22.6240, 'longitude': 88.4240,
-            'bio': 'Teacher by day, bookworm by night. Love quiet, peaceful spaces.',
-            'sleep_schedule': 2, 'cleanliness': 4, 'noise_tolerance': 1,
-            'cooking_frequency': 5, 'guest_frequency': 1, 'workout_habit': 2,
-            'introversion_extroversion': 1, 'communication_style': 2,
-            'conflict_resolution': 2, 'social_battery': 1,
-            'budget_min': 4000, 'budget_max': 8000,
-            'smoking': 'never', 'drinking': 'never',
-            'pet_friendly': True, 'veg_nonveg': 'veg',
-            'gender_preference': 'female',
-            'interests': ['Books', 'Writing', 'Bengali Literature', 'Tea', 'Music'],
-        },
-        {
-            'email': 'sanjay@demo.com', 'password': 'demo123',
-            'full_name': 'Sanjay Mukherjee', 'age': 30, 'gender': 'male',
-            'occupation': 'working_professional',
-            'city': 'Kolkata', 'locality': 'Esplanade',
-            'latitude': 22.5640, 'longitude': 88.3520,
-            'bio': 'Senior developer at a startup. Balanced lifestyle, easy-going.',
-            'sleep_schedule': 3, 'cleanliness': 4, 'noise_tolerance': 3,
-            'cooking_frequency': 3, 'guest_frequency': 3, 'workout_habit': 3,
-            'introversion_extroversion': 3, 'communication_style': 4,
-            'conflict_resolution': 3, 'social_battery': 3,
-            'budget_min': 10000, 'budget_max': 20000,
-            'smoking': 'never', 'drinking': 'occasionally',
-            'pet_friendly': True, 'veg_nonveg': 'nonveg',
-            'gender_preference': 'any',
-            'interests': ['Tech', 'Music', 'Movies', 'Board Games', 'Cooking'],
-        },
-        {
-            'email': 'kavya@demo.com', 'password': 'demo123',
-            'full_name': 'Kavya Nair', 'age': 21, 'gender': 'female',
-            'occupation': 'student',
-            'city': 'Kolkata', 'locality': 'Gariahat',
-            'latitude': 22.5170, 'longitude': 88.3690,
-            'bio': 'Journalism student. Creative, spontaneous, and a great listener.',
-            'sleep_schedule': 4, 'cleanliness': 3, 'noise_tolerance': 4,
-            'cooking_frequency': 2, 'guest_frequency': 4, 'workout_habit': 2,
-            'introversion_extroversion': 4, 'communication_style': 5,
-            'conflict_resolution': 4, 'social_battery': 4,
-            'budget_min': 3500, 'budget_max': 8000,
-            'smoking': 'never', 'drinking': 'occasionally',
-            'pet_friendly': True, 'veg_nonveg': 'nonveg',
-            'gender_preference': 'female',
-            'interests': ['Photography', 'Writing', 'Travel', 'Cafe Hopping', 'Film'],
-        },
-        {
-            'email': 'rohan@demo.com', 'password': 'demo123',
-            'full_name': 'Rohan Ghosh', 'age': 25, 'gender': 'male',
-            'occupation': 'working_professional',
-            'city': 'Kolkata', 'locality': 'Rajarhat',
-            'latitude': 22.6010, 'longitude': 88.4850,
-            'bio': 'Backend engineer. Loves late-night coding, music, and minimalism.',
-            'sleep_schedule': 5, 'cleanliness': 4, 'noise_tolerance': 4,
-            'cooking_frequency': 2, 'guest_frequency': 1, 'workout_habit': 3,
-            'introversion_extroversion': 2, 'communication_style': 3,
-            'conflict_resolution': 3, 'social_battery': 2,
-            'budget_min': 7000, 'budget_max': 14000,
-            'smoking': 'never', 'drinking': 'occasionally',
-            'pet_friendly': False, 'veg_nonveg': 'nonveg',
-            'gender_preference': 'male',
-            'interests': ['Coding', 'Guitar', 'Anime', 'Minimalism', 'Coffee'],
-        },
-    ]
+            "_id": uuid.uuid4().hex,
+            "user_id": str(current_user.id),
+            "role": "bot",
+            "message": response,
+            "created_at": datetime.utcnow(),
+        }
+    )
 
-    for data in demo_users:
-        interests = data.pop('interests')
-        password = data.pop('password')
-        data['password_hash'] = generate_password_hash(password)
-        data['profile_complete'] = True
-        data['is_looking'] = True
-        user = User(**data)
-        user.set_interests_list(interests)
-        db.session.add(user)
-
-    db.session.commit()
-
-    # Seed some reviews
-    demo_reviews = [
-        {'reviewer_id': 1, 'reviewed_id': 3, 'overall_rating': 4.5,
-         'cleanliness_rating': 5, 'communication_rating': 4,
-         'respect_rating': 5, 'reliability_rating': 4,
-         'comment': 'Sneha was a wonderful roommate! Very clean and respectful. We had great chai sessions together.',
-         'duration_months': 6, 'would_recommend': True},
-        {'reviewer_id': 3, 'reviewed_id': 1, 'overall_rating': 5.0,
-         'cleanliness_rating': 5, 'communication_rating': 4,
-         'respect_rating': 5, 'reliability_rating': 5,
-         'comment': 'Priya is the ideal roommate. Organized, considerate, and great cook!',
-         'duration_months': 6, 'would_recommend': True},
-        {'reviewer_id': 2, 'reviewed_id': 4, 'overall_rating': 3.5,
-         'cleanliness_rating': 3, 'communication_rating': 2,
-         'respect_rating': 4, 'reliability_rating': 3,
-         'comment': 'Rahul is respectful but our schedules were very different. He is a true night owl.',
-         'duration_months': 3, 'would_recommend': True},
-        {'reviewer_id': 5, 'reviewed_id': 9, 'overall_rating': 4.0,
-         'cleanliness_rating': 3, 'communication_rating': 5,
-         'respect_rating': 4, 'reliability_rating': 4,
-         'comment': 'Kavya is super fun and communicative. Cleanliness could improve but overall great experience.',
-         'duration_months': 4, 'would_recommend': True},
-        {'reviewer_id': 6, 'reviewed_id': 8, 'overall_rating': 4.5,
-         'cleanliness_rating': 4, 'communication_rating': 4,
-         'respect_rating': 5, 'reliability_rating': 5,
-         'comment': 'Sanjay is very easy-going and reliable. Perfect balance of social and space.',
-         'duration_months': 8, 'would_recommend': True},
-        {'reviewer_id': 10, 'reviewed_id': 4, 'overall_rating': 4.0,
-         'cleanliness_rating': 4, 'communication_rating': 3,
-         'respect_rating': 5, 'reliability_rating': 4,
-         'comment': 'Fellow night owl! We worked in compatible silence. Great roommate for introverts.',
-         'duration_months': 5, 'would_recommend': True},
-    ]
-
-    for rev_data in demo_reviews:
-        review = Review(**rev_data)
-        db.session.add(review)
-
-    db.session.commit()
-    print("✅ Database seeded with 10 demo users and 6 reviews.")
+    return jsonify({"response": response})
 
 
-# ─── Main Entry Point ────────────────────────────────────────────
-
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        seed_database()
+if __name__ == "__main__":
     app.run(debug=True, port=5000)

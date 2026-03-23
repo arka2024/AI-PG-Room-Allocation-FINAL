@@ -5,6 +5,10 @@ Implements the Weighted Cosine Similarity measure for user matching.
 
 import numpy as np
 from math import radians, sin, cos, sqrt, atan2
+from sklearn.decomposition import PCA
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.neighbors import NearestNeighbors
 
 # ────────────────────────────────────────────
 # Feature weights w_i  (higher = more important)
@@ -62,15 +66,27 @@ FEATURE_HIGH_LABELS = {
 }
 
 
-def compute_compatibility(vec_a: dict, vec_b: dict) -> float:
-    """
-    Weighted Cosine Similarity × 100.
-    Returns a score in [0, 100].
-    """
-    features = list(FEATURE_WEIGHTS.keys())
-    w = np.array([FEATURE_WEIGHTS[f] for f in features])
-    a = np.array([float(vec_a.get(f, 3)) for f in features])
-    b = np.array([float(vec_b.get(f, 3)) for f in features])
+SCORE_WEIGHTS = {
+    'cosine': 0.60,
+    'euclidean': 0.25,
+    'bio': 0.15,
+}
+
+
+def _feature_keys():
+    return list(FEATURE_WEIGHTS.keys())
+
+
+def _feature_array(vec: dict) -> np.ndarray:
+    return np.array([float(vec.get(f, 3)) for f in _feature_keys()], dtype=float)
+
+
+def compute_weighted_cosine_similarity(vec_a: dict, vec_b: dict) -> float:
+    """Weighted cosine similarity in [0, 100]."""
+    features = _feature_keys()
+    w = np.array([FEATURE_WEIGHTS[f] for f in features], dtype=float)
+    a = _feature_array(vec_a)
+    b = _feature_array(vec_b)
 
     numerator = np.sum(w * a * b)
     denom_a = np.sqrt(np.sum(w * a ** 2))
@@ -80,7 +96,64 @@ def compute_compatibility(vec_a: dict, vec_b: dict) -> float:
         return 0.0
 
     score = (numerator / (denom_a * denom_b)) * 100
-    return round(min(score, 100.0), 1)
+    return round(float(min(score, 100.0)), 1)
+
+
+def compute_weighted_euclidean_similarity(vec_a: dict, vec_b: dict) -> float:
+    """Convert weighted Euclidean distance to similarity score in [0, 100]."""
+    features = _feature_keys()
+    w = np.array([FEATURE_WEIGHTS[f] for f in features], dtype=float)
+    a = _feature_array(vec_a)
+    b = _feature_array(vec_b)
+
+    # Features are on a 1-5 scale, so max per-dimension absolute diff is 4.
+    dist = np.sqrt(np.sum(w * ((a - b) ** 2)))
+    max_dist = np.sqrt(np.sum(w * (4.0 ** 2)))
+    if max_dist == 0:
+        return 0.0
+
+    score = (1.0 - (dist / max_dist)) * 100.0
+    return round(float(max(0.0, min(score, 100.0))), 1)
+
+
+def compute_bio_similarity(bio_a: str | None, bio_b: str | None) -> float:
+    """Compute text similarity for bios in [0, 100] using lightweight TF-IDF."""
+    a = (bio_a or "").strip()
+    b = (bio_b or "").strip()
+
+    # Neutral prior when one/both bios are missing.
+    if not a or not b:
+        return 50.0
+
+    try:
+        matrix = TfidfVectorizer(stop_words='english').fit_transform([a, b])
+        score = float(cosine_similarity(matrix[0], matrix[1])[0][0]) * 100.0
+        return round(max(0.0, min(score, 100.0)), 1)
+    except Exception:
+        return 50.0
+
+
+def compute_compatibility(vec_a: dict, vec_b: dict, bio_a: str = '', bio_b: str = '') -> float:
+    """
+    Hybrid compatibility score in [0, 100]:
+    - weighted cosine similarity
+    - weighted Euclidean similarity
+    - bio text similarity
+
+    Falls back safely if bio is unavailable.
+
+    Returns a score in [0, 100].
+    """
+    cosine_score = compute_weighted_cosine_similarity(vec_a, vec_b)
+    euclidean_score = compute_weighted_euclidean_similarity(vec_a, vec_b)
+    bio_score = compute_bio_similarity(bio_a, bio_b)
+
+    blended = (
+        SCORE_WEIGHTS['cosine'] * cosine_score +
+        SCORE_WEIGHTS['euclidean'] * euclidean_score +
+        SCORE_WEIGHTS['bio'] * bio_score
+    )
+    return round(float(max(0.0, min(blended, 100.0))), 1)
 
 
 def compute_feature_differential(vec_a: dict, vec_b: dict):
@@ -123,6 +196,50 @@ def get_top_overlaps_and_conflicts(vec_a: dict, vec_b: dict, n=5):
     return overlaps, conflicts
 
 
+def build_knn_index(users):
+    """Build a cosine KNN index from user feature vectors."""
+    if not users:
+        return None, [], None
+
+    vectors = np.array([_feature_array(u.get_feature_vector()) for u in users], dtype=float)
+    if len(vectors) == 0:
+        return None, [], None
+
+    model = NearestNeighbors(metric='cosine')
+    model.fit(vectors)
+    return model, users, vectors
+
+
+def analyze_feature_variance(users, n_components=5):
+    """
+    PCA utility to inspect variance explained by compatibility features.
+    Returns dict with explained variance and top loading per component.
+    """
+    if not users:
+        return {'components': 0, 'explained_variance_ratio': [], 'top_features': []}
+
+    matrix = np.array([_feature_array(u.get_feature_vector()) for u in users], dtype=float)
+    # Normalize 1-5 scale to 0-1 before PCA.
+    matrix = (matrix - 1.0) / 4.0
+
+    k = max(1, min(n_components, matrix.shape[0], matrix.shape[1]))
+    pca = PCA(n_components=k)
+    pca.fit(matrix)
+
+    feature_names = _feature_keys()
+    top_features = []
+    for comp in pca.components_:
+        idx = int(np.argmax(np.abs(comp)))
+        top_features.append(feature_names[idx])
+
+    return {
+        'components': k,
+        'explained_variance_ratio': [round(float(x), 4) for x in pca.explained_variance_ratio_],
+        'cumulative_explained_variance': [round(float(x), 4) for x in np.cumsum(pca.explained_variance_ratio_)],
+        'top_features': top_features,
+    }
+
+
 def haversine_distance(lat1, lon1, lat2, lon2):
     """Calculate distance in km between two lat/lon points."""
     R = 6371  # Earth radius in km
@@ -133,7 +250,14 @@ def haversine_distance(lat1, lon1, lat2, lon2):
     return R * c
 
 
-def rank_users_by_compatibility(query_user, all_users, radius_km=None):
+def rank_users_by_compatibility(
+    query_user,
+    all_users,
+    radius_km=None,
+    use_knn_prefilter=True,
+    knn_k=150,
+    knn_trigger_size=250,
+):
     """
     Given a query user and list of all users, return ranked list with
     compatibility scores and distances.
@@ -141,14 +265,33 @@ def rank_users_by_compatibility(query_user, all_users, radius_km=None):
     query_vec = query_user.get_feature_vector()
     results = []
 
-    for user in all_users:
+    candidate_users = list(all_users)
+
+    # Fast candidate narrowing for larger pools; ranking still uses full hybrid score.
+    if use_knn_prefilter and len(candidate_users) >= knn_trigger_size:
+        model, users_ref, _ = build_knn_index(candidate_users)
+        if model is not None:
+            q = _feature_array(query_vec).reshape(1, -1)
+            n_neighbors = min(knn_k, len(users_ref))
+            try:
+                idxs = model.kneighbors(q, n_neighbors=n_neighbors, return_distance=False)[0]
+                candidate_users = [users_ref[i] for i in idxs]
+            except Exception:
+                candidate_users = list(all_users)
+
+    for user in candidate_users:
         if user.id == query_user.id:
             continue
         if not user.is_looking:
             continue
 
         user_vec = user.get_feature_vector()
-        score = compute_compatibility(query_vec, user_vec)
+        score = compute_compatibility(
+            query_vec,
+            user_vec,
+            bio_a=getattr(query_user, 'bio', ''),
+            bio_b=getattr(user, 'bio', ''),
+        )
 
         dist = None
         if query_user.latitude and query_user.longitude and user.latitude and user.longitude:
