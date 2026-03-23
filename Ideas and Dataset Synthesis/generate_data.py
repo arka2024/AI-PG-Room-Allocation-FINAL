@@ -1,13 +1,15 @@
-import json
 import hashlib
-import requests
+import json
 import os
-import time
 import random
+import time
+
+import requests
 from dotenv import load_dotenv
 
+
 # ============================
-# Load API Key
+# Gemini API Configuration
 # ============================
 
 load_dotenv()
@@ -16,181 +18,235 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 MODEL = "gemma-3-27b-it"
 URL = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent?key={GEMINI_API_KEY}"
 
-headers = {
+HEADERS = {
     "Content-Type": "application/json"
 }
 
 TARGET = 500
 BATCH_SIZE = 5
 MAX_RETRIES = 5
+OUTPUT_FILE = "odisha_users.json"
 
-# ============================
-# Name Generation (programmatic — guarantees uniqueness)
-# ============================
+
+# Odisha geographic extent (for clipping and validation)
+ODISHA_LAT_MIN = 17.78
+ODISHA_LAT_MAX = 22.73
+ODISHA_LON_MIN = 81.37
+ODISHA_LON_MAX = 87.53
+
+
+DISTRICT_CENTERS = {
+    "Khordha": (85.8245, 20.2961, "Bhubaneswar"),
+    "Cuttack": (85.8828, 20.4625, "Cuttack"),
+    "Puri": (85.8312, 19.8135, "Puri"),
+    "Ganjam": (84.7941, 19.3149, "Berhampur"),
+    "Sambalpur": (83.9701, 21.4704, "Sambalpur"),
+    "Balasore": (86.9335, 21.4942, "Balasore"),
+    "Sundargarh": (84.0281, 22.1170, "Rourkela"),
+    "Mayurbhanj": (86.7218, 21.9360, "Baripada"),
+    "Koraput": (82.7105, 18.8135, "Koraput"),
+    "Jharsuguda": (84.0062, 21.8554, "Jharsuguda"),
+    "Jajpur": (86.3333, 20.8500, "Jajpur"),
+    "Kendrapara": (86.4234, 20.5016, "Kendrapara"),
+    "Angul": (85.0985, 20.8445, "Angul"),
+    "Dhenkanal": (85.5958, 20.6653, "Dhenkanal"),
+    "Rayagada": (83.4160, 19.1712, "Rayagada"),
+    "Kalahandi": (83.1688, 19.9074, "Bhawanipatna"),
+}
+
+PG_HUB_WEIGHTS = {
+    "Khordha": 0.26,
+    "Cuttack": 0.18,
+    "Sundargarh": 0.11,
+    "Sambalpur": 0.11,
+    "Ganjam": 0.10,
+    "Balasore": 0.07,
+    "Puri": 0.06,
+    "Angul": 0.04,
+    "Jharsuguda": 0.04,
+    "Koraput": 0.03,
+}
+
 
 MALE_FIRST = [
-    "Akash", "Amit", "Anil", "Ankit", "Arun", "Ashish", "Bibhu", "Bikash", "Biswa",
-    "Chandan", "Chitta", "Debashis", "Deepak", "Dhiren", "Dilip", "Dinesh", "Durga",
-    "Ganesh", "Girish", "Gobinda", "Hari", "Hemant", "Jagdish", "Jatin", "Jayant",
-    "Kailash", "Kamal", "Kiran", "Kishore", "Krishna", "Kumar", "Laxman", "Manas",
-    "Manoj", "Milan", "Mohan", "Mukesh", "Nandan", "Naresh", "Narayan", "Nikhil",
-    "Niranjan", "Omkar", "Pankaj", "Paresh", "Prakash", "Pramod", "Pranav", "Prasad",
-    "Prateek", "Praveen", "Purna", "Rabindra", "Rajat", "Rajesh", "Rakesh", "Ranjan",
-    "Ravi", "Rohit", "Roshan", "Sachin", "Sagar", "Sandeep", "Sanjay", "Santosh",
-    "Saroj", "Satya", "Shashank", "Shiva", "Siddharth", "Soumya", "Subash", "Sudhir",
-    "Sunil", "Surya", "Sushant", "Tarun", "Tushar", "Umesh", "Utkal", "Varun",
-    "Vijay", "Vikash", "Vinod", "Yash", "Yogesh", "Abhinav", "Ajit", "Alok",
-    "Bhabani", "Bhagat", "Bipin", "Braja", "Chandra", "Deba", "Gagan", "Gopal",
-    "Haris", "Iswar", "Jagat", "Jyoti", "Lingaraj", "Loknath", "Madhab", "Manoranjan",
-    "Nigam", "Pabitra", "Pitambar", "Priyaranjan", "Purnendu", "Ramesh", "Sabyasachi",
-    "Sambit", "Sanat", "Sasanka", "Sibaram", "Smruti", "Soumendra", "Sudam", "Tapan",
-    "Trinath", "Uday", "Basant", "Dharma", "Hrushikesh", "Jitendra", "Khirod",
-    "Laxmidhar", "Minaketan", "Naba", "Prafulla", "Rasmi", "Sarat", "Tarini",
+    "Akash", "Amit", "Anil", "Ankit", "Arun", "Ashish", "Bibhu", "Bikash", "Biswa", "Chandan",
+    "Deepak", "Dilip", "Ganesh", "Girish", "Hari", "Hemant", "Jatin", "Jayant", "Kailash", "Kamal",
+    "Kiran", "Kishore", "Krishna", "Manas", "Manoj", "Milan", "Mohan", "Mukesh", "Nikhil", "Omkar",
+    "Pankaj", "Prakash", "Pramod", "Pranav", "Rajat", "Rajesh", "Rakesh", "Ranjan", "Ravi", "Rohit",
+    "Roshan", "Sachin", "Sagar", "Sandeep", "Sanjay", "Santosh", "Saroj", "Satya", "Shashank", "Shiva",
+    "Siddharth", "Soumya", "Subash", "Sudhir", "Sunil", "Surya", "Tarun", "Tushar", "Umesh", "Varun",
+    "Vijay", "Vikash", "Vinod", "Yash", "Yogesh", "Abhinav", "Ajit", "Alok", "Bipin", "Gopal",
 ]
 
 FEMALE_FIRST = [
-    "Aditi", "Anjali", "Anita", "Ankita", "Anuradha", "Archana", "Barsha", "Bharati",
-    "Bina", "Chandni", "Deepa", "Deepthi", "Devika", "Dimple", "Dipti", "Gargi",
-    "Gayatri", "Gita", "Ila", "Isha", "Itishree", "Jasmine", "Jyoti", "Kabita",
-    "Kalpana", "Kamala", "Kavita", "Kiran", "Kumari", "Lata", "Laxmi", "Lipika",
-    "Lopamudra", "Madhusmita", "Mamata", "Manaswini", "Manisha", "Meena", "Mita",
-    "Monalisa", "Mousumi", "Namrata", "Nandini", "Neha", "Nibedita", "Nirupama",
-    "Pallavi", "Paramita", "Prabha", "Pragnya", "Pranjali", "Pratibha", "Preeti",
-    "Priya", "Puja", "Pushpa", "Rachana", "Radha", "Rajani", "Ranjita", "Rashmi",
-    "Reema", "Ritu", "Rojalin", "Sabita", "Sakshi", "Sangita", "Sanjukta", "Sarita",
-    "Shanti", "Shibani", "Shilpa", "Shruti", "Silu", "Sima", "Smita", "Sneha",
-    "Sonia", "Subhadra", "Suchitra", "Sudha", "Sulochana", "Sunita", "Supriya",
-    "Swati", "Tanuja", "Trupti", "Uma", "Urmila", "Varsha", "Vidya", "Yamini",
-    "Abhilipsa", "Bhagyalaxmi", "Bijayini", "Debaki", "Hiranmayee", "Jhili",
-    "Jyotsna", "Lily", "Minati", "Niharika", "Padmini", "Puspanjali", "Sagarika",
-    "Sefali", "Sonali", "Subhashree", "Sucharita", "Tara", "Usharani",
+    "Aditi", "Anjali", "Anita", "Ankita", "Anuradha", "Archana", "Barsha", "Bharati", "Deepa", "Dipti",
+    "Gargi", "Gayatri", "Gita", "Isha", "Itishree", "Jyoti", "Kalpana", "Kavita", "Lata", "Lipika",
+    "Madhusmita", "Mamata", "Manaswini", "Manisha", "Monalisa", "Namrata", "Nandini", "Neha", "Nibedita", "Pallavi",
+    "Pragnya", "Pratibha", "Preeti", "Priya", "Puja", "Rachana", "Ranjita", "Rashmi", "Reema", "Ritu",
+    "Sakshi", "Sangita", "Sanjukta", "Sarita", "Shilpa", "Shruti", "Sima", "Smita", "Sneha", "Sonali",
+    "Subhashree", "Sucharita", "Sudha", "Sunita", "Supriya", "Swati", "Tanuja", "Uma", "Urmila", "Varsha",
 ]
 
 LAST_NAMES = [
-    "Behera", "Das", "Mishra", "Mohanty", "Nayak", "Panda", "Patel", "Pradhan",
-    "Rout", "Sahu", "Sahoo", "Sethi", "Swain", "Tripathy", "Barik", "Biswal",
-    "Dalai", "Dash", "Jena", "Khuntia", "Lenka", "Mahapatra", "Malik", "Meher",
-    "Muduli", "Naik", "Parida", "Patra", "Samantaray", "Senapati", "Singh",
-    "Acharya", "Bal", "Bastia", "Bhoi", "Chand", "Dehury", "Deo", "Dhal", "Garnayak",
-    "Giri", "Hota", "Kar", "Khatua", "Maharana", "Majhi", "Mohapatra", "Palai",
-    "Rath", "Ray", "Sagar", "Satpathy", "Sutar", "Tandi", "Bag", "Bhol",
-    "Bibhar", "Digal", "Ghadei", "Guru", "Hansda", "Ho", "Kisan", "Lakra",
-    "Marndi", "Munda", "Nag", "Oram", "Pani", "Pattnaik", "Purohit", "Samal",
-    "Sandha", "Soren", "Tudu", "Xess",
+    "Behera", "Das", "Mishra", "Mohanty", "Nayak", "Panda", "Pradhan", "Rout", "Sahu", "Sahoo", "Sethi", "Swain",
+    "Tripathy", "Barik", "Biswal", "Dalai", "Dash", "Jena", "Lenka", "Mahapatra", "Malik", "Meher", "Naik", "Parida",
+    "Patra", "Samantaray", "Senapati", "Singh", "Acharya", "Bhoi", "Chand", "Dehury", "Dhal", "Giri", "Kar", "Khatua",
+    "Maharana", "Majhi", "Mohapatra", "Palai", "Rath", "Ray", "Satpathy", "Sutar", "Tandi", "Bag", "Lakra", "Munda",
 ]
 
-ODISHA_DISTRICTS = {
-    "Khordha":     (85.83, 20.18),
-    "Cuttack":     (85.88, 20.46),
-    "Puri":        (85.83, 19.81),
-    "Ganjam":      (84.68, 19.59),
-    "Sambalpur":   (83.97, 21.47),
-    "Balasore":    (86.93, 21.49),
-    "Sundargarh":  (84.04, 22.12),
-    "Mayurbhanj":  (86.34, 21.94),
-    "Koraput":     (82.71, 18.81),
-    "Jajpur":      (86.33, 20.85),
-    "Kendrapara":  (86.42, 20.50),
-    "Boudh":       (84.32, 20.84),
-    "Angul":       (85.10, 20.84),
-    "Dhenkanal":   (85.60, 20.67),
-    "Nayagarh":    (85.10, 20.13),
-    "Kalahandi":   (83.17, 19.91),
-    "Rayagada":    (83.42, 19.17),
-    "Bargarh":     (83.62, 21.33),
-    "Jharsuguda":  (84.01, 21.86),
-    "Bhadrak":     (86.52, 21.05),
-    "Bolangir":    (83.49, 20.70),
-    "Deogarh":     (84.73, 21.54),
-    "Gajapati":    (84.13, 19.22),
-    "Jagatsinghpur": (86.17, 20.26),
-    "Kandhamal":   (84.07, 20.30),
-    "Keonjhar":    (85.58, 21.63),
-    "Malkangiri":  (81.88, 18.35),
-    "Nabarangpur": (82.55, 19.23),
-    "Nuapada":     (82.55, 20.80),
-    "Subarnapur":  (83.87, 20.83),
+INTERESTS_POOL = [
+    "Reading", "Music", "Gaming", "Cooking", "Fitness", "Movies", "Travel", "Photography", "Cricket", "Coding",
+    "Badminton", "Yoga", "Dancing", "Art", "Cycling", "Hiking", "Tea", "Board Games", "Meditation", "Volunteering",
+]
+
+
+ARCHETYPES = {
+    "organized_professional": {
+        "sleep_schedule": 2,
+        "cleanliness": 5,
+        "noise_tolerance": 2,
+        "cooking_frequency": 3,
+        "guest_frequency": 2,
+        "workout_habit": 4,
+        "introversion_extroversion": 3,
+        "communication_style": 4,
+        "conflict_resolution": 4,
+        "social_battery": 3,
+        "smoking": "never",
+        "drinking": "occasionally",
+    },
+    "social_extrovert": {
+        "sleep_schedule": 4,
+        "cleanliness": 3,
+        "noise_tolerance": 4,
+        "cooking_frequency": 2,
+        "guest_frequency": 5,
+        "workout_habit": 3,
+        "introversion_extroversion": 5,
+        "communication_style": 5,
+        "conflict_resolution": 3,
+        "social_battery": 5,
+        "smoking": "occasionally",
+        "drinking": "occasionally",
+    },
+    "quiet_student": {
+        "sleep_schedule": 2,
+        "cleanliness": 4,
+        "noise_tolerance": 2,
+        "cooking_frequency": 2,
+        "guest_frequency": 1,
+        "workout_habit": 2,
+        "introversion_extroversion": 2,
+        "communication_style": 3,
+        "conflict_resolution": 2,
+        "social_battery": 2,
+        "smoking": "never",
+        "drinking": "never",
+    },
+    "night_owl_creator": {
+        "sleep_schedule": 5,
+        "cleanliness": 3,
+        "noise_tolerance": 5,
+        "cooking_frequency": 2,
+        "guest_frequency": 2,
+        "workout_habit": 1,
+        "introversion_extroversion": 2,
+        "communication_style": 3,
+        "conflict_resolution": 2,
+        "social_battery": 2,
+        "smoking": "occasionally",
+        "drinking": "regularly",
+    },
 }
 
-def generate_unique_names(count, used_names):
-    """Generate guaranteed-unique full names programmatically."""
-    names = []
-    attempts = 0
-    max_attempts = count * 20
 
-    while len(names) < count and attempts < max_attempts:
-        attempts += 1
-        is_female = random.random() < 0.5
-        first = random.choice(FEMALE_FIRST if is_female else MALE_FIRST)
-        last = random.choice(LAST_NAMES)
-        full_name = f"{first} {last}"
+PROMPT_TEMPLATE = """
+You are generating realistic synthetic user profiles for an Odisha roommate/PG matching app.
 
-        if full_name not in used_names:
-            used_names.add(full_name)
-            names.append((full_name, "Female" if is_female else "Male"))
-
-    return names
-
-# ============================
-# Prompt — names are pre-assigned, model fills in the rest
-# ============================
-
-prompt_template = """
-You are generating structured synthetic dataset entries for people from Odisha, India.
-
-Task: Generate profiles for these {batch} people. Use EXACTLY these names and genders:
+Generate exactly {batch} JSON records as an array for these assigned identities:
 {name_list}
 
-Output Requirements:
-- Output ONLY a valid JSON array.
-- Do NOT include markdown, backticks, explanations, or comments.
-- The output must be parseable by json.loads().
-- No trailing commas. No text before or after the JSON array.
+Output rules:
+- Output ONLY valid JSON array.
+- No markdown fences, no extra text.
+- Keep records realistic and varied.
+- Use Odisha-only coordinates.
 
-Each element must strictly follow this schema:
+Schema for each object (all required):
+{{
+  "full_name": "assigned full name exactly",
+  "age": integer 18-34,
+  "gender": "male" | "female" | "non-binary",
+  "occupation": "student" | "working_professional" | "freelancer",
+  "phone": "10-digit string",
+  "bio": "one sentence",
 
-[
-  {{
-        "full_name": "<use the assigned name>",
-        "age": <integer 18-28>,
-        "gender": "<male or female exactly>",
-        "occupation": "<student or working_professional or freelancer>",
-        "phone": "<10-digit Indian mobile number as string>",
-        "bio": "<short 1-sentence personality description>",
-        "city": "<real Odisha city>",
-        "locality": "<real Odisha district/locality>",
-        "latitude": <float latitude>,
-        "longitude": <float longitude>,
-        "sleep_schedule": <integer 1-5>,
-        "cleanliness": <integer 1-5>,
-        "noise_tolerance": <integer 1-5>,
-        "cooking_frequency": <integer 1-5>,
-        "guest_frequency": <integer 1-5>,
-        "workout_habit": <integer 1-5>,
-        "introversion_extroversion": <integer 1-5>,
-        "communication_style": <integer 1-5>,
-        "conflict_resolution": <integer 1-5>,
-        "social_battery": <integer 1-5>,
-        "budget_min": <integer 3000-12000>,
-        "budget_max": <integer 5000-20000 and >= budget_min>,
-        "smoking": "<never or occasionally or regularly>",
-        "drinking": "<never or occasionally or regularly>",
-        "veg_nonveg": "<veg or nonveg or eggetarian or vegan>",
-        "gender_preference": "<male or female or any>",
-        "pet_friendly": <true or false>,
-        "preferred_move_in": "<immediate or within_month or flexible>",
-        "interests": ["<2-6 short interests strings>"],
-        "avatar_url": null,
-        "profile_complete": true,
-        "is_looking": true
-  }}
-]
+  "city": "PG target city in Odisha",
+  "locality": "PG target district/locality in Odisha",
+  "latitude": number,
+  "longitude": number,
 
-Constraints:
-- Use real Odisha district names and realistic coordinates for those districts.
-- Vary personalities, budgets, locations, and preferences realistically.
-- Return ONLY the JSON array, nothing else.
+  "home_city": "origin city in Odisha",
+  "home_locality": "origin district/locality in Odisha",
+  "home_latitude": number,
+  "home_longitude": number,
+
+  "sleep_schedule": integer 1-5,
+  "cleanliness": integer 1-5,
+  "noise_tolerance": integer 1-5,
+  "cooking_frequency": integer 1-5,
+  "guest_frequency": integer 1-5,
+  "workout_habit": integer 1-5,
+  "introversion_extroversion": integer 1-5,
+  "communication_style": integer 1-5,
+  "conflict_resolution": integer 1-5,
+  "social_battery": integer 1-5,
+
+  "budget_min": integer >=3000,
+  "budget_max": integer >= budget_min,
+  "smoking": "never" | "occasionally" | "regularly",
+  "drinking": "never" | "occasionally" | "regularly",
+  "veg_nonveg": "veg" | "nonveg" | "eggetarian" | "vegan",
+  "gender_preference": "male" | "female" | "any",
+  "pet_friendly": boolean,
+  "preferred_move_in": "immediate" | "within_month" | "flexible",
+  "interests": [2 to 6 short strings],
+
+  "avatar_url": null,
+  "profile_complete": true,
+  "is_looking": true
+}}
+
+Geography constraints for Odisha:
+- Latitude must be between 17.78 and 22.73.
+- Longitude must be between 81.37 and 87.53.
+
+Use realistic Odisha places like Bhubaneswar, Cuttack, Puri, Berhampur, Sambalpur, Rourkela, Balasore, Angul, etc.
 """
+
+
+def clamp(v, low, high):
+    return max(low, min(high, v))
+
+
+def jitter_location(base_lon, base_lat, spread=0.2):
+    lon = clamp(base_lon + random.uniform(-spread, spread), ODISHA_LON_MIN, ODISHA_LON_MAX)
+    lat = clamp(base_lat + random.uniform(-spread, spread), ODISHA_LAT_MIN, ODISHA_LAT_MAX)
+    return round(lon, 6), round(lat, 6)
+
+
+def weighted_choice(weight_map):
+    items = list(weight_map.keys())
+    weights = list(weight_map.values())
+    return random.choices(items, weights=weights, k=1)[0]
+
+
+def normalize_gender_for_ui(gender):
+    gender = str(gender).strip().lower()
+    if gender in ("male", "female", "non-binary"):
+        return gender
+    return "male"
+
 
 def clean_json_text(text):
     text = text.strip()
@@ -207,215 +263,316 @@ def clean_json_text(text):
 
     start = text.find("[")
     end = text.rfind("]")
-
-    if start != -1 and end != -1:
-        text = text[start:end+1]
+    if start != -1 and end != -1 and end > start:
+        text = text[start:end + 1]
 
     return text.strip()
 
+
+def choose_name_gender(used_names):
+    while True:
+        gender = random.choices(["male", "female", "non-binary"], weights=[0.49, 0.49, 0.02], k=1)[0]
+        first_pool = FEMALE_FIRST if gender == "female" else MALE_FIRST
+        full_name = f"{random.choice(first_pool)} {random.choice(LAST_NAMES)}"
+        if full_name not in used_names:
+            used_names.add(full_name)
+            return full_name, gender
+
+
+def generate_unique_id(name, idx):
+    return hashlib.sha1(f"{name}-{idx}".encode("utf-8")).hexdigest()
+
+
+def generate_email(name, idx):
+    slug = "".join(ch.lower() for ch in name if ch.isalnum())
+    return f"{slug[:16]}{idx % 97:02d}@synthetic.local"
+
+
+def generate_phone():
+    return f"9{random.randint(100000000, 999999999)}"
+
+
+def pick_interests(archetype_key):
+    base_map = {
+        "organized_professional": ["Reading", "Fitness", "Cooking", "Meditation", "Travel"],
+        "social_extrovert": ["Music", "Dancing", "Travel", "Cricket", "Movies"],
+        "quiet_student": ["Reading", "Coding", "Tea", "Board Games", "Badminton"],
+        "night_owl_creator": ["Music", "Gaming", "Photography", "Art", "Movies"],
+    }
+    seed = base_map.get(archetype_key, ["Reading", "Music", "Cooking"])
+    picks = set(random.sample(seed, k=min(len(seed), random.randint(2, 4))))
+    while len(picks) < random.randint(3, 6):
+        picks.add(random.choice(INTERESTS_POOL))
+    return sorted(picks)
+
+
+def fallback_record(name, gender, idx):
+    age = random.randint(18, 34)
+    occupation = random.choices(
+        ["student", "working_professional", "freelancer"],
+        weights=[0.45, 0.4, 0.15],
+        k=1,
+    )[0]
+
+    home_district = random.choice(list(DISTRICT_CENTERS.keys()))
+    home_lon0, home_lat0, home_city = DISTRICT_CENTERS[home_district]
+    home_lon, home_lat = jitter_location(home_lon0, home_lat0, spread=0.26)
+
+    pg_district = weighted_choice(PG_HUB_WEIGHTS)
+    pg_lon0, pg_lat0, pg_city = DISTRICT_CENTERS[pg_district]
+    pg_lon, pg_lat = jitter_location(pg_lon0, pg_lat0, spread=0.2)
+
+    archetype_key = random.choice(list(ARCHETYPES.keys()))
+    archetype = ARCHETYPES[archetype_key]
+
+    budget_anchor = random.randint(7000, 16000) if occupation != "student" else random.randint(4200, 9000)
+    budget_min = max(3000, budget_anchor - random.randint(1200, 3000))
+    budget_max = max(budget_min + 1000, budget_anchor + random.randint(1500, 4500))
+
+    return {
+        "full_name": name,
+        "age": age,
+        "gender": normalize_gender_for_ui(gender),
+        "occupation": occupation,
+        "phone": generate_phone(),
+        "bio": f"{name.split()[0]} is friendly, responsible, and looking for a compatible PG roommate setup.",
+        "city": pg_city,
+        "locality": pg_district,
+        "latitude": pg_lat,
+        "longitude": pg_lon,
+        "home_city": home_city,
+        "home_locality": home_district,
+        "home_latitude": home_lat,
+        "home_longitude": home_lon,
+        "sleep_schedule": int(clamp(archetype["sleep_schedule"] + random.choice([-1, 0, 1]), 1, 5)),
+        "cleanliness": int(clamp(archetype["cleanliness"] + random.choice([-1, 0, 1]), 1, 5)),
+        "noise_tolerance": int(clamp(archetype["noise_tolerance"] + random.choice([-1, 0, 1]), 1, 5)),
+        "cooking_frequency": int(clamp(archetype["cooking_frequency"] + random.choice([-1, 0, 1]), 1, 5)),
+        "guest_frequency": int(clamp(archetype["guest_frequency"] + random.choice([-1, 0, 1]), 1, 5)),
+        "workout_habit": int(clamp(archetype["workout_habit"] + random.choice([-1, 0, 1]), 1, 5)),
+        "introversion_extroversion": int(clamp(archetype["introversion_extroversion"] + random.choice([-1, 0, 1]), 1, 5)),
+        "communication_style": int(clamp(archetype["communication_style"] + random.choice([-1, 0, 1]), 1, 5)),
+        "conflict_resolution": int(clamp(archetype["conflict_resolution"] + random.choice([-1, 0, 1]), 1, 5)),
+        "social_battery": int(clamp(archetype["social_battery"] + random.choice([-1, 0, 1]), 1, 5)),
+        "budget_min": int(budget_min),
+        "budget_max": int(min(26000, budget_max)),
+        "smoking": archetype["smoking"],
+        "drinking": archetype["drinking"],
+        "veg_nonveg": random.choice(["veg", "nonveg", "eggetarian", "vegan"]),
+        "gender_preference": random.choice(["any", "male", "female"]),
+        "pet_friendly": random.choice([True, False]),
+        "preferred_move_in": random.choice(["immediate", "within_month", "flexible"]),
+        "interests": pick_interests(archetype_key),
+        "avatar_url": None,
+        "profile_complete": True,
+        "is_looking": True,
+    }
+
+
+def validate_and_fix_user(user, expected_name, expected_gender, idx):
+    user = user if isinstance(user, dict) else {}
+
+    # Base fallback to guarantee complete schema.
+    base = fallback_record(expected_name, expected_gender, idx)
+
+    merged = {**base, **user}
+    merged["full_name"] = expected_name
+    merged["gender"] = normalize_gender_for_ui(expected_gender)
+
+    merged["age"] = int(clamp(int(merged.get("age", base["age"])), 18, 34))
+    if merged.get("occupation") not in ("student", "working_professional", "freelancer"):
+        merged["occupation"] = base["occupation"]
+
+    merged["phone"] = str(merged.get("phone", base["phone"]))
+    digits_only = "".join(ch for ch in merged["phone"] if ch.isdigit())
+    if len(digits_only) >= 10:
+        merged["phone"] = digits_only[-10:]
+    else:
+        merged["phone"] = base["phone"]
+
+    for coord_field, low, high in (
+        ("latitude", ODISHA_LAT_MIN, ODISHA_LAT_MAX),
+        ("longitude", ODISHA_LON_MIN, ODISHA_LON_MAX),
+        ("home_latitude", ODISHA_LAT_MIN, ODISHA_LAT_MAX),
+        ("home_longitude", ODISHA_LON_MIN, ODISHA_LON_MAX),
+    ):
+        try:
+            merged[coord_field] = round(float(merged.get(coord_field, base[coord_field])), 6)
+        except (TypeError, ValueError):
+            merged[coord_field] = base[coord_field]
+        merged[coord_field] = round(clamp(merged[coord_field], low, high), 6)
+
+    if merged.get("locality") not in DISTRICT_CENTERS:
+        merged["locality"] = base["locality"]
+    if merged.get("home_locality") not in DISTRICT_CENTERS:
+        merged["home_locality"] = base["home_locality"]
+
+    if not merged.get("city"):
+        merged["city"] = base["city"]
+    if not merged.get("home_city"):
+        merged["home_city"] = base["home_city"]
+
+    for key in (
+        "sleep_schedule", "cleanliness", "noise_tolerance", "cooking_frequency", "guest_frequency",
+        "workout_habit", "introversion_extroversion", "communication_style", "conflict_resolution", "social_battery",
+    ):
+        try:
+            merged[key] = int(merged.get(key, base[key]))
+        except (TypeError, ValueError):
+            merged[key] = base[key]
+        merged[key] = int(clamp(merged[key], 1, 5))
+
+    try:
+        merged["budget_min"] = int(merged.get("budget_min", base["budget_min"]))
+    except (TypeError, ValueError):
+        merged["budget_min"] = base["budget_min"]
+    try:
+        merged["budget_max"] = int(merged.get("budget_max", base["budget_max"]))
+    except (TypeError, ValueError):
+        merged["budget_max"] = base["budget_max"]
+
+    merged["budget_min"] = max(3000, merged["budget_min"])
+    merged["budget_max"] = max(merged["budget_min"] + 1000, min(26000, merged["budget_max"]))
+
+    if merged.get("smoking") not in ("never", "occasionally", "regularly"):
+        merged["smoking"] = base["smoking"]
+    if merged.get("drinking") not in ("never", "occasionally", "regularly"):
+        merged["drinking"] = base["drinking"]
+    if merged.get("veg_nonveg") not in ("veg", "nonveg", "eggetarian", "vegan"):
+        merged["veg_nonveg"] = base["veg_nonveg"]
+    if merged.get("gender_preference") not in ("male", "female", "any"):
+        merged["gender_preference"] = base["gender_preference"]
+    if merged.get("preferred_move_in") not in ("immediate", "within_month", "flexible"):
+        merged["preferred_move_in"] = base["preferred_move_in"]
+
+    merged["pet_friendly"] = bool(merged.get("pet_friendly", base["pet_friendly"]))
+
+    interests = merged.get("interests", base["interests"])
+    if not isinstance(interests, list):
+        interests = base["interests"]
+    interests = [str(x).strip() for x in interests if str(x).strip()]
+    if len(interests) < 2:
+        interests = base["interests"]
+    merged["interests"] = interests[:6]
+
+    merged["email"] = generate_email(expected_name, idx)
+    merged["_id"] = generate_unique_id(expected_name, idx)
+    merged["avatar_url"] = None
+    merged["profile_complete"] = True
+    merged["is_looking"] = True
+
+    return merged
+
+
 def generate_batch(names_with_gender):
     name_list = "\n".join(
-        f"  {i+1}. {name} ({gender})"
+        f"  {i + 1}. {name} ({gender})"
         for i, (name, gender) in enumerate(names_with_gender)
     )
 
-    prompt = prompt_template.format(
-        batch=len(names_with_gender),
-        name_list=name_list,
-    )
+    prompt = PROMPT_TEMPLATE.format(batch=len(names_with_gender), name_list=name_list)
 
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
         "generationConfig": {
             "temperature": 0.7,
             "topP": 0.9,
-        }
+        },
     }
 
     try:
-        response = requests.post(URL, headers=headers, json=payload, timeout=60)
-    except requests.exceptions.RequestException as e:
-        print(f"  Request Error: {e}")
+        response = requests.post(URL, headers=HEADERS, json=payload, timeout=90)
+    except requests.exceptions.RequestException as exc:
+        print(f"  Request error: {exc}")
         return None
 
     if response.status_code != 200:
-        print(f"  API Error ({response.status_code}): {response.text[:200]}")
+        print(f"  API error ({response.status_code}): {response.text[:180]}")
         return None
 
-    result = response.json()
-
     try:
+        result = response.json()
         text = result["candidates"][0]["content"]["parts"][0]["text"]
-    except (KeyError, IndexError) as e:
-        print(f"  Unexpected API response: {e}")
+    except (KeyError, IndexError, TypeError, ValueError) as exc:
+        print(f"  Unexpected API response: {exc}")
         return None
 
     text = clean_json_text(text)
 
     try:
         data = json.loads(text)
-        if not isinstance(data, list):
-            print("  API returned valid JSON but not a list.")
-            return None
-        return data
-    except json.JSONDecodeError as e:
-        print(f"  JSON Parse Error: {e}")
-        print(f"  Raw (first 300 chars): {text[:300]}")
+    except json.JSONDecodeError as exc:
+        print(f"  JSON parse error: {exc}")
         return None
 
-def validate_and_fix_user(user, expected_name, expected_gender):
-    """Ensure generated user follows frontend-compatible flat schema."""
-    try:
-        user = user if isinstance(user, dict) else {}
-        user["full_name"] = expected_name
-        user["gender"] = expected_gender.lower()
-
-        age = user.get("age", random.randint(18, 28))
-        user["age"] = max(18, min(28, int(age)))
-
-        locality = user.get("locality")
-        if locality not in ODISHA_DISTRICTS:
-            locality = random.choice(list(ODISHA_DISTRICTS.keys()))
-        base_lon, base_lat = ODISHA_DISTRICTS[locality]
-        lon = user.get("longitude", round(base_lon + random.uniform(-0.15, 0.15), 6))
-        lat = user.get("latitude", round(base_lat + random.uniform(-0.15, 0.15), 6))
-
-        user["city"] = str(user.get("city") or "Bhubaneswar").strip()
-        user["locality"] = locality
-        user["longitude"] = round(float(lon), 6)
-        user["latitude"] = round(float(lat), 6)
-
-        user["occupation"] = user.get("occupation") if user.get("occupation") in ("student", "working_professional", "freelancer") else random.choice(["student", "working_professional", "freelancer"])
-        user["phone"] = str(user.get("phone") or f"9{random.randint(100000000, 999999999)}")
-        user["bio"] = str(user.get("bio") or "Friendly and responsible roommate looking for a good shared space.").strip()
-
-        for key in (
-            "sleep_schedule", "cleanliness", "noise_tolerance", "cooking_frequency", "guest_frequency",
-            "workout_habit", "introversion_extroversion", "communication_style", "conflict_resolution", "social_battery"
-        ):
-            user[key] = max(1, min(5, int(user.get(key, random.randint(1, 5)))))
-
-        min_budget = int(user.get("budget_min", random.randint(3500, 12000)))
-        max_budget = int(user.get("budget_max", min_budget + random.randint(1000, 6000)))
-        min_budget = max(3000, min(min_budget, 20000))
-        max_budget = max(min_budget, min(max_budget, 25000))
-        user["budget_min"] = min_budget
-        user["budget_max"] = max_budget
-
-        user["smoking"] = user.get("smoking") if user.get("smoking") in ("never", "occasionally", "regularly") else random.choice(["never", "occasionally", "regularly"])
-        user["drinking"] = user.get("drinking") if user.get("drinking") in ("never", "occasionally", "regularly") else random.choice(["never", "occasionally", "regularly"])
-        user["veg_nonveg"] = user.get("veg_nonveg") if user.get("veg_nonveg") in ("veg", "nonveg", "eggetarian", "vegan") else random.choice(["veg", "nonveg", "eggetarian", "vegan"])
-        user["gender_preference"] = user.get("gender_preference") if user.get("gender_preference") in ("male", "female", "any") else random.choice(["male", "female", "any"])
-        user["pet_friendly"] = bool(user.get("pet_friendly", random.choice([True, False])))
-        user["preferred_move_in"] = user.get("preferred_move_in") if user.get("preferred_move_in") in ("immediate", "within_month", "flexible") else random.choice(["immediate", "within_month", "flexible"])
-
-        interests = user.get("interests", [])
-        if not isinstance(interests, list):
-            interests = []
-        if not interests:
-            pool = ["Reading", "Music", "Gaming", "Cooking", "Fitness", "Movies", "Travel", "Photography", "Cricket", "Coding"]
-            interests = random.sample(pool, k=random.randint(3, 5))
-        user["interests"] = [str(i).strip() for i in interests if str(i).strip()][:6]
-
-        user["avatar_url"] = None
-        user["profile_complete"] = True
-        user["is_looking"] = True
-
-        # Deterministic synthetic email from name
-        slug = "".join(c.lower() for c in expected_name if c.isalnum())
-        user["email"] = user.get("email") or f"{slug[:18]}@synthetic.local"
-
-        return user
-    except Exception:
+    if not isinstance(data, list):
+        print("  API response parsed but not a list.")
         return None
 
-# ============================
-# Resume from existing data
-# ============================
+    return data
 
-final_users = []
-existing_ids = set()
-existing_names = set()
 
-if os.path.exists("odisha_users.json"):
-    try:
-        with open("odisha_users.json", "r") as f:
-            final_users = json.load(f)
-        for user in final_users:
-            if "_id" in user:
-                existing_ids.add(user["_id"])
-            if isinstance(user, dict):
-                if "full_name" in user:
-                    existing_names.add(user["full_name"])
-                elif "profile" in user and isinstance(user["profile"], dict) and user["profile"].get("name"):
-                    existing_names.add(user["profile"]["name"])
-        print(f"Resumed with {len(final_users)} existing users.")
-    except Exception as e:
-        print(f"Could not resume: {e}. Starting fresh.")
-        final_users = []
+def main():
+    if not GEMINI_API_KEY:
+        raise RuntimeError("GEMINI_API_KEY is missing. Set it in your environment or .env file.")
 
-# ============================
-# Main Loop
-# ============================
+    final_users = []
+    used_names = set()
 
-batch_num = 0
-consecutive_failures = 0
-
-while len(final_users) < TARGET:
-    batch_num += 1
-    remaining = TARGET - len(final_users)
-    batch_count = min(BATCH_SIZE, remaining)
-
-    # Generate unique names for this batch
-    names_with_gender = generate_unique_names(batch_count, existing_names)
-    if not names_with_gender:
-        print("Could not generate more unique names. Stopping.")
-        break
-
-    print(f"[Batch {batch_num}] Generating {len(names_with_gender)} users (have {len(final_users)}/{TARGET})")
-
-    users = generate_batch(names_with_gender)
-
-    if users is None:
-        consecutive_failures += 1
-        # Return names to pool so they can be reused on retry
-        for name, _ in names_with_gender:
-            existing_names.discard(name)
-        print(f"  Failed (attempt {consecutive_failures}/{MAX_RETRIES}). Retrying...")
-        if consecutive_failures >= MAX_RETRIES:
-            print(f"Too many consecutive failures. Stopping with {len(final_users)} users.")
-            break
-        time.sleep(4)
-        continue
-
+    batch_num = 0
     consecutive_failures = 0
-    added = 0
 
-    for i, user in enumerate(users):
-        if i >= len(names_with_gender):
-            break
-        expected_name, expected_gender = names_with_gender[i]
+    while len(final_users) < TARGET:
+        batch_num += 1
+        remaining = TARGET - len(final_users)
+        batch_count = min(BATCH_SIZE, remaining)
 
-        user = validate_and_fix_user(user, expected_name, expected_gender)
-        if user is None:
-            continue
+        names_with_gender = [choose_name_gender(used_names) for _ in range(batch_count)]
+        print(f"[Batch {batch_num}] generating {batch_count} users ({len(final_users)}/{TARGET})")
 
-        sha1_id = hashlib.sha1(expected_name.encode()).hexdigest()
-        if sha1_id in existing_ids:
-            continue
+        users = generate_batch(names_with_gender)
 
-        user["_id"] = sha1_id
-        existing_ids.add(sha1_id)
-        final_users.append(user)
-        added += 1
+        if users is None:
+            consecutive_failures += 1
+            print(f"  Failed attempt {consecutive_failures}/{MAX_RETRIES}; retrying.")
 
-    print(f"  +{added} new. Total: {len(final_users)}/{TARGET}")
+            # Allow names to be regenerated if the call failed entirely.
+            for name, _ in names_with_gender:
+                if name in used_names:
+                    used_names.remove(name)
 
-    # Save progressively
-    with open("odisha_users.json", "w") as f:
-        json.dump(final_users, f, indent=2)
+            if consecutive_failures >= MAX_RETRIES:
+                print("Max retries reached. Using fallback generator for this batch.")
+                users = [
+                    fallback_record(name, gender, len(final_users) + i + 1)
+                    for i, (name, gender) in enumerate(names_with_gender)
+                ]
+                consecutive_failures = 0
+            else:
+                time.sleep(4)
+                continue
 
-    # Stay under 30 RPM (Gemma limit) — 4s gap = ~15 RPM
-    time.sleep(4)
+        consecutive_failures = 0
+        added = 0
 
-print(f"Done! {len(final_users)} users saved to odisha_users.json.")
+        for i, pair in enumerate(names_with_gender):
+            if i >= len(users):
+                break
+            expected_name, expected_gender = pair
+            idx = len(final_users) + 1
+            fixed = validate_and_fix_user(users[i], expected_name, expected_gender, idx)
+            final_users.append(fixed)
+            added += 1
+
+        print(f"  Added {added}. Total: {len(final_users)}/{TARGET}")
+
+        with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+            json.dump(final_users, f, indent=2)
+
+        time.sleep(4)
+
+    print(f"Done. Generated {len(final_users)} users to {OUTPUT_FILE}")
+
+
+if __name__ == "__main__":
+    main()

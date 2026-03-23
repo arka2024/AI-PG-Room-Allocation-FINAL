@@ -34,6 +34,7 @@ REQUIRED_KEYS = {
     "root": {
         "_id", "full_name", "email", "phone", "age", "gender", "occupation", "bio",
         "city", "locality", "latitude", "longitude",
+        "home_city", "home_locality", "home_latitude", "home_longitude",
         "sleep_schedule", "cleanliness", "noise_tolerance", "cooking_frequency",
         "guest_frequency", "workout_habit", "introversion_extroversion", "communication_style",
         "conflict_resolution", "social_battery", "budget_min", "budget_max", "smoking",
@@ -96,8 +97,13 @@ for i, u in enumerate(users):
 
     lat = float(u.get("latitude", 0))
     lng = float(u.get("longitude", 0))
-    if not (17 <= lat <= 23 and 80 <= lng <= 88):
+    if not (17.78 <= lat <= 22.73 and 81.37 <= lng <= 87.53):
         range_issues.append(f"  User {i} '{name}': lat/lng [{lat}, {lng}] outside Odisha bbox")
+
+    home_lat = float(u.get("home_latitude", 0))
+    home_lng = float(u.get("home_longitude", 0))
+    if not (17.78 <= home_lat <= 22.73 and 81.37 <= home_lng <= 87.53):
+        range_issues.append(f"  User {i} '{name}': home_lat/lng [{home_lat}, {home_lng}] outside Odisha bbox")
 
     if not isinstance(u.get("interests", []), list):
         range_issues.append(f"  User {i} '{name}': interests is not a list")
@@ -117,6 +123,7 @@ else:
 genders = Counter(u["gender"] for u in users)
 occupations = Counter(u["occupation"] for u in users)
 localities = Counter(u["locality"] for u in users)
+home_localities = Counter(u["home_locality"] for u in users)
 move_in = Counter(u["preferred_move_in"] for u in users)
 smoking = Counter(u["smoking"] for u in users)
 drinking = Counter(u["drinking"] for u in users)
@@ -140,6 +147,7 @@ print(f"  Age range:    {min(ages)}-{max(ages)}, avg={sum(ages)/len(ages):.1f}")
 print(f"  Budget min range: ₹{min(budget_mins)}-₹{max(budget_mins)}")
 print(f"  Budget max range: ₹{min(budget_maxs)}-₹{max(budget_maxs)}")
 print(f"  Localities ({len(localities)} unique): {localities.most_common(10)}")
+print(f"  Home localities ({len(home_localities)} unique): {home_localities.most_common(10)}")
 
 # ============================
 # 5. Pairwise Similarity Sample
