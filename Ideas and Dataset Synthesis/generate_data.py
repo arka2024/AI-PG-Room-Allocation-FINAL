@@ -516,8 +516,14 @@ def main():
     if not GEMINI_API_KEY:
         raise RuntimeError("GEMINI_API_KEY is missing. Set it in your environment or .env file.")
 
-    final_users = []
-    used_names = set()
+    if os.path.exists(OUTPUT_FILE):
+        with open(OUTPUT_FILE, "r", encoding="utf-8") as f:
+            final_users = json.load(f)
+        used_names = {u["full_name"] for u in final_users}
+        print(f"Resuming from {len(final_users)} existing users...")
+    else:
+        final_users = []
+        used_names = set()
 
     batch_num = 0
     consecutive_failures = 0
@@ -536,7 +542,6 @@ def main():
             consecutive_failures += 1
             print(f"  Failed attempt {consecutive_failures}/{MAX_RETRIES}; retrying.")
 
-            # Allow names to be regenerated if the call failed entirely.
             for name, _ in names_with_gender:
                 if name in used_names:
                     used_names.remove(name)
@@ -557,7 +562,10 @@ def main():
 
         for i, pair in enumerate(names_with_gender):
             if i >= len(users):
-                break
+                fixed = validate_and_fix_user({}, pair[0], pair[1], len(final_users) + 1)
+                final_users.append(fixed)
+                added += 1
+                continue
             expected_name, expected_gender = pair
             idx = len(final_users) + 1
             fixed = validate_and_fix_user(users[i], expected_name, expected_gender, idx)
