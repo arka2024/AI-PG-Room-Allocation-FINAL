@@ -245,17 +245,17 @@
                         </div>
 
                         <!-- ═══════════════════════════════════════ -->
-                        <!-- Step 5: Budget, Location & Photo        -->
+                        <!-- Step 5: Budget + Dual Location           -->
                         <!-- ═══════════════════════════════════════ -->
                         <div class="form-step" id="step-5">
                             <div class="d-flex align-items-center mb-3 gap-2">
                                 <span class="timeline-number" style="width:36px;height:36px;font-size:.8rem;">05</span>
                                 <div>
                                     <span class="timeline-label">BUDGET & LOCATION</span>
-                                    <h5 class="fw-bold mb-0 mt-1">Where & How Much?</h5>
+                                    <h5 class="fw-bold mb-0 mt-1">Budget + Home & PG Locations</h5>
                                 </div>
                             </div>
-                            <p class="text-muted small mb-3">Set your budget, pin your location, and add finishing touches.</p>
+                            <p class="text-muted small mb-3">Set budget plus both locations: where you are from and where you want to take PG.</p>
                             <div class="row g-3">
                                 <div class="col-md-4">
                                     <label class="form-label"><i class="bi bi-currency-rupee me-1"></i>Budget Min (₹/month)</label>
@@ -274,26 +274,42 @@
                                     </select>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label"><i class="bi bi-building me-1"></i>City *</label>
-                                    <input type="text" name="city" class="form-control glass-input" required placeholder="e.g. Kolkata">
+                                    <label class="form-label"><i class="bi bi-house-heart me-1"></i>Home City (Where you are from) *</label>
+                                    <input type="text" name="home_city" class="form-control glass-input" required placeholder="e.g. Patia, Bhubaneswar">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label"><i class="bi bi-pin-map me-1"></i>Locality / Area</label>
-                                    <input type="text" name="locality" class="form-control glass-input" placeholder="e.g. Salt Lake">
+                                    <label class="form-label"><i class="bi bi-pin-map me-1"></i>Home Locality / District</label>
+                                    <input type="text" name="home_locality" class="form-control glass-input" placeholder="e.g. Khordha">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="bi bi-building-check me-1"></i>Preferred PG City *</label>
+                                    <input type="text" name="city" class="form-control glass-input" required placeholder="e.g. Cuttack">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="bi bi-geo me-1"></i>Preferred PG Locality / Area</label>
+                                    <input type="text" name="locality" class="form-control glass-input" placeholder="e.g. CDA Sector-9">
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label"><i class="bi bi-tags me-1"></i>Interests (comma-separated)</label>
                                     <input type="text" name="interests" class="form-control glass-input" placeholder="e.g. Gaming, Reading, Hiking, Cooking, Music">
                                 </div>
 
-                                <!-- Hidden lat/lng fields -->
+                                <!-- Hidden location fields -->
                                 <input type="hidden" name="latitude" id="reg-lat" value="">
                                 <input type="hidden" name="longitude" id="reg-lng" value="">
+                                <input type="hidden" name="home_latitude" id="home-lat" value="">
+                                <input type="hidden" name="home_longitude" id="home-lng" value="">
 
-                                <div class="col-12">
-                                    <label class="form-label"><i class="bi bi-geo-alt me-1"></i>Pin Your Location (click on map)</label>
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="bi bi-house-door me-1"></i>Pin Home Location</label>
+                                    <div id="home-map" style="height:220px; border-radius:12px; border: 1px solid rgba(255,255,255,0.1);"></div>
+                                    <small class="text-muted">Click to set your current/home location.</small>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="bi bi-building me-1"></i>Pin Preferred PG Location</label>
                                     <div id="reg-map" style="height:220px; border-radius:12px; border: 1px solid rgba(255,255,255,0.1);"></div>
-                                    <small class="text-muted">Click to set your approximate location for geo-spatial matching.</small>
+                                    <small class="text-muted">Click to set where you want to find PG/roommate.</small>
                                 </div>
 
                                 <!-- Profile Photo Upload (visual placeholder) -->
@@ -393,20 +409,38 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initRegMap() {
-    const map = L.map('reg-map').setView([22.5726, 88.3639], 12);
+    const pgMap = L.map('reg-map').setView([20.2961, 85.8245], 11);
+    const homeMap = L.map('home-map').setView([20.2961, 85.8245], 11);
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap'
-    }).addTo(map);
+    }).addTo(pgMap);
 
-    let marker = null;
-    map.on('click', function(e) {
-        if (marker) map.removeLayer(marker);
-        marker = L.marker(e.latlng).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+    }).addTo(homeMap);
+
+    let pgMarker = null;
+    let homeMarker = null;
+
+    pgMap.on('click', function(e) {
+        if (pgMarker) pgMap.removeLayer(pgMarker);
+        pgMarker = L.marker(e.latlng).addTo(pgMap);
         document.getElementById('reg-lat').value = e.latlng.lat.toFixed(6);
         document.getElementById('reg-lng').value = e.latlng.lng.toFixed(6);
     });
 
-    setTimeout(() => map.invalidateSize(), 300);
+    homeMap.on('click', function(e) {
+        if (homeMarker) homeMap.removeLayer(homeMarker);
+        homeMarker = L.marker(e.latlng).addTo(homeMap);
+        document.getElementById('home-lat').value = e.latlng.lat.toFixed(6);
+        document.getElementById('home-lng').value = e.latlng.lng.toFixed(6);
+    });
+
+    setTimeout(() => {
+        pgMap.invalidateSize();
+        homeMap.invalidateSize();
+    }, 300);
 }
 </script>
 {% endblock %}

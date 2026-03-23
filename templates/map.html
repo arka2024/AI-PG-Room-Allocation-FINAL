@@ -12,6 +12,15 @@
                     <p class="text-muted small">Find compatible roommates near you. Pins are color-coded by compatibility score.</p>
 
                     <div class="mb-3">
+                        <label class="form-label fw-semibold">Match By Location Mode</label>
+                        <select class="form-select glass-input" id="locationMode">
+                            <option value="preferred_pg">Preferred PG Location</option>
+                            <option value="home">Home Location (Where you're from)</option>
+                        </select>
+                        <small class="text-muted">Switch between match views using your PG target or home origin coordinates.</small>
+                    </div>
+
+                    <div class="mb-3">
                         <label class="form-label fw-semibold">Search Radius (km)</label>
                         <input type="range" class="form-range accent-range" min="1" max="50" value="10" id="radiusSlider">
                         <div class="d-flex justify-content-between">
@@ -74,23 +83,27 @@
 
 {% block extra_js %}
 <script>
-const userLat = {{ current_user.latitude or 22.5726 }};
-const userLng = {{ current_user.longitude or 88.3639 }};
+const pgLat = {{ current_user.latitude or 20.2961 }};
+const pgLng = {{ current_user.longitude or 85.8245 }};
+const homeLat = {{ current_user.home_latitude or current_user.latitude or 20.2961 }};
+const homeLng = {{ current_user.home_longitude or current_user.longitude or 85.8245 }};
+let activeCenterLat = pgLat;
+let activeCenterLng = pgLng;
 
-const map = L.map('discovery-map').setView([userLat, userLng], 13);
+const map = L.map('discovery-map').setView([activeCenterLat, activeCenterLng], 13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap'
 }).addTo(map);
 
 // User marker
-L.marker([userLat, userLng], {
+let userMarker = L.marker([activeCenterLat, activeCenterLng], {
     icon: L.divIcon({
         className: 'user-marker',
         html: '<div style="background:#6366f1; color:white; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; border:3px solid white; box-shadow:0 2px 8px rgba(0,0,0,0.3);">You</div>',
         iconSize: [32, 32],
         iconAnchor: [16, 16]
     })
-}).addTo(map).bindPopup('<strong>Your Location</strong>');
+}).addTo(map).bindPopup('<strong>Your Selected Location Mode</strong>');
 
 let radiusCircle = null;
 let markers = [];
@@ -112,14 +125,33 @@ function getColor(score) {
 function searchMap() {
     const radius = parseFloat(document.getElementById('radiusSlider').value);
     const minScore = parseFloat(document.getElementById('minScoreSlider').value);
+    const mode = document.getElementById('locationMode').value;
+
+    if (mode === 'home') {
+        activeCenterLat = homeLat;
+        activeCenterLng = homeLng;
+    } else {
+        activeCenterLat = pgLat;
+        activeCenterLng = pgLng;
+    }
 
     // Clear old markers
     markers.forEach(m => map.removeLayer(m));
     markers = [];
     if (radiusCircle) map.removeLayer(radiusCircle);
+    if (userMarker) map.removeLayer(userMarker);
+
+    userMarker = L.marker([activeCenterLat, activeCenterLng], {
+        icon: L.divIcon({
+            className: 'user-marker',
+            html: '<div style="background:#6366f1; color:white; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; border:3px solid white; box-shadow:0 2px 8px rgba(0,0,0,0.3);">You</div>',
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+        })
+    }).addTo(map).bindPopup(`<strong>Your ${mode === 'home' ? 'Home' : 'Preferred PG'} Location</strong>`);
 
     // Draw radius circle
-    radiusCircle = L.circle([userLat, userLng], {
+    radiusCircle = L.circle([activeCenterLat, activeCenterLng], {
         radius: radius * 1000,
         color: '#6366f1',
         fillColor: '#6366f1',
@@ -130,7 +162,7 @@ function searchMap() {
 
     map.fitBounds(radiusCircle.getBounds());
 
-    fetch(`/api/map-search?radius=${radius}&min_score=${minScore}`)
+    fetch(`/api/map-search?radius=${radius}&min_score=${minScore}&location_mode=${mode}`)
         .then(res => res.json())
         .then(data => {
             const resultsDiv = document.getElementById('mapResults');
@@ -154,7 +186,7 @@ function searchMap() {
                 marker.bindPopup(`
                     <div style="min-width:180px;">
                         <strong>${r.name}</strong><br>
-                        <small>${r.occupation} · ${r.city || ''}</small><br>
+                        <small>${r.occupation} · ${(r.locality || '')} ${r.city || ''}</small><br>
                         <span style="color:${color}; font-size:1.2em; font-weight:bold;">${r.score}% Match</span><br>
                         <small>📍 ${r.distance} km away</small><br>
                         <a href="/profile/${r.id}" class="btn btn-sm btn-outline-primary mt-1">View Profile</a>

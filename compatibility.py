@@ -301,6 +301,9 @@ def rank_users_by_compatibility(
             ), 1)
             if radius_km and dist > radius_km:
                 continue
+        elif radius_km:
+            # If a radius is requested, skip candidates lacking usable coordinates.
+            continue
 
         results.append({
             'user': user,

@@ -37,12 +37,20 @@
                                 </select>
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label">City</label>
+                                <label class="form-label">Preferred PG City</label>
                                 <input type="text" name="city" class="form-control glass-input" value="{{ user.city or '' }}">
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label">Locality</label>
+                                <label class="form-label">Preferred PG Locality</label>
                                 <input type="text" name="locality" class="form-control glass-input" value="{{ user.locality or '' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Home City (Where you are from)</label>
+                                <input type="text" name="home_city" class="form-control glass-input" value="{{ user.home_city or '' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Home Locality / District</label>
+                                <input type="text" name="home_locality" class="form-control glass-input" value="{{ user.home_locality or '' }}">
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Bio</label>
@@ -50,8 +58,14 @@
                             </div>
                             <input type="hidden" name="latitude" id="edit-lat" value="{{ user.latitude or '' }}">
                             <input type="hidden" name="longitude" id="edit-lng" value="{{ user.longitude or '' }}">
-                            <div class="col-12">
-                                <label class="form-label"><i class="bi bi-geo-alt me-1"></i>Location (click to set)</label>
+                            <input type="hidden" name="home_latitude" id="home-edit-lat" value="{{ user.home_latitude or '' }}">
+                            <input type="hidden" name="home_longitude" id="home-edit-lng" value="{{ user.home_longitude or '' }}">
+                            <div class="col-md-6">
+                                <label class="form-label"><i class="bi bi-house-door me-1"></i>Home Location (click to set)</label>
+                                <div id="home-edit-map" style="height:200px; border-radius:12px; border: 1px solid rgba(255,255,255,0.1);"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label"><i class="bi bi-building me-1"></i>Preferred PG Location (click to set)</label>
                                 <div id="edit-map" style="height:200px; border-radius:12px; border: 1px solid rgba(255,255,255,0.1);"></div>
                             </div>
                         </div>
@@ -161,17 +175,32 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const lat = parseFloat('{{ user.latitude or 22.5726 }}');
-    const lng = parseFloat('{{ user.longitude or 88.3639 }}');
-    const map = L.map('edit-map').setView([lat, lng], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+    const pgLat = parseFloat('{{ user.latitude or 20.2961 }}');
+    const pgLng = parseFloat('{{ user.longitude or 85.8245 }}');
+    const homeLat = parseFloat('{{ user.home_latitude or 20.2961 }}');
+    const homeLng = parseFloat('{{ user.home_longitude or 85.8245 }}');
 
-    let marker = L.marker([lat, lng]).addTo(map);
+    const map = L.map('edit-map').setView([pgLat, pgLng], 13);
+    const homeMap = L.map('home-edit-map').setView([homeLat, homeLng], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(homeMap);
+
+    let marker = L.marker([pgLat, pgLng]).addTo(map);
+    let homeMarker = L.marker([homeLat, homeLng]).addTo(homeMap);
+
     map.on('click', function(e) {
         if (marker) map.removeLayer(marker);
         marker = L.marker(e.latlng).addTo(map);
         document.getElementById('edit-lat').value = e.latlng.lat.toFixed(6);
         document.getElementById('edit-lng').value = e.latlng.lng.toFixed(6);
+    });
+
+    homeMap.on('click', function(e) {
+        if (homeMarker) homeMap.removeLayer(homeMarker);
+        homeMarker = L.marker(e.latlng).addTo(homeMap);
+        document.getElementById('home-edit-lat').value = e.latlng.lat.toFixed(6);
+        document.getElementById('home-edit-lng').value = e.latlng.lng.toFixed(6);
     });
 });
 </script>

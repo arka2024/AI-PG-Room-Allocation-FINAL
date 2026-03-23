@@ -76,6 +76,10 @@ class MongoUser(UserMixin):
         self.longitude = self._doc.get("longitude")
         self.city = self._doc.get("city")
         self.locality = self._doc.get("locality")
+        self.home_city = self._doc.get("home_city")
+        self.home_locality = self._doc.get("home_locality")
+        self.home_latitude = self._doc.get("home_latitude")
+        self.home_longitude = self._doc.get("home_longitude")
         self.sleep_schedule = self._doc.get("sleep_schedule", 3)
         self.cleanliness = self._doc.get("cleanliness", 3)
         self.noise_tolerance = self._doc.get("noise_tolerance", 3)
@@ -96,6 +100,9 @@ class MongoUser(UserMixin):
         self.preferred_move_in = self._doc.get("preferred_move_in", "flexible")
         self.is_looking = bool(self._doc.get("is_looking", True))
         self.profile_complete = bool(self._doc.get("profile_complete", False))
+
+    def __getitem__(self, key):
+        return getattr(self, key)
 
     def get_feature_vector(self):
         return {
@@ -227,7 +234,13 @@ def get_user_by_email(email):
 
 
 def get_all_active_users(exclude_user_id=None):
-    query = {"is_looking": True}
+    query = {
+        "is_looking": True,
+        "$nor": [
+            {"full_name": "Test User"},
+            {"email": {"$regex": r"^test_.*@example\.com$"}},
+        ],
+    }
     docs = list(users_col.find(query))
     users = [_to_user(d) for d in docs]
     if exclude_user_id is not None:
@@ -257,8 +270,12 @@ def create_user_from_form(form):
         "bio": form.get("bio", ""),
         "city": form.get("city", ""),
         "locality": form.get("locality", ""),
+        "home_city": form.get("home_city", ""),
+        "home_locality": form.get("home_locality", ""),
         "latitude": _as_float(form.get("latitude")),
         "longitude": _as_float(form.get("longitude")),
+        "home_latitude": _as_float(form.get("home_latitude")),
+        "home_longitude": _as_float(form.get("home_longitude")),
         "sleep_schedule": _as_int(form.get("sleep_schedule"), 3),
         "cleanliness": _as_int(form.get("cleanliness"), 3),
         "noise_tolerance": _as_int(form.get("noise_tolerance"), 3),
@@ -283,6 +300,7 @@ def create_user_from_form(form):
         "is_looking": True,
         "created_at": datetime.utcnow(),
         "updated_at": datetime.utcnow(),
+        "source": "app_signup",
     }
     users_col.insert_one(user_doc)
     return get_user_by_id(user_id)
@@ -363,7 +381,8 @@ def logout():
 @login_required
 def dashboard():
     all_users = get_all_active_users(exclude_user_id=current_user.id)
-    top_matches = rank_users_by_compatibility(current_user, all_users)
+    # Keep dashboard focused on practical nearby options by default.
+    top_matches = rank_users_by_compatibility(current_user, all_users, radius_km=80)
 
     nearby_count = 0
     if current_user.latitude and current_user.longitude:
@@ -418,6 +437,8 @@ def edit_profile():
             "occupation": request.form.get("occupation", current_user.occupation),
             "city": request.form.get("city", current_user.city),
             "locality": request.form.get("locality", current_user.locality),
+            "home_city": request.form.get("home_city", current_user.home_city),
+            "home_locality": request.form.get("home_locality", current_user.home_locality),
             "bio": request.form.get("bio", current_user.bio),
             "sleep_schedule": _as_int(request.form.get("sleep_schedule"), 3),
             "cleanliness": _as_int(request.form.get("cleanliness"), 3),
@@ -446,6 +467,12 @@ def edit_profile():
         if lat is not None and lng is not None:
             payload["latitude"] = lat
             payload["longitude"] = lng
+
+        home_lat = _as_float(request.form.get("home_latitude"))
+        home_lng = _as_float(request.form.get("home_longitude"))
+        if home_lat is not None and home_lng is not None:
+            payload["home_latitude"] = home_lat
+            payload["home_longitude"] = home_lng
 
         updated_user = upsert_user_profile(current_user.id, payload)
         login_user(updated_user)
@@ -594,18 +621,36 @@ def chatbot_view():
 def api_map_search():
     radius = request.args.get("radius", 10, type=float)
     min_score = request.args.get("min_score", 0, type=float)
+    location_mode = (request.args.get("location_mode") or "preferred_pg").strip().lower()
+    if location_mode not in ("preferred_pg", "home"):
+        location_mode = "preferred_pg"
 
     all_users = get_all_active_users(exclude_user_id=current_user.id)
-    all_users = [u for u in all_users if u.latitude is not None and u.longitude is not None]
+
+    if location_mode == "home":
+        query_lat, query_lng = current_user.home_latitude, current_user.home_longitude
+        all_users = [u for u in all_users if u.home_latitude is not None and u.home_longitude is not None]
+    else:
+        query_lat, query_lng = current_user.latitude, current_user.longitude
+        all_users = [u for u in all_users if u.latitude is not None and u.longitude is not None]
 
     results = []
     query_vec = current_user.get_feature_vector()
 
     for user in all_users:
-        if not current_user.latitude or not current_user.longitude:
+        if query_lat is None or query_lng is None:
             continue
 
-        dist = haversine_distance(current_user.latitude, current_user.longitude, user.latitude, user.longitude)
+        if location_mode == "home":
+            target_lat, target_lng = user.home_latitude, user.home_longitude
+            target_city = user.home_city or user.city or ""
+            target_locality = user.home_locality or user.locality or ""
+        else:
+            target_lat, target_lng = user.latitude, user.longitude
+            target_city = user.city or ""
+            target_locality = user.locality or ""
+
+        dist = haversine_distance(query_lat, query_lng, target_lat, target_lng)
         if dist > radius:
             continue
 
@@ -618,11 +663,13 @@ def api_map_search():
                 "id": user.id,
                 "name": user.full_name,
                 "occupation": user.occupation.replace("_", " ").title(),
-                "city": user.city or "",
-                "lat": user.latitude,
-                "lng": user.longitude,
+                "city": target_city,
+                "locality": target_locality,
+                "lat": target_lat,
+                "lng": target_lng,
                 "score": score,
                 "distance": round(dist, 1),
+                "location_mode": location_mode,
             }
         )
 
