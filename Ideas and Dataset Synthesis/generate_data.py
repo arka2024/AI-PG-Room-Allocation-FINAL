@@ -151,29 +151,38 @@ Each element must strictly follow this schema:
 
 [
   {{
-    "profile": {{
-      "name": "<use the assigned name>",
-      "age": <integer 18-28>,
-      "gender": "<use the assigned gender>",
-      "bio": "<short 1-sentence personality description>"
-    }},
-    "location": {{
-      "type": "Point",
-      "coordinates": [<longitude float>, <latitude float>],
-      "area_name": "<real Odisha district name>"
-    }},
-    "preferences": {{
-      "budget": <integer 5000-15000>,
-      "gender_preference": "<Male or Female or Any>",
-      "smoking_tolerance": <true or false>,
-      "pets_allowed": <true or false>
-    }},
-    "persona_raw": {{
-      "sleep_time": "<Early or Late>",
-      "cleanliness_rating": <integer 1-5>,
-      "noise_tolerance": <integer 1-5>,
-      "introversion_score": <integer 1-5>
-    }}
+        "full_name": "<use the assigned name>",
+        "age": <integer 18-28>,
+        "gender": "<male or female exactly>",
+        "occupation": "<student or working_professional or freelancer>",
+        "phone": "<10-digit Indian mobile number as string>",
+        "bio": "<short 1-sentence personality description>",
+        "city": "<real Odisha city>",
+        "locality": "<real Odisha district/locality>",
+        "latitude": <float latitude>,
+        "longitude": <float longitude>,
+        "sleep_schedule": <integer 1-5>,
+        "cleanliness": <integer 1-5>,
+        "noise_tolerance": <integer 1-5>,
+        "cooking_frequency": <integer 1-5>,
+        "guest_frequency": <integer 1-5>,
+        "workout_habit": <integer 1-5>,
+        "introversion_extroversion": <integer 1-5>,
+        "communication_style": <integer 1-5>,
+        "conflict_resolution": <integer 1-5>,
+        "social_battery": <integer 1-5>,
+        "budget_min": <integer 3000-12000>,
+        "budget_max": <integer 5000-20000 and >= budget_min>,
+        "smoking": "<never or occasionally or regularly>",
+        "drinking": "<never or occasionally or regularly>",
+        "veg_nonveg": "<veg or nonveg or eggetarian or vegan>",
+        "gender_preference": "<male or female or any>",
+        "pet_friendly": <true or false>,
+        "preferred_move_in": "<immediate or within_month or flexible>",
+        "interests": ["<2-6 short interests strings>"],
+        "avatar_url": null,
+        "profile_complete": true,
+        "is_looking": true
   }}
 ]
 
@@ -255,47 +264,66 @@ def generate_batch(names_with_gender):
         return None
 
 def validate_and_fix_user(user, expected_name, expected_gender):
-    """Ensure the user object has valid structure, fix name/gender if model changed them."""
+    """Ensure generated user follows frontend-compatible flat schema."""
     try:
-        user["profile"]["name"] = expected_name
-        user["profile"]["gender"] = expected_gender
+        user = user if isinstance(user, dict) else {}
+        user["full_name"] = expected_name
+        user["gender"] = expected_gender.lower()
 
-        # Validate/fix age
-        age = user["profile"].get("age", random.randint(18, 28))
-        user["profile"]["age"] = max(18, min(28, int(age)))
+        age = user.get("age", random.randint(18, 28))
+        user["age"] = max(18, min(28, int(age)))
 
-        # Validate location — fallback to random district if missing/bad
-        loc = user.get("location", {})
-        area = loc.get("area_name", "")
-        if area not in ODISHA_DISTRICTS:
-            area = random.choice(list(ODISHA_DISTRICTS.keys()))
-            base_lon, base_lat = ODISHA_DISTRICTS[area]
-            loc["coordinates"] = [
-                round(base_lon + random.uniform(-0.15, 0.15), 4),
-                round(base_lat + random.uniform(-0.15, 0.15), 4),
-            ]
-            loc["area_name"] = area
-        loc["type"] = "Point"
-        user["location"] = loc
+        locality = user.get("locality")
+        if locality not in ODISHA_DISTRICTS:
+            locality = random.choice(list(ODISHA_DISTRICTS.keys()))
+        base_lon, base_lat = ODISHA_DISTRICTS[locality]
+        lon = user.get("longitude", round(base_lon + random.uniform(-0.15, 0.15), 6))
+        lat = user.get("latitude", round(base_lat + random.uniform(-0.15, 0.15), 6))
 
-        # Validate preferences
-        prefs = user.get("preferences", {})
-        budget = prefs.get("budget", random.randint(5, 15) * 1000)
-        prefs["budget"] = max(5000, min(15000, int(budget)))
-        if prefs.get("gender_preference") not in ("Male", "Female", "Any"):
-            prefs["gender_preference"] = random.choice(["Male", "Female", "Any"])
-        prefs["smoking_tolerance"] = bool(prefs.get("smoking_tolerance", random.choice([True, False])))
-        prefs["pets_allowed"] = bool(prefs.get("pets_allowed", random.choice([True, False])))
-        user["preferences"] = prefs
+        user["city"] = str(user.get("city") or "Bhubaneswar").strip()
+        user["locality"] = locality
+        user["longitude"] = round(float(lon), 6)
+        user["latitude"] = round(float(lat), 6)
 
-        # Validate persona_raw
-        persona = user.get("persona_raw", {})
-        if persona.get("sleep_time") not in ("Early", "Late"):
-            persona["sleep_time"] = random.choice(["Early", "Late"])
-        for key in ("cleanliness_rating", "noise_tolerance", "introversion_score"):
-            val = persona.get(key, random.randint(1, 5))
-            persona[key] = max(1, min(5, int(val)))
-        user["persona_raw"] = persona
+        user["occupation"] = user.get("occupation") if user.get("occupation") in ("student", "working_professional", "freelancer") else random.choice(["student", "working_professional", "freelancer"])
+        user["phone"] = str(user.get("phone") or f"9{random.randint(100000000, 999999999)}")
+        user["bio"] = str(user.get("bio") or "Friendly and responsible roommate looking for a good shared space.").strip()
+
+        for key in (
+            "sleep_schedule", "cleanliness", "noise_tolerance", "cooking_frequency", "guest_frequency",
+            "workout_habit", "introversion_extroversion", "communication_style", "conflict_resolution", "social_battery"
+        ):
+            user[key] = max(1, min(5, int(user.get(key, random.randint(1, 5)))))
+
+        min_budget = int(user.get("budget_min", random.randint(3500, 12000)))
+        max_budget = int(user.get("budget_max", min_budget + random.randint(1000, 6000)))
+        min_budget = max(3000, min(min_budget, 20000))
+        max_budget = max(min_budget, min(max_budget, 25000))
+        user["budget_min"] = min_budget
+        user["budget_max"] = max_budget
+
+        user["smoking"] = user.get("smoking") if user.get("smoking") in ("never", "occasionally", "regularly") else random.choice(["never", "occasionally", "regularly"])
+        user["drinking"] = user.get("drinking") if user.get("drinking") in ("never", "occasionally", "regularly") else random.choice(["never", "occasionally", "regularly"])
+        user["veg_nonveg"] = user.get("veg_nonveg") if user.get("veg_nonveg") in ("veg", "nonveg", "eggetarian", "vegan") else random.choice(["veg", "nonveg", "eggetarian", "vegan"])
+        user["gender_preference"] = user.get("gender_preference") if user.get("gender_preference") in ("male", "female", "any") else random.choice(["male", "female", "any"])
+        user["pet_friendly"] = bool(user.get("pet_friendly", random.choice([True, False])))
+        user["preferred_move_in"] = user.get("preferred_move_in") if user.get("preferred_move_in") in ("immediate", "within_month", "flexible") else random.choice(["immediate", "within_month", "flexible"])
+
+        interests = user.get("interests", [])
+        if not isinstance(interests, list):
+            interests = []
+        if not interests:
+            pool = ["Reading", "Music", "Gaming", "Cooking", "Fitness", "Movies", "Travel", "Photography", "Cricket", "Coding"]
+            interests = random.sample(pool, k=random.randint(3, 5))
+        user["interests"] = [str(i).strip() for i in interests if str(i).strip()][:6]
+
+        user["avatar_url"] = None
+        user["profile_complete"] = True
+        user["is_looking"] = True
+
+        # Deterministic synthetic email from name
+        slug = "".join(c.lower() for c in expected_name if c.isalnum())
+        user["email"] = user.get("email") or f"{slug[:18]}@synthetic.local"
 
         return user
     except Exception:
@@ -314,8 +342,13 @@ if os.path.exists("odisha_users.json"):
         with open("odisha_users.json", "r") as f:
             final_users = json.load(f)
         for user in final_users:
-            existing_ids.add(user["_id"])
-            existing_names.add(user["profile"]["name"])
+            if "_id" in user:
+                existing_ids.add(user["_id"])
+            if isinstance(user, dict):
+                if "full_name" in user:
+                    existing_names.add(user["full_name"])
+                elif "profile" in user and isinstance(user["profile"], dict) and user["profile"].get("name"):
+                    existing_names.add(user["profile"]["name"])
         print(f"Resumed with {len(final_users)} existing users.")
     except Exception as e:
         print(f"Could not resume: {e}. Starting fresh.")

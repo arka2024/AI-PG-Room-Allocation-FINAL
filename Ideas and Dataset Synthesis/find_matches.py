@@ -24,25 +24,18 @@ def compatibility_score(u1, u2):
     score = 0
     max_score = 0
 
-    p1, p2 = u1["preferences"], u2["preferences"]
-    r1, r2 = u1["persona_raw"], u2["persona_raw"]
-    l1, l2 = u1["location"], u2["location"]
-    pr1, pr2 = u1["profile"], u2["profile"]
+    l1 = [u1["longitude"], u1["latitude"]]
+    l2 = [u2["longitude"], u2["latitude"]]
 
     # --- Budget compatibility (weight: 20) ---
     max_score += 20
-    budget_diff = abs(p1["budget"] - p2["budget"])
-    if budget_diff <= 1000:
+    if not (u1["budget_min"] > u2["budget_max"] or u2["budget_min"] > u1["budget_max"]):
         score += 20
-    elif budget_diff <= 3000:
-        score += 15
-    elif budget_diff <= 5000:
-        score += 8
 
     # --- Gender preference match (weight: 15) ---
     max_score += 15
-    g1_ok = p1["gender_preference"] == "Any" or p1["gender_preference"] == pr2["gender"]
-    g2_ok = p2["gender_preference"] == "Any" or p2["gender_preference"] == pr1["gender"]
+    g1_ok = u1["gender_preference"] == "any" or u1["gender_preference"] == u2["gender"]
+    g2_ok = u2["gender_preference"] == "any" or u2["gender_preference"] == u1["gender"]
     if g1_ok and g2_ok:
         score += 15
     elif g1_ok or g2_ok:
@@ -50,12 +43,17 @@ def compatibility_score(u1, u2):
 
     # --- Sleep schedule (weight: 15) ---
     max_score += 15
-    if r1["sleep_time"] == r2["sleep_time"]:
+    sleep_diff = abs(u1["sleep_schedule"] - u2["sleep_schedule"])
+    if sleep_diff == 0:
         score += 15
+    elif sleep_diff == 1:
+        score += 10
+    elif sleep_diff == 2:
+        score += 4
 
     # --- Cleanliness (weight: 15) ---
     max_score += 15
-    clean_diff = abs(r1["cleanliness_rating"] - r2["cleanliness_rating"])
+    clean_diff = abs(u1["cleanliness"] - u2["cleanliness"])
     if clean_diff == 0:
         score += 15
     elif clean_diff == 1:
@@ -65,7 +63,7 @@ def compatibility_score(u1, u2):
 
     # --- Noise tolerance (weight: 10) ---
     max_score += 10
-    noise_diff = abs(r1["noise_tolerance"] - r2["noise_tolerance"])
+    noise_diff = abs(u1["noise_tolerance"] - u2["noise_tolerance"])
     if noise_diff == 0:
         score += 10
     elif noise_diff == 1:
@@ -75,7 +73,7 @@ def compatibility_score(u1, u2):
 
     # --- Introversion compatibility (weight: 10) ---
     max_score += 10
-    intro_diff = abs(r1["introversion_score"] - r2["introversion_score"])
+    intro_diff = abs(u1["introversion_extroversion"] - u2["introversion_extroversion"])
     if intro_diff == 0:
         score += 10
     elif intro_diff == 1:
@@ -85,17 +83,17 @@ def compatibility_score(u1, u2):
 
     # --- Smoking tolerance (weight: 5) ---
     max_score += 5
-    if p1["smoking_tolerance"] == p2["smoking_tolerance"]:
+    if u1["smoking"] == u2["smoking"]:
         score += 5
 
     # --- Pets (weight: 5) ---
     max_score += 5
-    if p1["pets_allowed"] == p2["pets_allowed"]:
+    if u1["pet_friendly"] == u2["pet_friendly"]:
         score += 5
 
     # --- Location proximity (weight: 5) ---
     max_score += 5
-    dist = geo_distance_km(l1["coordinates"], l2["coordinates"])
+    dist = geo_distance_km(l1, l2)
     if dist <= 10:
         score += 5
     elif dist <= 30:
@@ -120,12 +118,11 @@ def find_top_matches(user_idx, top_n=5):
     return matches[:top_n]
 
 def print_user_brief(u):
-    p = u["profile"]
-    pref = u["preferences"]
-    r = u["persona_raw"]
-    loc = u["location"]
-    print(f"    {p['name']}, {p['age']}{p['gender'][0]} | {loc['area_name']} | ₹{pref['budget']}")
-    print(f"    Sleep:{r['sleep_time']} Clean:{r['cleanliness_rating']} Noise:{r['noise_tolerance']} Intro:{r['introversion_score']} | Smoke:{pref['smoking_tolerance']} Pets:{pref['pets_allowed']} | Wants:{pref['gender_preference']}")
+    print(f"    {u['full_name']}, {u['age']}{u['gender'][0].upper()} | {u['locality']} | Rs{u['budget_min']}-Rs{u['budget_max']}")
+    print(
+        f"    Sleep:{u['sleep_schedule']} Clean:{u['cleanliness']} Noise:{u['noise_tolerance']} "
+        f"Intro/Ext:{u['introversion_extroversion']} | Smoke:{u['smoking']} Pets:{u['pet_friendly']} | Wants:{u['gender_preference']}"
+    )
 
 # Show matches for 10 sample users
 print("=" * 70)
@@ -138,12 +135,15 @@ samples = random.sample(range(len(users)), 10)
 
 for idx in samples:
     u = users[idx]
-    print(f"\n🔍 User #{idx}: {u['profile']['name']}")
+    print(f"\nUser #{idx}: {u['full_name']}")
     print_user_brief(u)
     print(f"  Best matches:")
     for rank, (j, compat, dist) in enumerate(find_top_matches(idx), 1):
         m = users[j]
-        print(f"    {rank}. [{compat}%] {m['profile']['name']}, {m['profile']['age']}{m['profile']['gender'][0]} | {m['location']['area_name']} | ₹{m['preferences']['budget']} | {dist:.0f}km away")
+        print(
+            f"    {rank}. [{compat}%] {m['full_name']}, {m['age']}{m['gender'][0].upper()} | "
+            f"{m['locality']} | Rs{m['budget_min']}-Rs{m['budget_max']} | {dist:.0f}km away"
+        )
 
 # ============================
 # Global Best Pairs
@@ -164,13 +164,13 @@ all_pairs.sort(key=lambda x: -x[2])
 
 for rank, (i, j, compat, dist) in enumerate(all_pairs[:20], 1):
     u1, u2 = users[i], users[j]
-    print(f"  {rank:2d}. [{compat}%] {u1['profile']['name']:25s} ↔ {u2['profile']['name']:25s} | {dist:.0f}km apart")
+    print(f"  {rank:2d}. [{compat}%] {u1['full_name']:25s} <-> {u2['full_name']:25s} | {dist:.0f}km apart")
 
 # Stats
 print(f"\n=== MATCH STATS ===")
-print(f"  Pairs with ≥85% compatibility: {len(all_pairs)}")
+print(f"  Pairs with >=85% compatibility: {len(all_pairs)}")
 compat_90 = sum(1 for p in all_pairs if p[2] >= 90)
 compat_95 = sum(1 for p in all_pairs if p[2] >= 95)
-print(f"  Pairs with ≥90%: {compat_90}")
-print(f"  Pairs with ≥95%: {compat_95}")
+print(f"  Pairs with >=90%: {compat_90}")
+print(f"  Pairs with >=95%: {compat_95}")
 print(f"  Perfect 100%: {sum(1 for p in all_pairs if p[2] >= 100)}")

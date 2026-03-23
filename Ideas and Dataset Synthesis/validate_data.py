@@ -11,7 +11,7 @@ print(f"Total users loaded: {len(users)}\n")
 # ============================
 
 ids = [u["_id"] for u in users]
-names = [u["profile"]["name"] for u in users]
+names = [u.get("full_name", "") for u in users]
 
 dup_ids = [id for id, cnt in Counter(ids).items() if cnt > 1]
 dup_names = [n for n, cnt in Counter(names).items() if cnt > 1]
@@ -31,21 +31,22 @@ if not dup_ids and not dup_names:
 # ============================
 
 REQUIRED_KEYS = {
-    "profile": {"name", "age", "gender", "bio"},
-    "location": {"type", "coordinates", "area_name"},
-    "preferences": {"budget", "gender_preference", "smoking_tolerance", "pets_allowed"},
-    "persona_raw": {"sleep_time", "cleanliness_rating", "noise_tolerance", "introversion_score"},
+    "root": {
+        "_id", "full_name", "email", "phone", "age", "gender", "occupation", "bio",
+        "city", "locality", "latitude", "longitude",
+        "sleep_schedule", "cleanliness", "noise_tolerance", "cooking_frequency",
+        "guest_frequency", "workout_habit", "introversion_extroversion", "communication_style",
+        "conflict_resolution", "social_battery", "budget_min", "budget_max", "smoking",
+        "drinking", "veg_nonveg", "gender_preference", "pet_friendly", "preferred_move_in",
+        "interests", "profile_complete", "is_looking"
+    },
 }
 
 schema_errors = []
 for i, u in enumerate(users):
-    for section, keys in REQUIRED_KEYS.items():
-        if section not in u:
-            schema_errors.append(f"  User {i} ({u.get('_id','?')[:8]}): missing section '{section}'")
-        else:
-            missing = keys - set(u[section].keys())
-            if missing:
-                schema_errors.append(f"  User {i} ({u['_id'][:8]}): '{section}' missing keys {missing}")
+    missing = REQUIRED_KEYS["root"] - set(u.keys())
+    if missing:
+        schema_errors.append(f"  User {i} ({u.get('_id','?')[:8]}): missing keys {missing}")
 
 print(f"\n=== SCHEMA VALIDATION ===")
 if schema_errors:
@@ -61,30 +62,45 @@ else:
 
 range_issues = []
 for i, u in enumerate(users):
-    p = u.get("profile", {})
-    pref = u.get("preferences", {})
-    per = u.get("persona_raw", {})
-    loc = u.get("location", {})
+    name = u.get("full_name")
 
-    if not (18 <= p.get("age", 0) <= 28):
-        range_issues.append(f"  User {i} '{p.get('name')}': age={p.get('age')}")
-    if p.get("gender") not in ("Male", "Female"):
-        range_issues.append(f"  User {i} '{p.get('name')}': gender={p.get('gender')}")
-    if not (5000 <= pref.get("budget", 0) <= 15000):
-        range_issues.append(f"  User {i} '{p.get('name')}': budget={pref.get('budget')}")
-    if pref.get("gender_preference") not in ("Male", "Female", "Any"):
-        range_issues.append(f"  User {i} '{p.get('name')}': gender_preference={pref.get('gender_preference')}")
-    if per.get("sleep_time") not in ("Early", "Late"):
-        range_issues.append(f"  User {i} '{p.get('name')}': sleep_time={per.get('sleep_time')}")
-    for key in ("cleanliness_rating", "noise_tolerance", "introversion_score"):
-        val = per.get(key, 0)
+    if not (18 <= int(u.get("age", 0)) <= 65):
+        range_issues.append(f"  User {i} '{name}': age={u.get('age')}")
+    if u.get("gender") not in ("male", "female", "non-binary"):
+        range_issues.append(f"  User {i} '{name}': gender={u.get('gender')}")
+    if u.get("occupation") not in ("student", "working_professional", "freelancer"):
+        range_issues.append(f"  User {i} '{name}': occupation={u.get('occupation')}")
+    for key in (
+        "sleep_schedule", "cleanliness", "noise_tolerance", "cooking_frequency", "guest_frequency",
+        "workout_habit", "introversion_extroversion", "communication_style", "conflict_resolution", "social_battery"
+    ):
+        val = int(u.get(key, 0))
         if not (1 <= val <= 5):
-            range_issues.append(f"  User {i} '{p.get('name')}': {key}={val}")
-    coords = loc.get("coordinates", [0, 0])
-    if len(coords) != 2:
-        range_issues.append(f"  User {i} '{p.get('name')}': bad coordinates length")
-    elif not (80 <= coords[0] <= 88 and 17 <= coords[1] <= 23):
-        range_issues.append(f"  User {i} '{p.get('name')}': coords {coords} outside Odisha bbox")
+            range_issues.append(f"  User {i} '{name}': {key}={val}")
+
+    bmin = int(u.get("budget_min", 0))
+    bmax = int(u.get("budget_max", 0))
+    if bmin < 0 or bmax < 0 or bmin > bmax:
+        range_issues.append(f"  User {i} '{name}': budget_min={bmin}, budget_max={bmax}")
+
+    if u.get("smoking") not in ("never", "occasionally", "regularly"):
+        range_issues.append(f"  User {i} '{name}': smoking={u.get('smoking')}")
+    if u.get("drinking") not in ("never", "occasionally", "regularly"):
+        range_issues.append(f"  User {i} '{name}': drinking={u.get('drinking')}")
+    if u.get("veg_nonveg") not in ("veg", "nonveg", "eggetarian", "vegan"):
+        range_issues.append(f"  User {i} '{name}': veg_nonveg={u.get('veg_nonveg')}")
+    if u.get("gender_preference") not in ("male", "female", "any"):
+        range_issues.append(f"  User {i} '{name}': gender_preference={u.get('gender_preference')}")
+    if u.get("preferred_move_in") not in ("immediate", "within_month", "flexible"):
+        range_issues.append(f"  User {i} '{name}': preferred_move_in={u.get('preferred_move_in')}")
+
+    lat = float(u.get("latitude", 0))
+    lng = float(u.get("longitude", 0))
+    if not (17 <= lat <= 23 and 80 <= lng <= 88):
+        range_issues.append(f"  User {i} '{name}': lat/lng [{lat}, {lng}] outside Odisha bbox")
+
+    if not isinstance(u.get("interests", []), list):
+        range_issues.append(f"  User {i} '{name}': interests is not a list")
 
 print(f"\n=== VALUE RANGES ===")
 if range_issues:
@@ -98,77 +114,87 @@ else:
 # 4. Distribution Stats
 # ============================
 
-genders = Counter(u["profile"]["gender"] for u in users)
-districts = Counter(u["location"]["area_name"] for u in users)
-sleep = Counter(u["persona_raw"]["sleep_time"] for u in users)
-budgets = [u["preferences"]["budget"] for u in users]
-ages = [u["profile"]["age"] for u in users]
-smoke_tol = Counter(u["preferences"]["smoking_tolerance"] for u in users)
-pets = Counter(u["preferences"]["pets_allowed"] for u in users)
-gender_pref = Counter(u["preferences"]["gender_preference"] for u in users)
+genders = Counter(u["gender"] for u in users)
+occupations = Counter(u["occupation"] for u in users)
+localities = Counter(u["locality"] for u in users)
+move_in = Counter(u["preferred_move_in"] for u in users)
+smoking = Counter(u["smoking"] for u in users)
+drinking = Counter(u["drinking"] for u in users)
+food = Counter(u["veg_nonveg"] for u in users)
+gender_pref = Counter(u["gender_preference"] for u in users)
+pet_friendly = Counter(u["pet_friendly"] for u in users)
+budget_mins = [u["budget_min"] for u in users]
+budget_maxs = [u["budget_max"] for u in users]
+ages = [u["age"] for u in users]
 
 print(f"\n=== DISTRIBUTIONS ===")
 print(f"  Gender:       {dict(genders)}")
-print(f"  Sleep:        {dict(sleep)}")
-print(f"  Smoking tol:  {dict(smoke_tol)}")
-print(f"  Pets allowed: {dict(pets)}")
+print(f"  Occupation:   {dict(occupations)}")
+print(f"  Move-in:      {dict(move_in)}")
+print(f"  Smoking:      {dict(smoking)}")
+print(f"  Drinking:     {dict(drinking)}")
+print(f"  Food pref:    {dict(food)}")
+print(f"  Pet friendly: {dict(pet_friendly)}")
 print(f"  Gender pref:  {dict(gender_pref)}")
 print(f"  Age range:    {min(ages)}-{max(ages)}, avg={sum(ages)/len(ages):.1f}")
-print(f"  Budget range: ₹{min(budgets)}-₹{max(budgets)}, avg=₹{sum(budgets)/len(budgets):.0f}")
-print(f"  Districts ({len(districts)} unique): {districts.most_common(10)}")
+print(f"  Budget min range: ₹{min(budget_mins)}-₹{max(budget_mins)}")
+print(f"  Budget max range: ₹{min(budget_maxs)}-₹{max(budget_maxs)}")
+print(f"  Localities ({len(localities)} unique): {localities.most_common(10)}")
 
 # ============================
 # 5. Pairwise Similarity Sample
 # ============================
 
 def similarity_score(u1, u2):
-    """Simple similarity: count matching fields."""
+    """Simple similarity score over frontend fields."""
     score = 0
     total = 0
 
-    # Budget closeness (within 2000)
+    # Budget overlap
     total += 1
-    if abs(u1["preferences"]["budget"] - u2["preferences"]["budget"]) <= 2000:
+    if not (u1["budget_min"] > u2["budget_max"] or u2["budget_min"] > u1["budget_max"]):
         score += 1
 
     # Gender preference match
     total += 1
-    if u1["preferences"]["gender_preference"] == u2["preferences"]["gender_preference"]:
+    g1_ok = u1["gender_preference"] == "any" or u1["gender_preference"] == u2["gender"]
+    g2_ok = u2["gender_preference"] == "any" or u2["gender_preference"] == u1["gender"]
+    if g1_ok and g2_ok:
         score += 1
 
-    # Smoking tolerance
+    # Smoking
     total += 1
-    if u1["preferences"]["smoking_tolerance"] == u2["preferences"]["smoking_tolerance"]:
+    if u1["smoking"] == u2["smoking"]:
         score += 1
 
     # Pets
     total += 1
-    if u1["preferences"]["pets_allowed"] == u2["preferences"]["pets_allowed"]:
+    if u1["pet_friendly"] == u2["pet_friendly"]:
         score += 1
 
-    # Sleep time
+    # Sleep schedule
     total += 1
-    if u1["persona_raw"]["sleep_time"] == u2["persona_raw"]["sleep_time"]:
+    if abs(u1["sleep_schedule"] - u2["sleep_schedule"]) <= 1:
         score += 1
 
     # Cleanliness (within 1)
     total += 1
-    if abs(u1["persona_raw"]["cleanliness_rating"] - u2["persona_raw"]["cleanliness_rating"]) <= 1:
+    if abs(u1["cleanliness"] - u2["cleanliness"]) <= 1:
         score += 1
 
     # Noise tolerance (within 1)
     total += 1
-    if abs(u1["persona_raw"]["noise_tolerance"] - u2["persona_raw"]["noise_tolerance"]) <= 1:
+    if abs(u1["noise_tolerance"] - u2["noise_tolerance"]) <= 1:
         score += 1
 
-    # Introversion (within 1)
+    # Intro/extro (within 1)
     total += 1
-    if abs(u1["persona_raw"]["introversion_score"] - u2["persona_raw"]["introversion_score"]) <= 1:
+    if abs(u1["introversion_extroversion"] - u2["introversion_extroversion"]) <= 1:
         score += 1
 
-    # Same district
+    # Same locality
     total += 1
-    if u1["location"]["area_name"] == u2["location"]["area_name"]:
+    if u1["locality"] == u2["locality"]:
         score += 1
 
     return score, total
@@ -187,8 +213,8 @@ for i, j in sample_pairs:
         continue
     s, t = similarity_score(users[i], users[j])
     pct = s / t * 100
-    name_i = users[i]["profile"]["name"]
-    name_j = users[j]["profile"]["name"]
+    name_i = users[i]["full_name"]
+    name_j = users[j]["full_name"]
     line = f"  {name_i:25s} vs {name_j:25s} → {s}/{t} ({pct:.0f}%)"
     print(line)
     if pct >= 80:
@@ -209,29 +235,47 @@ for _ in range(5000):
     pct = s / t * 100
     pairs_checked += 1
     if pct > best[2]:
-        best = (users[i]["profile"]["name"], users[j]["profile"]["name"], pct)
+        best = (users[i]["full_name"], users[j]["full_name"], pct)
     if pct < worst[2]:
-        worst = (users[i]["profile"]["name"], users[j]["profile"]["name"], pct)
+        worst = (users[i]["full_name"], users[j]["full_name"], pct)
 
 print(f"  Checked {pairs_checked} random pairs")
 print(f"  🔥 Most similar:  {best[0]} & {best[1]} → {best[2]:.0f}%")
 print(f"  ❄️  Least similar: {worst[0]} & {worst[1]} → {worst[2]:.0f}%")
 
 # Check for exact duplicates (identical persona+preferences)
-print(f"\n=== EXACT DUPLICATE CHECK (persona + preferences) ===")
+print(f"\n=== EXACT DUPLICATE CHECK (core compatibility fields) ===")
 fingerprints = {}
 exact_dups = 0
 for u in users:
-    fp = json.dumps({"p": u["preferences"], "r": u["persona_raw"]}, sort_keys=True)
+    fp = json.dumps({
+        "sleep_schedule": u["sleep_schedule"],
+        "cleanliness": u["cleanliness"],
+        "noise_tolerance": u["noise_tolerance"],
+        "cooking_frequency": u["cooking_frequency"],
+        "guest_frequency": u["guest_frequency"],
+        "workout_habit": u["workout_habit"],
+        "introversion_extroversion": u["introversion_extroversion"],
+        "communication_style": u["communication_style"],
+        "conflict_resolution": u["conflict_resolution"],
+        "social_battery": u["social_battery"],
+        "budget_min": u["budget_min"],
+        "budget_max": u["budget_max"],
+        "smoking": u["smoking"],
+        "drinking": u["drinking"],
+        "veg_nonveg": u["veg_nonveg"],
+        "gender_preference": u["gender_preference"],
+        "pet_friendly": u["pet_friendly"],
+    }, sort_keys=True)
     if fp in fingerprints:
         exact_dups += 1
         if exact_dups <= 5:
-            print(f"  ⚠ '{u['profile']['name']}' has same persona+prefs as '{fingerprints[fp]}'")
+            print(f"  ⚠ '{u['full_name']}' has same core profile as '{fingerprints[fp]}'")
     else:
-        fingerprints[fp] = u["profile"]["name"]
+        fingerprints[fp] = u["full_name"]
 
 if exact_dups == 0:
-    print("  ✅ No exact duplicates in persona+preferences!")
+    print("  ✅ No exact duplicates in core compatibility fields!")
 else:
     print(f"  Total exact duplicates: {exact_dups}")
 
