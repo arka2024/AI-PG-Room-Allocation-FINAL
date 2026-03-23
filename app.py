@@ -1,17 +1,17 @@
 """
 CohabitAI - Main Flask Application
-MongoDB-backed roommate matching platform.
+Local JSON-backed roommate matching platform.
 """
 
+import json
 import os
 import uuid
 from datetime import datetime
+from pathlib import Path
+from threading import Lock
 
-from dotenv import load_dotenv
 from flask import Flask, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import LoginManager, UserMixin, current_user, login_required, login_user, logout_user
-from pymongo import MongoClient
-from pymongo.errors import OperationFailure
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from chatbot import generate_conflict_prompts, generate_response
@@ -25,10 +25,7 @@ from compatibility import (
 )
 
 
-load_dotenv()
-
-
-class MongoUser(UserMixin):
+class LocalUser(UserMixin):
     def __init__(self, doc):
         self._doc = dict(doc)
         self.id = str(self._doc.get("_id"))
@@ -110,31 +107,46 @@ class MongoChatMessage:
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "cohabitai-secret-key-2026"
 
-mongo_uri = os.getenv("MONGO_CONNECTION_STRING") or os.getenv("MONGODB_URI")
-if not mongo_uri:
-    raise RuntimeError("Missing MONGO_CONNECTION_STRING or MONGODB_URI in .env")
-
-mongo_db_name = os.getenv("MONGO_DB_NAME", "cohabitai")
-mongo_client = MongoClient(mongo_uri)
-mongo_db = mongo_client[mongo_db_name]
-users_col = mongo_db[os.getenv("MONGO_COLLECTION_NAME", "users")]
-chat_col = mongo_db["chat_messages"]
+USERS_FILE = Path("local_data/users_local_balanced.json")
+_USERS_LOCK = Lock()
 
 
-def _safe_create_index(collection, keys, **kwargs):
-    try:
-        collection.create_index(keys, **kwargs)
-    except OperationFailure:
-        # Keep app startup resilient if index with same name/key exists but options differ.
-        pass
+def _load_users_docs():
+    if not USERS_FILE.exists():
+        USERS_FILE.parent.mkdir(parents=True, exist_ok=True)
+        USERS_FILE.write_text("[]", encoding="utf-8")
+
+    raw = USERS_FILE.read_text(encoding="utf-8")
+    docs = json.loads(raw) if raw.strip() else []
+    if not isinstance(docs, list):
+        raise ValueError(f"{USERS_FILE} must contain a JSON array")
+
+    changed = False
+    for doc in docs:
+        if "_id" not in doc or doc.get("_id") in (None, ""):
+            doc["_id"] = uuid.uuid4().hex
+            changed = True
+        else:
+            doc["_id"] = str(doc.get("_id"))
+    if changed:
+        _write_users_docs(docs)
+    return docs
 
 
-# Indexes for fast login and filtering.
-_safe_create_index(users_col, "email", unique=True, sparse=True)
-_safe_create_index(users_col, "is_looking")
-_safe_create_index(users_col, "city")
-_safe_create_index(users_col, "locality")
-_safe_create_index(chat_col, [("user_id", 1), ("created_at", 1)])
+def _write_users_docs(docs):
+    payload = json.dumps(docs, ensure_ascii=False, indent=2)
+    USERS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    USERS_FILE.write_text(payload, encoding="utf-8")
+
+
+def _with_users_docs(mutator=None):
+    with _USERS_LOCK:
+        docs = _load_users_docs()
+        if mutator is None:
+            return docs
+        updated = mutator(docs)
+        _write_users_docs(docs)
+        return updated
 
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
@@ -158,27 +170,36 @@ def _as_float(value, default=None):
 def _to_user(doc):
     if not doc:
         return None
-    return MongoUser(doc)
+    return LocalUser(doc)
 
 
 def get_user_by_id(user_id):
-    return _to_user(users_col.find_one({"_id": str(user_id)}))
+    target_id = str(user_id)
+    docs = _with_users_docs()
+    doc = next((d for d in docs if str(d.get("_id")) == target_id), None)
+    return _to_user(doc)
 
 
 def get_user_by_email(email):
-    return _to_user(users_col.find_one({"email": email}))
+    email_norm = (email or "").strip().lower()
+    docs = _with_users_docs()
+    doc = next((d for d in docs if (d.get("email") or "").strip().lower() == email_norm), None)
+    return _to_user(doc)
 
 
 def get_all_active_users(exclude_user_id=None):
-    query = {
-        "is_looking": True,
-        "$nor": [
-            {"full_name": "Test User"},
-            {"email": {"$regex": r"^test_.*@example\.com$"}},
-        ],
-    }
-    docs = list(users_col.find(query))
-    users = [_to_user(d) for d in docs]
+    docs = _with_users_docs()
+    users = []
+    for d in docs:
+        if not d.get("is_looking", True):
+            continue
+        if d.get("full_name") == "Test User":
+            continue
+        email = (d.get("email") or "").lower()
+        if email.startswith("test_") and email.endswith("@example.com"):
+            continue
+        users.append(_to_user(d))
+
     if exclude_user_id is not None:
         users = [u for u in users if u and str(u.id) != str(exclude_user_id)]
     return [u for u in users if u]
@@ -212,8 +233,16 @@ def discover_candidates_by_location(query_user, users, radius_km=20.0):
 
 
 def upsert_user_profile(user_id, payload):
-    users_col.update_one({"_id": str(user_id)}, {"$set": payload}, upsert=False)
-    return get_user_by_id(user_id)
+    target_id = str(user_id)
+
+    def _mutate(docs):
+        for doc in docs:
+            if str(doc.get("_id")) == target_id:
+                doc.update(payload)
+                return _to_user(doc)
+        return None
+
+    return _with_users_docs(_mutate)
 
 
 def create_user_from_form(form):
@@ -261,17 +290,53 @@ def create_user_from_form(form):
         "avatar_url": None,
         "profile_complete": True,
         "is_looking": True,
-        "created_at": datetime.utcnow(),
-        "updated_at": datetime.utcnow(),
+        "created_at": datetime.utcnow().isoformat(),
+        "updated_at": datetime.utcnow().isoformat(),
         "source": "app_signup",
     }
-    users_col.insert_one(user_doc)
-    return get_user_by_id(user_id)
+
+    def _mutate(docs):
+        docs.append(user_doc)
+        return _to_user(user_doc)
+
+    return _with_users_docs(_mutate)
 
 
 def get_chat_history(user_id, limit=50):
-    docs = list(chat_col.find({"user_id": str(user_id)}).sort("created_at", 1).limit(limit))
-    return [MongoChatMessage(d) for d in docs]
+    target_id = str(user_id)
+    docs = _with_users_docs()
+    user_doc = next((d for d in docs if str(d.get("_id")) == target_id), None)
+    if not user_doc:
+        return []
+
+    chat_docs = user_doc.get("_chat_messages", [])
+    if not isinstance(chat_docs, list):
+        return []
+
+    chat_docs = sorted(chat_docs, key=lambda x: x.get("created_at", ""))[-limit:]
+    return [MongoChatMessage(d) for d in chat_docs]
+
+
+def append_chat_message(user_id, role, message):
+    target_id = str(user_id)
+    chat_doc = {
+        "_id": uuid.uuid4().hex,
+        "user_id": target_id,
+        "role": role,
+        "message": message,
+        "created_at": datetime.utcnow().isoformat(),
+    }
+
+    def _mutate(docs):
+        for doc in docs:
+            if str(doc.get("_id")) == target_id:
+                if not isinstance(doc.get("_chat_messages"), list):
+                    doc["_chat_messages"] = []
+                doc["_chat_messages"].append(chat_doc)
+                return True
+        return False
+
+    return _with_users_docs(_mutate)
 
 
 @login_manager.user_loader
@@ -413,7 +478,7 @@ def edit_profile():
             "gender_preference": request.form.get("gender_preference", "any"),
             "interests": [i.strip() for i in request.form.get("interests", "").split(",") if i.strip()],
             "profile_complete": True,
-            "updated_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow().isoformat(),
         }
 
         lat = _as_float(request.form.get("latitude"))
@@ -562,27 +627,11 @@ def api_chat():
     if not message:
         return jsonify({"response": "Please type a message."})
 
-    chat_col.insert_one(
-        {
-            "_id": uuid.uuid4().hex,
-            "user_id": str(current_user.id),
-            "role": "user",
-            "message": message,
-            "created_at": datetime.utcnow(),
-        }
-    )
+    append_chat_message(current_user.id, "user", message)
 
     response = generate_response(message, user=current_user)
 
-    chat_col.insert_one(
-        {
-            "_id": uuid.uuid4().hex,
-            "user_id": str(current_user.id),
-            "role": "bot",
-            "message": response,
-            "created_at": datetime.utcnow(),
-        }
-    )
+    append_chat_message(current_user.id, "bot", response)
 
     return jsonify({"response": response})
 
