@@ -33,7 +33,7 @@ SEARCH_TIPS = [
     "🔍 **Search Tip:** Use the Compare Tool to see exactly where you align and differ with potential matches. Focus on the top conflicts — those are your deal-breakers.",
     "🔍 **Search Tip:** Filter by gender preference and smoking habits first (hard constraints), then sort by compatibility score for the best results.",
     "🔍 **Search Tip:** Don't dismiss scores in the 70-80% range! Perfect matches are rare. Focus on whether the top conflicts are things you can compromise on.",
-    "🔍 **Search Tip:** Check the reviews section for candidates. Past roommate experiences are a great predictor of future compatibility.",
+    "🔍 **Search Tip:** Use discover filters to narrow by hard constraints first, then check profile details before shortlisting.",
 ]
 
 CONFLICT_DISCUSSION_TEMPLATES = {
@@ -91,7 +91,6 @@ INTENT_PATTERNS = {
     'search_help': r'\b(search|find|look|discover|match|score|low|result|filter|radius)\b',
     'compare_help': r'\b(compare|comparison|difference|overlap|conflict|versus|vs|heatmap)\b',
     'how_it_works': r'\b(how|algorithm|work|score|calculate|weight|cosine|formula|about|explain)\b',
-    'review_help': r'\b(review|rating|rate|feedback|experience|recommend)\b',
     'map_help': r'\b(map|location|area|geo|spatial|nearby|radius|distance|km)\b',
     'budget': r'\b(budget|cost|price|rent|afford|cheap|expensive|money)\b',
     'farewell': r'\b(bye|goodbye|thanks|thank|see\s*you|later|quit|exit)\b',
@@ -141,18 +140,11 @@ def generate_response(message: str, user=None, context=None) -> str:
     elif intent == 'how_it_works':
         return random.choice(ABOUT_RESPONSES)
 
-    elif intent == 'review_help':
-        response = "⭐ **Review System:** After living with someone, leave a review rating them on:\n"
-        response += "• Overall experience (1-5 stars)\n"
-        response += "• Cleanliness, Communication, Respect, Reliability\n\n"
-        response += "Reviews help future users make better decisions, and users with good reviews rank higher in search results!"
-        return response
-
     elif intent == 'map_help':
-        response = "🗺️ **Geo-Spatial Discovery:** Our map shows potential roommates near you.\n"
+        response = "🗺️ **Geo-Spatial Discovery:** Discover shows potential roommates near your preferred PG location.\n"
         response += "• Set your preferred search radius (1-50 km)\n"
-        response += "• Pins are color-coded by compatibility score\n"
-        response += "• Click any pin to see their mini-profile and score\n\n"
+        response += "• Open each pin to view quick profile details and distance\n"
+        response += "• Combine map view with filters for better shortlists\n\n"
         response += "Make sure your location is set in your profile for accurate results!"
         return response
 
@@ -181,7 +173,6 @@ def generate_response(message: str, user=None, context=None) -> str:
             "• **Search advice** — Ask: 'How do I find better matches?'\n"
             "• **Compare tool** — Ask: 'How does the compare tool work?'\n"
             "• **How it works** — Ask: 'How is compatibility calculated?'\n"
-            "• **Reviews** — Ask: 'How do reviews work?'\n"
             "• **Map search** — Ask: 'How does the map work?'\n"
             "• **Budget** — Ask: 'How does budget matching work?'\n"
             "• **Conflicts** — Ask: 'How to handle roommate conflicts?'\n"

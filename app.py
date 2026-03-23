@@ -28,37 +28,6 @@ from compatibility import (
 load_dotenv()
 
 
-class SimpleQuery:
-    """Small chainable query wrapper for template compatibility."""
-
-    def __init__(self, items):
-        self.items = list(items)
-
-    def count(self):
-        return len(self.items)
-
-    def order_by(self, _):
-        self.items = sorted(self.items, key=lambda x: x.created_at, reverse=True)
-        return self
-
-    def limit(self, n):
-        self.items = self.items[:n]
-        return self
-
-    def all(self):
-        return self.items
-
-
-class ReviewSortShim:
-    class created_at:
-        @staticmethod
-        def desc():
-            return "created_at_desc"
-
-
-Review = ReviewSortShim
-
-
 class MongoUser(UserMixin):
     def __init__(self, doc):
         self._doc = dict(doc)
@@ -127,37 +96,6 @@ class MongoUser(UserMixin):
     def set_interests_list(self, lst):
         self._doc["interests"] = lst
 
-    @property
-    def reviews_received(self):
-        items = list(reviews_col.find({"reviewed_id": self.id}).sort("created_at", -1))
-        mapped = [MongoReview(r) for r in items]
-        return SimpleQuery(mapped)
-
-    def get_avg_rating(self):
-        ratings = [r.overall_rating for r in self.reviews_received.all() if r.overall_rating is not None]
-        if not ratings:
-            return None
-        return round(sum(ratings) / len(ratings), 1)
-
-
-class MongoReview:
-    def __init__(self, doc):
-        self._doc = dict(doc)
-        self.id = str(self._doc.get("_id"))
-        self.reviewer_id = str(self._doc.get("reviewer_id"))
-        self.reviewed_id = str(self._doc.get("reviewed_id"))
-        self.overall_rating = self._doc.get("overall_rating")
-        self.cleanliness_rating = self._doc.get("cleanliness_rating")
-        self.communication_rating = self._doc.get("communication_rating")
-        self.respect_rating = self._doc.get("respect_rating")
-        self.reliability_rating = self._doc.get("reliability_rating")
-        self.comment = self._doc.get("comment")
-        self.duration_months = self._doc.get("duration_months")
-        self.would_recommend = bool(self._doc.get("would_recommend", True))
-        self.created_at = self._doc.get("created_at") or datetime.utcnow()
-        self.reviewer = get_user_by_id(self.reviewer_id)
-        self.reviewed = get_user_by_id(self.reviewed_id)
-
 
 class MongoChatMessage:
     def __init__(self, doc):
@@ -180,7 +118,6 @@ mongo_db_name = os.getenv("MONGO_DB_NAME", "cohabitai")
 mongo_client = MongoClient(mongo_uri)
 mongo_db = mongo_client[mongo_db_name]
 users_col = mongo_db[os.getenv("MONGO_COLLECTION_NAME", "users")]
-reviews_col = mongo_db["reviews"]
 chat_col = mongo_db["chat_messages"]
 
 
@@ -197,7 +134,6 @@ _safe_create_index(users_col, "email", unique=True, sparse=True)
 _safe_create_index(users_col, "is_looking")
 _safe_create_index(users_col, "city")
 _safe_create_index(users_col, "locality")
-_safe_create_index(reviews_col, [("reviewed_id", 1), ("created_at", -1)])
 _safe_create_index(chat_col, [("user_id", 1), ("created_at", 1)])
 
 login_manager = LoginManager(app)
@@ -246,6 +182,33 @@ def get_all_active_users(exclude_user_id=None):
     if exclude_user_id is not None:
         users = [u for u in users if u and str(u.id) != str(exclude_user_id)]
     return [u for u in users if u]
+
+
+def discover_candidates_by_location(query_user, users, radius_km=20.0):
+    """Geospatial-first discovery based on preferred PG location only."""
+    origin_lat, origin_lng = query_user.latitude, query_user.longitude
+
+    if origin_lat is None or origin_lng is None:
+        return []
+
+    discovered = []
+    for user in users:
+        target_lat, target_lng = user.latitude, user.longitude
+
+        if target_lat is None or target_lng is None:
+            continue
+
+        dist = haversine_distance(origin_lat, origin_lng, target_lat, target_lng)
+        if radius_km is not None and dist > radius_km:
+            continue
+
+        discovered.append({
+            "user": user,
+            "distance_km": round(dist, 1),
+        })
+
+    discovered.sort(key=lambda x: x["distance_km"])
+    return discovered
 
 
 def upsert_user_profile(user_id, payload):
@@ -304,11 +267,6 @@ def create_user_from_form(form):
     }
     users_col.insert_one(user_doc)
     return get_user_by_id(user_id)
-
-
-def get_recent_reviews(limit=20):
-    docs = list(reviews_col.find().sort("created_at", -1).limit(limit))
-    return [MongoReview(d) for d in docs]
 
 
 def get_chat_history(user_id, limit=50):
@@ -413,16 +371,12 @@ def profile_view(user_id):
         )
         constraint_issues = check_hard_constraints(current_user, user)
 
-    recent_reviews = user.reviews_received.limit(5).all()
     return render_template(
         "profile.html",
         user=user,
         feature_vector=feature_vector,
         compatibility_score=compatibility_score,
         constraint_issues=constraint_issues,
-        review_model=Review,
-        recent_reviews=recent_reviews,
-        reviews_count=user.reviews_received.count(),
     )
 
 
@@ -485,36 +439,34 @@ def edit_profile():
 @app.route("/map")
 @login_required
 def map_view():
-    return render_template("map.html")
+    return redirect(url_for("search_view"))
 
 
 @app.route("/search")
 @login_required
 def search_view():
     all_users = get_all_active_users(exclude_user_id=current_user.id)
-
     gender = request.args.get("gender")
     occupation = request.args.get("occupation")
     smoking = request.args.get("smoking")
     veg_nonveg = request.args.get("veg_nonveg")
     max_distance = request.args.get("max_distance")
-    min_score = request.args.get("min_score")
+    radius = _as_float(max_distance, 20.0)
 
+    # Step 1: geospatial discovery first.
+    discovered = discover_candidates_by_location(current_user, all_users, radius_km=radius)
+
+    # Step 2: apply filters on discovered candidates.
     if gender:
-        all_users = [u for u in all_users if u.gender == gender]
+        discovered = [d for d in discovered if d["user"].gender == gender]
     if occupation:
-        all_users = [u for u in all_users if u.occupation == occupation]
+        discovered = [d for d in discovered if d["user"].occupation == occupation]
     if smoking:
-        all_users = [u for u in all_users if u.smoking == smoking]
+        discovered = [d for d in discovered if d["user"].smoking == smoking]
     if veg_nonveg:
-        all_users = [u for u in all_users if u.veg_nonveg == veg_nonveg]
+        discovered = [d for d in discovered if d["user"].veg_nonveg == veg_nonveg]
 
-    radius = _as_float(max_distance)
-    results = rank_users_by_compatibility(current_user, all_users, radius_km=radius)
-
-    if min_score:
-        min_score_val = _as_float(min_score, 0)
-        results = [r for r in results if r["score"] >= min_score_val]
+    results = discovered
 
     return render_template("search.html", results=results)
 
@@ -563,52 +515,6 @@ def compare_view():
     )
 
 
-@app.route("/reviews")
-@login_required
-def reviews_view():
-    all_users = [u for u in get_all_active_users() if str(u.id) != str(current_user.id)]
-    reviews = get_recent_reviews(limit=20)
-    return render_template("reviews.html", all_users=all_users, reviews=reviews)
-
-
-@app.route("/reviews/write/<user_id>")
-@login_required
-def write_review(user_id):
-    all_users = [u for u in get_all_active_users() if str(u.id) != str(current_user.id)]
-    reviews = get_recent_reviews(limit=20)
-    return render_template("reviews.html", all_users=all_users, reviews=reviews)
-
-
-@app.route("/reviews/submit", methods=["POST"])
-@login_required
-def submit_review():
-    reviewed_id = request.form.get("reviewed_id")
-    overall_rating = _as_float(request.form.get("overall_rating"))
-
-    if not reviewed_id or not overall_rating:
-        flash("Please select a user and provide an overall rating.", "error")
-        return redirect(url_for("reviews_view"))
-
-    review_doc = {
-        "_id": uuid.uuid4().hex,
-        "reviewer_id": str(current_user.id),
-        "reviewed_id": str(reviewed_id),
-        "overall_rating": overall_rating,
-        "cleanliness_rating": _as_float(request.form.get("cleanliness_rating")),
-        "communication_rating": _as_float(request.form.get("communication_rating")),
-        "respect_rating": _as_float(request.form.get("respect_rating")),
-        "reliability_rating": _as_float(request.form.get("reliability_rating")),
-        "comment": request.form.get("comment", "").strip(),
-        "duration_months": _as_int(request.form.get("duration_months"), 0) or None,
-        "would_recommend": bool(request.form.get("would_recommend")),
-        "created_at": datetime.utcnow(),
-    }
-
-    reviews_col.insert_one(review_doc)
-    flash("Review submitted successfully!", "success")
-    return redirect(url_for("reviews_view"))
-
-
 @app.route("/chatbot")
 @login_required
 def chatbot_view():
@@ -620,43 +526,16 @@ def chatbot_view():
 @login_required
 def api_map_search():
     radius = request.args.get("radius", 10, type=float)
-    min_score = request.args.get("min_score", 0, type=float)
-    location_mode = (request.args.get("location_mode") or "preferred_pg").strip().lower()
-    if location_mode not in ("preferred_pg", "home"):
-        location_mode = "preferred_pg"
 
     all_users = get_all_active_users(exclude_user_id=current_user.id)
 
-    if location_mode == "home":
-        query_lat, query_lng = current_user.home_latitude, current_user.home_longitude
-        all_users = [u for u in all_users if u.home_latitude is not None and u.home_longitude is not None]
-    else:
-        query_lat, query_lng = current_user.latitude, current_user.longitude
-        all_users = [u for u in all_users if u.latitude is not None and u.longitude is not None]
-
+    discovered = discover_candidates_by_location(current_user, all_users, radius_km=radius)
     results = []
-    query_vec = current_user.get_feature_vector()
-
-    for user in all_users:
-        if query_lat is None or query_lng is None:
-            continue
-
-        if location_mode == "home":
-            target_lat, target_lng = user.home_latitude, user.home_longitude
-            target_city = user.home_city or user.city or ""
-            target_locality = user.home_locality or user.locality or ""
-        else:
-            target_lat, target_lng = user.latitude, user.longitude
-            target_city = user.city or ""
-            target_locality = user.locality or ""
-
-        dist = haversine_distance(query_lat, query_lng, target_lat, target_lng)
-        if dist > radius:
-            continue
-
-        score = compute_compatibility(query_vec, user.get_feature_vector(), current_user.bio or "", user.bio or "")
-        if score < min_score:
-            continue
+    for item in discovered:
+        user = item["user"]
+        target_lat, target_lng = user.latitude, user.longitude
+        target_city = user.city or ""
+        target_locality = user.locality or ""
 
         results.append(
             {
@@ -667,13 +546,10 @@ def api_map_search():
                 "locality": target_locality,
                 "lat": target_lat,
                 "lng": target_lng,
-                "score": score,
-                "distance": round(dist, 1),
-                "location_mode": location_mode,
+                "distance": item["distance_km"],
             }
         )
 
-    results.sort(key=lambda x: x["score"], reverse=True)
     return jsonify({"results": results})
 
 

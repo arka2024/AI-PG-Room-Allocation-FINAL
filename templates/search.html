@@ -4,6 +4,9 @@
 {% block content %}
 <section class="py-5" style="margin-top:70px;">
     <div class="container">
+        <div class="glass-card p-3 mb-4">
+            <div id="discover-map" style="height:360px; border-radius:12px;"></div>
+        </div>
         <div class="row g-4">
             <!-- Filters -->
             <div class="col-lg-3">
@@ -47,11 +50,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label small fw-semibold">Max Distance (km)</label>
-                            <input type="number" name="max_distance" class="form-control glass-input form-control-sm" value="{{ request.args.get('max_distance', '') }}" placeholder="No limit">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-semibold">Min Score (%)</label>
-                            <input type="number" name="min_score" class="form-control glass-input form-control-sm" value="{{ request.args.get('min_score', '') }}" placeholder="0" min="0" max="100">
+                            <input type="number" name="max_distance" class="form-control glass-input form-control-sm" value="{{ request.args.get('max_distance', '20') }}" placeholder="20" min="1">
                         </div>
                         <button type="submit" class="btn btn-accent w-100 btn-sm">
                             <i class="bi bi-search me-1"></i>Search
@@ -66,13 +65,13 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="fw-bold mb-0">
                         <i class="bi bi-search-heart text-accent me-2"></i>
-                        AI-Ranked Matches
+                        Discover Nearby Roommates
                         <span class="badge bg-secondary ms-2">{{ results|length }}</span>
                     </h4>
                     <div class="d-flex gap-2">
                         <select id="sortSelect" class="form-select glass-input form-select-sm" style="width:auto;" onchange="sortResults(this.value)">
-                            <option value="score">Sort by Score</option>
                             <option value="distance">Sort by Distance</option>
+                            <option value="age">Sort by Age</option>
                         </select>
                     </div>
                 </div>
@@ -80,7 +79,7 @@
                 {% if results %}
                 <div class="row g-3" id="resultsContainer">
                     {% for match in results %}
-                    <div class="col-md-6 result-card" data-score="{{ match.score }}" data-distance="{{ match.distance_km or 9999 }}">
+                    <div class="col-md-6 result-card" data-distance="{{ match.distance_km or 9999 }}" data-age="{{ match.user.age or 999 }}">
                         <div class="glass-card p-4 h-100 search-result-card">
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div class="d-flex align-items-center gap-3">
@@ -96,11 +95,8 @@
                                     </div>
                                 </div>
                                 <div class="text-center">
-                                    <span class="badge fs-5 bg-{{ 'success' if match.score >= 85 else 'warning text-dark' if match.score >= 70 else 'danger' }}">
-                                        {{ match.score }}%
-                                    </span>
                                     {% if match.distance_km is not none %}
-                                    <br><small class="text-muted">{{ match.distance_km }}km</small>
+                                    <span class="badge fs-6 bg-info text-dark">{{ match.distance_km }} km</span>
                                     {% endif %}
                                 </div>
                             </div>
@@ -124,15 +120,11 @@
                                 <span class="badge bg-secondary bg-opacity-25 small">🚬 {{ match.user.smoking or 'N/A' }}</span>
                                 <span class="badge bg-secondary bg-opacity-25 small">🍽️ {{ match.user.veg_nonveg or 'N/A' }}</span>
                                 {% if match.user.pet_friendly %}<span class="badge bg-secondary bg-opacity-25 small">🐾 Pet OK</span>{% endif %}
-                                {% if match.user.get_avg_rating() %}<span class="badge bg-secondary bg-opacity-25 small">⭐ {{ match.user.get_avg_rating() }}</span>{% endif %}
                             </div>
 
                             <div class="d-flex gap-2">
                                 <a href="{{ url_for('profile_view', user_id=match.user.id) }}" class="btn btn-outline-accent btn-sm flex-grow-1">
                                     <i class="bi bi-person me-1"></i>Profile
-                                </a>
-                                <a href="{{ url_for('compare_view') }}?user1={{ current_user.id }}&user2={{ match.user.id }}" class="btn btn-outline-secondary btn-sm">
-                                    <i class="bi bi-bar-chart-line"></i>
                                 </a>
                             </div>
                         </div>
@@ -154,14 +146,51 @@
 
 {% block extra_js %}
 <script>
+const userLat = {{ current_user.latitude or 20.2961 }};
+const userLng = {{ current_user.longitude or 85.8245 }};
+const initialRadius = {{ request.args.get('max_distance', '20') | int }};
+
+const discoverMap = L.map('discover-map').setView([userLat, userLng], 12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+}).addTo(discoverMap);
+
+L.marker([userLat, userLng]).addTo(discoverMap).bindPopup('<strong>Your Preferred PG Location</strong>');
+
+fetch(`/api/map-search?radius=${initialRadius}`)
+    .then((res) => res.json())
+    .then((data) => {
+        const markerPoints = [];
+        data.results.forEach((u) => {
+            if (u.lat == null || u.lng == null) return;
+            markerPoints.push([u.lat, u.lng]);
+            L.circleMarker([u.lat, u.lng], {
+                radius: 8,
+                fillColor: '#22c55e',
+                color: '#fff',
+                weight: 2,
+                fillOpacity: 0.9,
+            }).addTo(discoverMap).bindPopup(
+                `<strong>${u.name}</strong><br>${u.occupation}<br>${u.distance} km away`
+            );
+        });
+
+        if (markerPoints.length) {
+            const bounds = L.latLngBounds(markerPoints);
+            bounds.extend([userLat, userLng]);
+            discoverMap.fitBounds(bounds.pad(0.2));
+        }
+    });
+
 function sortResults(by) {
     const container = document.getElementById('resultsContainer');
+    if (!container) return;
     const cards = Array.from(container.querySelectorAll('.result-card'));
     cards.sort((a, b) => {
-        if (by === 'distance') {
-            return parseFloat(a.dataset.distance) - parseFloat(b.dataset.distance);
+        if (by === 'age') {
+            return parseFloat(a.dataset.age) - parseFloat(b.dataset.age);
         }
-        return parseFloat(b.dataset.score) - parseFloat(a.dataset.score);
+        return parseFloat(a.dataset.distance) - parseFloat(b.dataset.distance);
     });
     cards.forEach(card => container.appendChild(card));
 }

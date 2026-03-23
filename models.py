@@ -65,10 +65,6 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Relationships
-    reviews_given = db.relationship('Review', foreign_keys='Review.reviewer_id', backref='reviewer', lazy='dynamic')
-    reviews_received = db.relationship('Review', foreign_keys='Review.reviewed_id', backref='reviewed', lazy='dynamic')
-
     def get_interests_list(self):
         if self.interests:
             return json.loads(self.interests)
@@ -92,38 +88,8 @@ class User(UserMixin, db.Model):
             'social_battery': self.social_battery or 3,
         }
 
-    def get_avg_rating(self):
-        reviews = self.reviews_received.all()
-        if not reviews:
-            return None
-        return round(sum(r.overall_rating for r in reviews) / len(reviews), 1)
-
     def __repr__(self):
         return f'<User {self.full_name}>'
-
-
-class Review(db.Model):
-    """User-to-user review/rating after cohabitation experience."""
-    __tablename__ = 'reviews'
-
-    id = db.Column(db.Integer, primary_key=True)
-    reviewer_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    reviewed_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-
-    overall_rating = db.Column(db.Float, nullable=False)       # 1-5
-    cleanliness_rating = db.Column(db.Float, nullable=True)
-    communication_rating = db.Column(db.Float, nullable=True)
-    respect_rating = db.Column(db.Float, nullable=True)
-    reliability_rating = db.Column(db.Float, nullable=True)
-
-    comment = db.Column(db.Text, nullable=True)
-    duration_months = db.Column(db.Integer, nullable=True)  # how long they lived together
-    would_recommend = db.Column(db.Boolean, default=True)
-
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-    def __repr__(self):
-        return f'<Review {self.reviewer_id}->{self.reviewed_id}: {self.overall_rating}>'
 
 
 class ChatMessage(db.Model):

@@ -30,18 +30,6 @@
                     </div>
                     {% endif %}
 
-                    {% if user.get_avg_rating() %}
-                    <div class="mb-3">
-                        <span class="text-warning">
-                            {% for i in range(5) %}
-                            <i class="bi bi-star{{ '-fill' if i < user.get_avg_rating()|int else '-half' if i < user.get_avg_rating() else '' }}"></i>
-                            {% endfor %}
-                        </span>
-                        <span class="ms-1">{{ user.get_avg_rating() }}/5</span>
-                        <small class="text-muted">({{ user.reviews_received.count() }} reviews)</small>
-                    </div>
-                    {% endif %}
-
                     {% if user.bio %}
                     <p class="text-muted small mb-3">{{ user.bio }}</p>
                     {% endif %}
@@ -97,38 +85,9 @@
                 </div>
                 {% endif %}
 
-                <!-- Reviews Section -->
                 <div class="glass-card p-4">
-                    <h5 class="fw-bold mb-3"><i class="bi bi-star me-2"></i>Reviews ({{ reviews_count }})</h5>
-                    {% if recent_reviews %}
-                    {% for review in recent_reviews %}
-                    <div class="border-bottom border-secondary border-opacity-25 pb-3 mb-3">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <strong>{{ review.reviewer.full_name }}</strong>
-                                <span class="text-warning ms-2">
-                                    {% for i in range(review.overall_rating|int) %}⭐{% endfor %}
-                                </span>
-                            </div>
-                            <small class="text-muted">{{ review.created_at.strftime('%b %Y') }}</small>
-                        </div>
-                        {% if review.comment %}
-                        <p class="text-muted small mt-1 mb-0">{{ review.comment }}</p>
-                        {% endif %}
-                        {% if review.duration_months %}
-                        <small class="text-muted">Lived together: {{ review.duration_months }} months</small>
-                        {% endif %}
-                    </div>
-                    {% endfor %}
-                    {% else %}
-                    <p class="text-muted text-center py-3">No reviews yet.</p>
-                    {% endif %}
-
-                    {% if current_user.is_authenticated and current_user.id != user.id %}
-                    <a href="{{ url_for('write_review', user_id=user.id) }}" class="btn btn-outline-accent btn-sm">
-                        <i class="bi bi-pencil me-1"></i>Write a Review
-                    </a>
-                    {% endif %}
+                    <h5 class="fw-bold mb-3"><i class="bi bi-lightning-charge me-2"></i>Compatibility Snapshot</h5>
+                    <p class="text-muted mb-0">Use the compare tool for a deeper side-by-side breakdown of routines, preferences, and likely conflict areas before you connect.</p>
                 </div>
             </div>
         </div>

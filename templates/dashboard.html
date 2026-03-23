@@ -40,16 +40,16 @@
             </div>
             <div class="col-6 col-md-3">
                 <div class="glass-card p-3 text-center h-100">
-                    <i class="bi bi-star-fill text-warning display-6"></i>
-                    <h4 class="fw-bold mt-2 mb-0">{{ current_user.get_avg_rating() or 'N/A' }}</h4>
-                    <small class="text-muted">Your Rating</small>
+                    <i class="bi bi-person-check-fill text-warning display-6"></i>
+                    <h4 class="fw-bold mt-2 mb-0">{{ 'Yes' if current_user.profile_complete else 'No' }}</h4>
+                    <small class="text-muted">Profile Complete</small>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="glass-card p-3 text-center h-100">
-                    <i class="bi bi-chat-quote-fill text-info display-6"></i>
-                    <h4 class="fw-bold mt-2 mb-0">{{ current_user.reviews_received.count() }}</h4>
-                    <small class="text-muted">Reviews Received</small>
+                    <i class="bi bi-wallet2 text-info display-6"></i>
+                    <h4 class="fw-bold mt-2 mb-0">₹{{ current_user.budget_min or '?' }}-₹{{ current_user.budget_max or '?' }}</h4>
+                    <small class="text-muted">Budget Window</small>
                 </div>
             </div>
             <div class="col-6 col-md-3">
@@ -162,11 +162,11 @@
         <!-- Quick Actions -->
         <div class="row g-3 mt-3">
             <div class="col-md-3">
-                <a href="{{ url_for('map_view') }}" class="glass-card p-3 d-flex align-items-center gap-3 text-decoration-none text-white quick-action">
+                <a href="{{ url_for('search_view') }}" class="glass-card p-3 d-flex align-items-center gap-3 text-decoration-none text-white quick-action">
                     <i class="bi bi-geo-alt-fill text-success fs-3"></i>
                     <div>
-                        <strong>Explore Map</strong>
-                        <br><small class="text-muted">Find nearby roommates</small>
+                        <strong>Discover</strong>
+                        <br><small class="text-muted">Map + filtered discovery</small>
                     </div>
                 </a>
             </div>
@@ -176,15 +176,6 @@
                     <div>
                         <strong>Compare Tool</strong>
                         <br><small class="text-muted">Side-by-side analysis</small>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-3">
-                <a href="{{ url_for('reviews_view') }}" class="glass-card p-3 d-flex align-items-center gap-3 text-decoration-none text-white quick-action">
-                    <i class="bi bi-star-fill text-warning fs-3"></i>
-                    <div>
-                        <strong>Reviews</strong>
-                        <br><small class="text-muted">Read & write reviews</small>
                     </div>
                 </a>
             </div>
