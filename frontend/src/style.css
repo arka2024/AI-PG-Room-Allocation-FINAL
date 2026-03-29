@@ -99,6 +99,11 @@ body {
 }
 .glass-input::placeholder { color: var(--text-muted) !important; }
 
+select.glass-input option {
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+}
+
 .glass-alert {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--border-subtle);

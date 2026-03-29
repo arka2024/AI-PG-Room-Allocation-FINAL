@@ -21135,7 +21135,121 @@
     "updated_at": "2026-03-23T17:15:35.150084",
     "preferred_location_source": "balanced_odisha",
     "home_city": "Kolkata",
-    "home_locality": "Thakurpukur"
+    "home_locality": "Thakurpukur",
+    "_chat_messages": [
+      {
+        "_id": "2c0d018be065401db5424868289931b4",
+        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
+        "role": "user",
+        "message": "doofs=us",
+        "created_at": "2026-03-29T15:55:52.431356"
+      },
+      {
+        "_id": "c9ca933361fa4277804af20e36d918a4",
+        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
+        "role": "bot",
+        "message": "I'm not sure I understand that. Here's what I can help with:\n\n• **Profile tips** — Ask: 'How can I improve my profile?'\n• **Search advice** — Ask: 'How do I find better matches?'\n• **Compare tool** — Ask: 'How does the compare tool work?'\n• **How it works** — Ask: 'How is compatibility calculated?'\n• **Map search** — Ask: 'How does the map work?'\n• **Budget** — Ask: 'How does budget matching work?'\n• **Conflicts** — Ask: 'How to handle roommate conflicts?'\n",
+        "created_at": "2026-03-29T15:55:52.482046"
+      },
+      {
+        "_id": "ff49cc1225304a3f841c63bea7a855ea",
+        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
+        "role": "user",
+        "message": "nogga",
+        "created_at": "2026-03-29T15:55:54.732478"
+      },
+      {
+        "_id": "42bc201d95f54c129fdb434cd3468496",
+        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
+        "role": "bot",
+        "message": "I'm not sure I understand that. Here's what I can help with:\n\n• **Profile tips** — Ask: 'How can I improve my profile?'\n• **Search advice** — Ask: 'How do I find better matches?'\n• **Compare tool** — Ask: 'How does the compare tool work?'\n• **How it works** — Ask: 'How is compatibility calculated?'\n• **Map search** — Ask: 'How does the map work?'\n• **Budget** — Ask: 'How does budget matching work?'\n• **Conflicts** — Ask: 'How to handle roommate conflicts?'\n",
+        "created_at": "2026-03-29T15:55:54.799159"
+      },
+      {
+        "_id": "9766d38923994010a9612255ebd164d7",
+        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
+        "role": "user",
+        "message": "nigga",
+        "created_at": "2026-03-29T15:55:56.072049"
+      },
+      {
+        "_id": "087eacf1c7ce48289493cfc2f4342e69",
+        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
+        "role": "bot",
+        "message": "I'm not sure I understand that. Here's what I can help with:\n\n• **Profile tips** — Ask: 'How can I improve my profile?'\n• **Search advice** — Ask: 'How do I find better matches?'\n• **Compare tool** — Ask: 'How does the compare tool work?'\n• **How it works** — Ask: 'How is compatibility calculated?'\n• **Map search** — Ask: 'How does the map work?'\n• **Budget** — Ask: 'How does budget matching work?'\n• **Conflicts** — Ask: 'How to handle roommate conflicts?'\n",
+        "created_at": "2026-03-29T15:55:56.134288"
+      },
+      {
+        "_id": "2ad00e4d263a4c3d817feca22b2ed148",
+        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
+        "role": "user",
+        "message": "Profile tips",
+        "created_at": "2026-03-29T15:55:59.282568"
+      },
+      {
+        "_id": "dcdcf462d7a04065a57ce81adbec05b6",
+        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
+        "role": "bot",
+        "message": "📝 **Profile Tip:** Be honest about your habits! Stretching the truth on cleanliness or noise tolerance leads to conflicts later. Accurate data = better matches.\n\n✅ Your profile looks complete! Great job — you'll get the most accurate matches.",
+        "created_at": "2026-03-29T15:55:59.332338"
+      },
+      {
+        "_id": "bbddf8ccce8b4f178a4d7c15e415dd6a",
+        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
+        "role": "user",
+        "message": "How do I find",
+        "created_at": "2026-03-29T15:56:04.314477"
+      },
+      {
+        "_id": "46f56fc88c5f471bb0d399289426e183",
+        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
+        "role": "bot",
+        "message": "🔍 **Search Tip:** Use the Compare Tool to see exactly where you align and differ with potential matches. Focus on the top conflicts — those are your deal-breakers.",
+        "created_at": "2026-03-29T15:56:04.381022"
+      },
+      {
+        "_id": "7ae3a5539ff74de6971a863f7b667e99",
+        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
+        "role": "user",
+        "message": "how do I fin",
+        "created_at": "2026-03-29T15:56:06.562700"
+      },
+      {
+        "_id": "55c85696806840ebbf0e6ec71a4166c1",
+        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
+        "role": "bot",
+        "message": "🏠 **CohabitAI** uses a Weighted Cosine Similarity algorithm to match you with compatible roommates. We analyze 10 key dimensions including sleep schedule, cleanliness, noise tolerance, and personality traits. Each dimension is weighted by importance — cleanliness and sleep schedule matter most!",
+        "created_at": "2026-03-29T15:56:06.614992"
+      },
+      {
+        "_id": "5c374575ef7144afa684783f0bf5bc52",
+        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
+        "role": "user",
+        "message": "How do I find better matches?",
+        "created_at": "2026-03-29T15:56:10.400955"
+      },
+      {
+        "_id": "97bb1d660ce1436b876001333829b91b",
+        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
+        "role": "bot",
+        "message": "🔍 **Search Tip:** Use discover filters to narrow by hard constraints first, then check profile details before shortlisting.",
+        "created_at": "2026-03-29T15:56:10.447597"
+      },
+      {
+        "_id": "ba7ca8bf4b384a21b33aa5aa883bf596",
+        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
+        "role": "user",
+        "message": "clear",
+        "created_at": "2026-03-29T15:56:12.364627"
+      },
+      {
+        "_id": "50301dc4495b4547a87fd50878ed2b35",
+        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
+        "role": "bot",
+        "message": "I'm not sure I understand that. Here's what I can help with:\n\n• **Profile tips** — Ask: 'How can I improve my profile?'\n• **Search advice** — Ask: 'How do I find better matches?'\n• **Compare tool** — Ask: 'How does the compare tool work?'\n• **How it works** — Ask: 'How is compatibility calculated?'\n• **Map search** — Ask: 'How does the map work?'\n• **Budget** — Ask: 'How does budget matching work?'\n• **Conflicts** — Ask: 'How to handle roommate conflicts?'\n",
+        "created_at": "2026-03-29T15:56:12.436359"
+      }
+    ]
   },
   {
     "_id": "909b6f5be210486eaf679444df65a542",
