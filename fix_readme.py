@@ -1,4 +1,5 @@
-# 🏠 CohabitAI: Advanced Machine Learning Roommate & PG Allocation Platform
+with open('README.md', 'w', encoding='utf-8') as f:
+    f.write("""# 🏠 CohabitAI: Advanced Machine Learning Roommate & PG Allocation Platform
 
 ![CohabitAI Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
@@ -172,3 +173,4 @@ If you are a developer looking tracking how a specific query is generated on the
     *   User presses "Compare" between themselves and `Candidate_B`.
     *   `compatibility.compute_feature_differential(userA, userB)` calculates Math Equation 6 (Deltas) returning `[{"feature": "cleanliness", "diff": 3.0, "weighted_diff": 15.0}]`.
     *   `chatbot.py`'s `generate_conflict_prompts()` ingests this structured array, identifies the variables > 1.0, pulling from `CONFLICT_DISCUSSION_TEMPLATES`, generating highly specific LLM chat scenarios sent back to the view layer.
+""")
