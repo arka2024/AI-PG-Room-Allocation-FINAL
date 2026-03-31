@@ -21138,62 +21138,6 @@
     "home_locality": "Thakurpukur",
     "_chat_messages": [
       {
-        "_id": "2c0d018be065401db5424868289931b4",
-        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
-        "role": "user",
-        "message": "doofs=us",
-        "created_at": "2026-03-29T15:55:52.431356"
-      },
-      {
-        "_id": "c9ca933361fa4277804af20e36d918a4",
-        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
-        "role": "bot",
-        "message": "I'm not sure I understand that. Here's what I can help with:\n\n• **Profile tips** — Ask: 'How can I improve my profile?'\n• **Search advice** — Ask: 'How do I find better matches?'\n• **Compare tool** — Ask: 'How does the compare tool work?'\n• **How it works** — Ask: 'How is compatibility calculated?'\n• **Map search** — Ask: 'How does the map work?'\n• **Budget** — Ask: 'How does budget matching work?'\n• **Conflicts** — Ask: 'How to handle roommate conflicts?'\n",
-        "created_at": "2026-03-29T15:55:52.482046"
-      },
-      {
-        "_id": "ff49cc1225304a3f841c63bea7a855ea",
-        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
-        "role": "user",
-        "message": "nogga",
-        "created_at": "2026-03-29T15:55:54.732478"
-      },
-      {
-        "_id": "42bc201d95f54c129fdb434cd3468496",
-        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
-        "role": "bot",
-        "message": "I'm not sure I understand that. Here's what I can help with:\n\n• **Profile tips** — Ask: 'How can I improve my profile?'\n• **Search advice** — Ask: 'How do I find better matches?'\n• **Compare tool** — Ask: 'How does the compare tool work?'\n• **How it works** — Ask: 'How is compatibility calculated?'\n• **Map search** — Ask: 'How does the map work?'\n• **Budget** — Ask: 'How does budget matching work?'\n• **Conflicts** — Ask: 'How to handle roommate conflicts?'\n",
-        "created_at": "2026-03-29T15:55:54.799159"
-      },
-      {
-        "_id": "9766d38923994010a9612255ebd164d7",
-        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
-        "role": "user",
-        "message": "nigga",
-        "created_at": "2026-03-29T15:55:56.072049"
-      },
-      {
-        "_id": "087eacf1c7ce48289493cfc2f4342e69",
-        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
-        "role": "bot",
-        "message": "I'm not sure I understand that. Here's what I can help with:\n\n• **Profile tips** — Ask: 'How can I improve my profile?'\n• **Search advice** — Ask: 'How do I find better matches?'\n• **Compare tool** — Ask: 'How does the compare tool work?'\n• **How it works** — Ask: 'How is compatibility calculated?'\n• **Map search** — Ask: 'How does the map work?'\n• **Budget** — Ask: 'How does budget matching work?'\n• **Conflicts** — Ask: 'How to handle roommate conflicts?'\n",
-        "created_at": "2026-03-29T15:55:56.134288"
-      },
-      {
-        "_id": "2ad00e4d263a4c3d817feca22b2ed148",
-        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
-        "role": "user",
-        "message": "Profile tips",
-        "created_at": "2026-03-29T15:55:59.282568"
-      },
-      {
-        "_id": "dcdcf462d7a04065a57ce81adbec05b6",
-        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
-        "role": "bot",
-        "message": "📝 **Profile Tip:** Be honest about your habits! Stretching the truth on cleanliness or noise tolerance leads to conflicts later. Accurate data = better matches.\n\n✅ Your profile looks complete! Great job — you'll get the most accurate matches.",
-        "created_at": "2026-03-29T15:55:59.332338"
-      },
-      {
         "_id": "bbddf8ccce8b4f178a4d7c15e415dd6a",
         "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
         "role": "user",
@@ -21248,6 +21192,76 @@
         "role": "bot",
         "message": "I'm not sure I understand that. Here's what I can help with:\n\n• **Profile tips** — Ask: 'How can I improve my profile?'\n• **Search advice** — Ask: 'How do I find better matches?'\n• **Compare tool** — Ask: 'How does the compare tool work?'\n• **How it works** — Ask: 'How is compatibility calculated?'\n• **Map search** — Ask: 'How does the map work?'\n• **Budget** — Ask: 'How does budget matching work?'\n• **Conflicts** — Ask: 'How to handle roommate conflicts?'\n",
         "created_at": "2026-03-29T15:56:12.436359"
+      },
+      {
+        "_id": "2019ecf6cb734f3d8fccaa7a8aaae497",
+        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
+        "role": "user",
+        "message": "How do I clear chat",
+        "created_at": "2026-03-30T18:49:55.088208"
+      },
+      {
+        "_id": "0e9bc81c93ac451ba3656bc5a41c34a3",
+        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
+        "role": "bot",
+        "message": "📊 Our compatibility score ranges from 0-100%. Scores above 85% indicate excellent compatibility, 70-85% is good with minor adjustments needed, and below 70% may have significant lifestyle conflicts. Use the Compare Tool to understand the specifics!",
+        "created_at": "2026-03-30T18:49:55.158773"
+      },
+      {
+        "_id": "5903848f08fe466bbff540f76099c7b0",
+        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
+        "role": "user",
+        "message": "please clear cha",
+        "created_at": "2026-03-30T18:49:57.631801"
+      },
+      {
+        "_id": "a3803d5e8e50455e812747f56664002a",
+        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
+        "role": "bot",
+        "message": "I'm not sure I understand that. Here's what I can help with:\n\n• **Profile tips** — Ask: 'How can I improve my profile?'\n• **Search advice** — Ask: 'How do I find better matches?'\n• **Compare tool** — Ask: 'How does the compare tool work?'\n• **How it works** — Ask: 'How is compatibility calculated?'\n• **Map search** — Ask: 'How does the map work?'\n• **Budget** — Ask: 'How does budget matching work?'\n• **Conflicts** — Ask: 'How to handle roommate conflicts?'\n",
+        "created_at": "2026-03-30T18:49:57.713724"
+      },
+      {
+        "_id": "e68171f8d690474cbab5d36ca1dc49ee",
+        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
+        "role": "user",
+        "message": "cha ca cha c",
+        "created_at": "2026-03-30T18:50:00.527825"
+      },
+      {
+        "_id": "8e11c66dc5c64d08944aeebfaf336619",
+        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
+        "role": "bot",
+        "message": "I'm not sure I understand that. Here's what I can help with:\n\n• **Profile tips** — Ask: 'How can I improve my profile?'\n• **Search advice** — Ask: 'How do I find better matches?'\n• **Compare tool** — Ask: 'How does the compare tool work?'\n• **How it works** — Ask: 'How is compatibility calculated?'\n• **Map search** — Ask: 'How does the map work?'\n• **Budget** — Ask: 'How does budget matching work?'\n• **Conflicts** — Ask: 'How to handle roommate conflicts?'\n",
+        "created_at": "2026-03-30T18:50:00.609036"
+      },
+      {
+        "_id": "1b9f11d154e74c35b517ec1b10e1a51b",
+        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
+        "role": "user",
+        "message": "help",
+        "created_at": "2026-03-31T05:49:08.823240"
+      },
+      {
+        "_id": "bb2468d112c443bca6f2d96cd2dbacb3",
+        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
+        "role": "bot",
+        "message": "I'm not sure I understand that. Here's what I can help with:\n\n• **Profile tips** — Ask: 'How can I improve my profile?'\n• **Search advice** — Ask: 'How do I find better matches?'\n• **Compare tool** — Ask: 'How does the compare tool work?'\n• **How it works** — Ask: 'How is compatibility calculated?'\n• **Map search** — Ask: 'How does the map work?'\n• **Budget** — Ask: 'How does budget matching work?'\n• **Conflicts** — Ask: 'How to handle roommate conflicts?'\n",
+        "created_at": "2026-03-31T05:49:08.947588"
+      },
+      {
+        "_id": "d51ffaa93547426bbd6655f55f97da87",
+        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
+        "role": "user",
+        "message": "Profile Tips",
+        "created_at": "2026-03-31T05:49:12.370268"
+      },
+      {
+        "_id": "c95439d03f8e46af89812829ed0df52c",
+        "user_id": "8896bd8fe3254618b1dbe15abfe9dc6f",
+        "role": "bot",
+        "message": "📝 **Profile Tip:** Set realistic budget ranges. A wider range gives you more potential matches. You can always negotiate specifics later.\n\n✅ Your profile looks complete! Great job — you'll get the most accurate matches.",
+        "created_at": "2026-03-31T05:49:12.441301"
       }
     ]
   },

@@ -100,7 +100,17 @@ class MongoChatMessage:
         self.user_id = str(self._doc.get("user_id"))
         self.role = self._doc.get("role", "user")
         self.message = self._doc.get("message", "")
-        self.created_at = self._doc.get("created_at") or datetime.utcnow()
+        
+        ca = self._doc.get("created_at")
+        if isinstance(ca, str):
+            try:
+                self.created_at = datetime.fromisoformat(ca.replace('Z', '+00:00'))
+            except (ValueError, TypeError):
+                self.created_at = datetime.utcnow()
+        elif isinstance(ca, datetime):
+            self.created_at = ca
+        else:
+            self.created_at = datetime.utcnow()
 
 
 # App configuration
