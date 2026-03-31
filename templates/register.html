@@ -86,7 +86,7 @@
                         </div>
 
                         <!-- ═══════════════════════════════════════ -->
-                        <!-- Step 2: Lifestyle Habits               -->
+                        <!-- Step 2: Lifestyle Habits (AI-Generated MCQs) -->
                         <!-- ═══════════════════════════════════════ -->
                         <div class="form-step" id="step-2">
                             <div class="d-flex align-items-center mb-3 gap-2">
@@ -96,55 +96,24 @@
                                     <h5 class="fw-bold mb-0 mt-1">How Do You Live?</h5>
                                 </div>
                             </div>
-                            <p class="text-muted small mb-4">These dimensions carry the <strong>highest weight</strong> in our AI compatibility engine. Be honest for better matches!</p>
-                            <div class="row g-4">
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold">Sleep Schedule <span class="badge bg-danger bg-opacity-25 text-danger ms-1">High Impact</span></label>
-                                    <div class="range-wrapper">
-                                        <input type="range" name="sleep_schedule" class="form-range accent-range" min="1" max="5" value="3" id="sleep_schedule">
-                                        <div class="d-flex justify-content-between"><small class="text-muted">🌅 Early Bird</small><small class="text-muted">🌙 Night Owl</small></div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold">Cleanliness <span class="badge bg-danger bg-opacity-25 text-danger ms-1">High Impact</span></label>
-                                    <div class="range-wrapper">
-                                        <input type="range" name="cleanliness" class="form-range accent-range" min="1" max="5" value="3">
-                                        <div class="d-flex justify-content-between"><small class="text-muted">😌 Relaxed</small><small class="text-muted">✨ Very Tidy</small></div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold">Noise Tolerance <span class="badge bg-danger bg-opacity-25 text-danger ms-1">High Impact</span></label>
-                                    <div class="range-wrapper">
-                                        <input type="range" name="noise_tolerance" class="form-range accent-range" min="1" max="5" value="3">
-                                        <div class="d-flex justify-content-between"><small class="text-muted">🤫 Needs Quiet</small><small class="text-muted">🔊 Noise-Friendly</small></div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold">Cooking Frequency</label>
-                                    <div class="range-wrapper">
-                                        <input type="range" name="cooking_frequency" class="form-range accent-range" min="1" max="5" value="3">
-                                        <div class="d-flex justify-content-between"><small class="text-muted">🍕 Never Cook</small><small class="text-muted">👨‍🍳 Daily Cook</small></div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold">Guest Frequency</label>
-                                    <div class="range-wrapper">
-                                        <input type="range" name="guest_frequency" class="form-range accent-range" min="1" max="5" value="3">
-                                        <div class="d-flex justify-content-between"><small class="text-muted">🚫 No Guests</small><small class="text-muted">🎉 Frequent Guests</small></div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold">Workout Habit</label>
-                                    <div class="range-wrapper">
-                                        <input type="range" name="workout_habit" class="form-range accent-range" min="1" max="5" value="3">
-                                        <div class="d-flex justify-content-between"><small class="text-muted">🛋️ Sedentary</small><small class="text-muted">🏋️ Daily Gym</small></div>
-                                    </div>
-                                </div>
+                            <p class="text-muted small mb-4">These dimensions carry the <strong>highest weight</strong> in our AI compatibility engine. AI-generated questions help us understand you better! <small class="d-block mt-1">⏳ Loading questions...</small></p>
+                            
+                            <!-- Hidden fields for computed feature scores -->
+                            <input type="hidden" name="sleep_schedule" id="feature-value-sleep_schedule" value="3">
+                            <input type="hidden" name="cleanliness" id="feature-value-cleanliness" value="3">
+                            <input type="hidden" name="noise_tolerance" id="feature-value-noise_tolerance" value="3">
+                            <input type="hidden" name="cooking_frequency" id="feature-value-cooking_frequency" value="3">
+                            <input type="hidden" name="guest_frequency" id="feature-value-guest_frequency" value="3">
+                            <input type="hidden" name="workout_habit" id="feature-value-workout_habit" value="3">
+                            
+                            <!-- Dynamic questionnaire container -->
+                            <div id="lifestyleQuestionnaire" class="row g-4">
+                                <span class="text-muted text-center w-100"><i class="bi bi-hourglass-split"></i> Loading AI questions...</span>
                             </div>
                         </div>
 
                         <!-- ═══════════════════════════════════════ -->
-                        <!-- Step 3: Personality Traits              -->
+                        <!-- Step 3: Personality Traits (AI-Generated MCQs) -->
                         <!-- ═══════════════════════════════════════ -->
                         <div class="form-step" id="step-3">
                             <div class="d-flex align-items-center mb-3 gap-2">
@@ -154,36 +123,17 @@
                                     <h5 class="fw-bold mb-0 mt-1">What Makes You, You?</h5>
                                 </div>
                             </div>
-                            <p class="text-muted small mb-4">Personality alignment predicts long-term co-living harmony.</p>
-                            <div class="row g-4">
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold">Introversion / Extroversion <span class="badge bg-warning bg-opacity-25 text-warning ms-1">Medium Impact</span></label>
-                                    <div class="range-wrapper">
-                                        <input type="range" name="introversion_extroversion" class="form-range accent-range" min="1" max="5" value="3">
-                                        <div class="d-flex justify-content-between"><small class="text-muted">🧘 Introvert</small><small class="text-muted">🎤 Extrovert</small></div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold">Communication Style</label>
-                                    <div class="range-wrapper">
-                                        <input type="range" name="communication_style" class="form-range accent-range" min="1" max="5" value="3">
-                                        <div class="d-flex justify-content-between"><small class="text-muted">🤐 Reserved</small><small class="text-muted">💬 Very Open</small></div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold">Conflict Resolution</label>
-                                    <div class="range-wrapper">
-                                        <input type="range" name="conflict_resolution" class="form-range accent-range" min="1" max="5" value="3">
-                                        <div class="d-flex justify-content-between"><small class="text-muted">😶 Avoidant</small><small class="text-muted">🗣️ Direct</small></div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold">Social Battery <span class="badge bg-warning bg-opacity-25 text-warning ms-1">Medium Impact</span></label>
-                                    <div class="range-wrapper">
-                                        <input type="range" name="social_battery" class="form-range accent-range" min="1" max="5" value="3">
-                                        <div class="d-flex justify-content-between"><small class="text-muted">🔋 Needs Alone Time</small><small class="text-muted">⚡ Always Social</small></div>
-                                    </div>
-                                </div>
+                            <p class="text-muted small mb-4">Personality alignment predicts long-term co-living harmony. <small class="d-block mt-1">⏳ Loading questions...</small></p>
+                            
+                            <!-- Hidden fields for computed feature scores -->
+                            <input type="hidden" name="introversion_extroversion" id="feature-value-introversion_extroversion" value="3">
+                            <input type="hidden" name="communication_style" id="feature-value-communication_style" value="3">
+                            <input type="hidden" name="conflict_resolution" id="feature-value-conflict_resolution" value="3">
+                            <input type="hidden" name="social_battery" id="feature-value-social_battery" value="3">
+                            
+                            <!-- Dynamic questionnaire container -->
+                            <div id="personalityQuestionnaire" class="row g-4">
+                                <span class="text-muted text-center w-100"><i class="bi bi-hourglass-split"></i> Loading AI questions...</span>
                             </div>
                         </div>
 
@@ -357,7 +307,186 @@
 let currentStep = 1;
 const totalSteps = 5;
 
+// ============================================
+// Questionnaire data from API
+// ============================================
+let questionnaireData = null;
+
+// Define which features belong to which step
+const stepFeatures = {
+    2: ['sleep_schedule', 'cleanliness', 'noise_tolerance', 'cooking_frequency', 'guest_frequency', 'workout_habit'],
+    3: ['introversion_extroversion', 'communication_style', 'conflict_resolution', 'social_battery']
+};
+
+// ============================================
+// Load questionnaire from API
+// ============================================
+async function loadQuestionnaire() {
+    try {
+        const response = await fetch('/api/register-questionnaire');
+        if (!response.ok) throw new Error('Failed to load questionnaire');
+        questionnaireData = await response.json();
+        console.log('✓ Questionnaire loaded:', questionnaireData);
+        
+        // Render Step 2 and 3 questionnaires
+        renderQuestionnaire(2);
+        renderQuestionnaire(3);
+    } catch (error) {
+        console.error('✗ Error loading questionnaire:', error);
+        document.getElementById('lifestyleQuestionnaire').innerHTML = `<div class="alert alert-warning w-100">Failed to load questions. Using defaults.</div>`;
+        document.getElementById('personalityQuestionnaire').innerHTML = `<div class="alert alert-warning w-100">Failed to load questions. Using defaults.</div>`;
+    }
+}
+
+// ============================================
+// Render MCQ questions for a step
+// ============================================
+function renderQuestionnaire(step) {
+    if (!questionnaireData) return;
+    
+    const containerId = step === 2 ? 'lifestyleQuestionnaire' : 'personalityQuestionnaire';
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    
+    const featuresList = stepFeatures[step];
+    
+    featuresList.forEach(featureKey => {
+        const featureData = questionnaireData.segments.find(s => s.key === featureKey);
+        if (!featureData) return;
+        
+        const questions = questionnaireData.questions[featureKey] || [];
+        const optionsMap = questionnaireData.mcq_options || {
+            1: 'Strongly Disagree',
+            2: 'Disagree',
+            3: 'Neutral',
+            4: 'Agree',
+            5: 'Strongly Agree'
+        };
+        const options = Object.entries(optionsMap).map(([score, text]) => ({
+            score: Number(score),
+            text: text,
+        }));
+        
+        const featureDiv = document.createElement('div');
+        featureDiv.className = 'col-12';
+        featureDiv.innerHTML = `
+            <div class="glass-card p-3 ps-4" style="border-left: 3px solid var(--accent); border-radius: 8px; margin-bottom: 1.5rem;">
+                <div class="mb-3">
+                    <h6 class="fw-bold mb-1 text-accent">${featureData.label}</h6>
+                    <p class="text-muted small mb-0">Answer all 3 MCQs to set your profile score.</p>
+                </div>
+                <div class="feature-questions-group" id="feature-questions-${featureKey}"></div>
+            </div>
+        `;
+        container.appendChild(featureDiv);
+        
+        const questionsContainer = document.getElementById(`feature-questions-${featureKey}`);
+        
+        questions.forEach((q, qIdx) => {
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'mb-3';
+            questionDiv.innerHTML = `
+                <label class="fw-semibold text-muted small mb-2 d-block">Q${qIdx + 1}: ${q}</label>
+                <div class="question-options-group" data-feature="${featureKey}" data-question-idx="${qIdx}">
+                    ${options.map((opt, oIdx) => `
+                        <div class="form-check mb-2">
+                            <input 
+                                class="form-check-input mcq-option" 
+                                type="radio" 
+                                name="q-${featureKey}-${qIdx}" 
+                                id="q-${featureKey}-${qIdx}-${oIdx}"
+                                value="${opt.score}"
+                                data-feature="${featureKey}"
+                                data-question-idx="${qIdx}"
+                            >
+                            <label class="form-check-label ps-2" for="q-${featureKey}-${qIdx}-${oIdx}">
+                                ${opt.text}
+                            </label>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            questionsContainer.appendChild(questionDiv);
+        });
+    });
+    
+    // Attach event listeners for radio changes
+    attachMCQListeners();
+}
+
+// ============================================
+// Attach event listeners to MCQ options
+// ============================================
+function attachMCQListeners() {
+    document.querySelectorAll('.mcq-option').forEach(option => {
+        option.addEventListener('change', () => {
+            const featureKey = option.dataset.feature;
+            averageFeatureScore(featureKey);
+        });
+    });
+}
+
+// ============================================
+// Calculate average score for a feature
+// ============================================
+function averageFeatureScore(featureKey) {
+    const checkedOptions = document.querySelectorAll(
+        `.mcq-option[data-feature="${featureKey}"]:checked`
+    );
+    
+    const hidden = document.getElementById(`feature-value-${featureKey}`);
+    if (!hidden) return;
+
+    if (checkedOptions.length === 0) {
+        hidden.value = '3';
+        return;
+    }
+    
+    let totalScore = 0;
+    checkedOptions.forEach(option => {
+        totalScore += parseInt(option.value, 10);
+    });
+    
+    const avgScore = Math.round(totalScore / checkedOptions.length);
+    hidden.value = String(avgScore);
+    console.log(`Updated ${featureKey}: ${avgScore} (from ${checkedOptions.length} questions)`);
+}
+
+// ============================================
+// Validate all questions answered for a step
+// ============================================
+function ensureQuestionnaireStepAnswered(step) {
+    if (!questionnaireData || !stepFeatures[step]) return true;
+    
+    const featuresList = stepFeatures[step];
+    const questionnaireData_local = questionnaireData;
+    
+    for (const featureKey of featuresList) {
+        const questions = questionnaireData_local.questions[featureKey] || [];
+        
+        for (let qIdx = 0; qIdx < questions.length; qIdx++) {
+            const isChecked = document.querySelector(
+                `input[name="q-${featureKey}-${qIdx}"]:checked`
+            );
+            
+            if (!isChecked) {
+                alert(`Please answer all questions for ${featureKey.replace(/_/g, ' ')}.`);
+                return false;
+            }
+        }
+    }
+    
+    return true;
+}
+
+// ============================================
+// Navigation with validation
+// ============================================
 function changeStep(direction) {
+    // Validate questionnaire before leaving
+    if (currentStep === 2 && direction > 0 && !ensureQuestionnaireStepAnswered(2)) return;
+    if (currentStep === 3 && direction > 0 && !ensureQuestionnaireStepAnswered(3)) return;
+    
     const steps = document.querySelectorAll('.form-step');
     const indicators = document.querySelectorAll('.step-indicator');
 
@@ -381,9 +510,11 @@ function changeStep(direction) {
 
 // Location Map (lazy-init when Step 5 is reached)
 let mapInitialized = false;
-const originalChangeStep = changeStep;
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Load questionnaire on page load
+    loadQuestionnaire();
+    
     // Photo upload click handler
     const dropzone = document.getElementById('photoDropzone');
     const photoInput = document.getElementById('photoInput');

@@ -1,0 +1,112 @@
+{
+  "sleep_schedule": {
+    "label": "Sleep Schedule",
+    "source": "local:default",
+    "questions": [
+      "Do you naturally wake up early in the morning?",
+      "I prefer going to bed before 10 PM most nights.",
+      "My productivity peaks in the early morning hours.",
+      "I often stay up past midnight by habit.",
+      "I feel energized after 8 hours of sleep."
+    ]
+  },
+  "cleanliness": {
+    "label": "Cleanliness",
+    "source": "local:default",
+    "questions": [
+      "I clean shared spaces immediately after using them.",
+      "Dirty dishes in the sink bother me significantly.",
+      "I maintain a strict weekly cleaning schedule.",
+      "I prefer minimalist, clutter-free living spaces.",
+      "Dust and dirt accumulation bothers me quickly."
+    ]
+  },
+  "noise_tolerance": {
+    "label": "Noise Tolerance",
+    "source": "local:default",
+    "questions": [
+      "I need complete silence to focus or sleep.",
+      "Movie nights with roommates are my ideal evening.",
+      "Background noise while working is extremely distracting.",
+      "I enjoy spontaneous music or people talking around me.",
+      "Late-night conversations or TV don't bother me."
+    ]
+  },
+  "cooking_frequency": {
+    "label": "Cooking Frequency",
+    "source": "local:default",
+    "questions": [
+      "I cook full meals at home at least 4 times per week.",
+      "Cooking relaxes me and I enjoy experimenting with recipes.",
+      "I prefer ordering takeout rather than cooking.",
+      "I meal prep for the entire week on Sundays.",
+      "The kitchen is where I spend most time at home."
+    ]
+  },
+  "guest_frequency": {
+    "label": "Guest Frequency",
+    "source": "local:default",
+    "questions": [
+      "I love having friends visit my home regularly.",
+      "Hosting overnight guests energizes me.",
+      "I prefer keeping my home space private most of the time.",
+      "Surprise visitors make me uncomfortable.",
+      "I organize frequent gatherings and parties at home."
+    ]
+  },
+  "workout_habit": {
+    "label": "Workout Habit",
+    "source": "local:default",
+    "questions": [
+      "I work out at least 4 times per week.",
+      "Morning gym sessions are part of my daily routine.",
+      "I'm very disciplined about maintaining fitness.",
+      "Physical activity is not a priority for me.",
+      "I maintain an active lifestyle year-round."
+    ]
+  },
+  "introversion_extroversion": {
+    "label": "Introversion / Extroversion",
+    "source": "local:default",
+    "questions": [
+      "I recharge after a long day by spending time alone.",
+      "I love meeting new people and making connections.",
+      "Social gatherings energize me significantly.",
+      "Large parties make me anxious or overwhelmed.",
+      "I'm comfortable being the center of attention."
+    ]
+  },
+  "communication_style": {
+    "label": "Communication Style",
+    "source": "local:default",
+    "questions": [
+      "I directly address issues when they arise.",
+      "I prefer blunt, honest feedback over hints.",
+      "I communicate my boundaries clearly and openly.",
+      "I tend to avoid difficult conversations.",
+      "I express my feelings openly with roommates."
+    ]
+  },
+  "conflict_resolution": {
+    "label": "Conflict Resolution",
+    "source": "local:default",
+    "questions": [
+      "I address conflicts immediately when they occur.",
+      "I need time to cool off before discussing disagreements.",
+      "I'm willing to compromise during conflicts.",
+      "I revisit unresolved tensions regularly.",
+      "I prefer a structured, rule-based approach to resolving disputes."
+    ]
+  },
+  "social_battery": {
+    "label": "Social Battery",
+    "source": "local:default",
+    "questions": [
+      "I need significant alone time each day to recharge.",
+      "I enjoy spontaneous social interactions at home.",
+      "Frequent roommate interaction would drain my energy.",
+      "I love sharing meals and conversations daily.",
+      "Too much social time makes me irritable."
+    ]
+  }
+}
